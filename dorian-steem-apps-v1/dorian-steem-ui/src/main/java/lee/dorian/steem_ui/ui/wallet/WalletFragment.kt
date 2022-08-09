@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentWalletBinding
 
 class WalletFragment : Fragment() {
@@ -22,21 +24,17 @@ class WalletFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val notificationsViewModel =
+        val walletViewModel =
             ViewModelProvider(this).get(WalletViewModel::class.java)
 
-        _binding = FragmentWalletBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
-        val textView: TextView = binding.textNotifications
-        notificationsViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
-        return root
+        _binding = DataBindingUtil.inflate(this.layoutInflater, R.layout.fragment_wallet, null, false)
+        binding.viewModel = walletViewModel
+        return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 }
