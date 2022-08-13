@@ -10,31 +10,22 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentWalletBinding
+import lee.dorian.steem_ui.ui.base.BaseFragment
 
-class WalletFragment : Fragment() {
+class WalletFragment : BaseFragment<FragmentWalletBinding, WalletViewModel>(R.layout.fragment_wallet) {
 
-    private var _binding: FragmentWalletBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
+    override val viewModel: WalletViewModel by lazy {
+        ViewModelProvider(this).get(WalletViewModel::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        val walletViewModel =
-            ViewModelProvider(this).get(WalletViewModel::class.java)
-
-        _binding = DataBindingUtil.inflate(this.layoutInflater, R.layout.fragment_wallet, null, false)
-        binding.viewModel = walletViewModel
-        return binding.root
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    ): View? {
+        return super.onCreateView(inflater, container, savedInstanceState).apply {
+            binding.viewModel = viewModel
+        }
     }
 
 }

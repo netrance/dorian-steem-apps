@@ -4,35 +4,25 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentTagsBinding
+import lee.dorian.steem_ui.ui.base.BaseFragment
 
-class TagsFragment : Fragment() {
+class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.fragment_tags) {
 
-    private var _binding: FragmentTagsBinding? = null
-
-    // This property is only valid between onCreateView and onDestroyView.
-    private val binding get() = _binding!!
+    override val viewModel by lazy {
+        ViewModelProvider(this).get(TagsViewModel::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        val tagsViewModel =
-            ViewModelProvider(this).get(TagsViewModel::class.java)
-
-        _binding = DataBindingUtil.inflate(this.layoutInflater, R.layout.fragment_tags, null, false)
-        binding.viewModel = tagsViewModel
-        return binding.root
+    ): View? {
+        return super.onCreateView(inflater, container, savedInstanceState).apply {
+            binding.viewModel = viewModel
+        }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }
