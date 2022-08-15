@@ -14,6 +14,8 @@
         <entry key="dorian-steem-ui/src/main/res/layout/fragment_profile.xml" value="0.1" />
         <entry key="dorian-steem-ui/src/main/res/layout/fragment_tags.xml" value="0.11367753623188406" />
         <entry key="dorian-steem-ui/src/main/res/layout/fragment_wallet.xml" value="0.11367753623188406" />
+        <entry key="dorian-steem-ui/src/main/res/layout/layout_account_lookup.xml" value="0.25" />
+        <entry key="dorian-steem-ui/src/main/res/layout/layout_tag_lookup.xml" value="0.25" />
         <entry key="dorian-steem-ui/src/main/res/menu/bottom_nav_menu.xml" value="0.21510416666666668" />
       </map>
     </option>
