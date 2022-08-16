@@ -10,7 +10,7 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout_account_lookup"
+        android:id="@+id/layout_tag_lookup"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:padding="3dp">

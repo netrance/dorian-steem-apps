@@ -1,9 +1,11 @@
 package lee.dorian.steem_ui
 
 import android.os.Bundle
+import android.view.View
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -31,6 +33,28 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+        navController.addOnDestinationChangedListener(navDestinationChangedListener)
+    }
+
+    private val navDestinationChangedListener = NavController.OnDestinationChangedListener { _, dest, _ ->
+        supportActionBar?.setTitle(viewModel.readTitle(dest.id))
+        setViewVisibilities(dest.id)
+    }
+
+    fun setViewVisibilities(destID: Int) {
+        val layoutTagLookup = binding.includeTagLookup.layoutTagLookup
+        val layoutAccountLookup = binding.includeAccountLookup.layoutAccountLookup
+
+        when (destID) {
+            R.id.navigation_tags -> {
+                layoutTagLookup.visibility = View.VISIBLE
+                layoutAccountLookup.visibility = View.GONE
+            }
+            else ->  {
+                layoutTagLookup.visibility = View.GONE
+                layoutAccountLookup.visibility = View.VISIBLE
+            }
+        }
     }
 
 }
