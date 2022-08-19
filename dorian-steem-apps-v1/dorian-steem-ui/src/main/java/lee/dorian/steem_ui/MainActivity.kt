@@ -34,6 +34,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         navController.addOnDestinationChangedListener(navDestinationChangedListener)
+
+        setUpListeners()
     }
 
     private val navDestinationChangedListener = NavController.OnDestinationChangedListener { _, dest, _ ->
@@ -54,6 +56,17 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
                 layoutTagLookup.visibility = View.GONE
                 layoutAccountLookup.visibility = View.VISIBLE
             }
+        }
+    }
+
+    private fun setUpListeners() {
+        binding.includeTagLookup.buttonTagSearch.setOnClickListener(buttonTagSearchClickListener)
+    }
+
+    private val buttonTagSearchClickListener = View.OnClickListener {
+        val tag = binding.includeTagLookup.editSteemitTag.text.toString()
+        if (tag.length > 0) {
+            viewModel.currentTag.value = binding.includeTagLookup.editSteemitTag.text.toString()
         }
     }
 

@@ -8,6 +8,9 @@
         <variable
             name="viewModel"
             type="lee.dorian.steem_ui.ui.tags.TagsViewModel" />
+        <variable
+            name="activityViewModel"
+            type="lee.dorian.steem_ui.MainViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
