@@ -60,13 +60,23 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
     }
 
     private fun setUpListeners() {
-        binding.includeTagLookup.buttonTagSearch.setOnClickListener(buttonTagSearchClickListener)
+        binding.run {
+            includeTagLookup.buttonTagSearch.setOnClickListener(buttonTagSearchClickListener)
+            includeAccountLookup.buttonAccountSearch.setOnClickListener(buttonAccountSearchClickListener)
+        }
     }
 
     private val buttonTagSearchClickListener = View.OnClickListener {
         val tag = binding.includeTagLookup.editSteemitTag.text.toString()
         if (tag.length > 0) {
             viewModel.currentTag.value = binding.includeTagLookup.editSteemitTag.text.toString()
+        }
+    }
+
+    private val buttonAccountSearchClickListener = View.OnClickListener {
+        val account = binding.includeAccountLookup.editSteemitAccount.text.toString()
+        if (account.length > 2) {
+            viewModel.currentAccount.value = binding.includeAccountLookup.editSteemitAccount.text.toString()
         }
     }
 

@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 class MainViewModel(val app: Application) : AndroidViewModel(app) {
 
     val currentTag = MutableLiveData("")
+    val currentAccount = MutableLiveData("")
 
     fun readTitle(destID: Int): String {
         val appName = app.getString(R.string.app_name)

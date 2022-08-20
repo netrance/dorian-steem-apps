@@ -43,4 +43,5 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
             viewModel.text.value = "Current tag is #${it}."
         }
     }
+
 }
