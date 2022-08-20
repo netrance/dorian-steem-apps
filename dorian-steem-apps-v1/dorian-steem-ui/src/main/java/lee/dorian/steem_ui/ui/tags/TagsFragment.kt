@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
@@ -33,11 +34,13 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        activityViewModel.currentTag.observe(requireActivity()) {
-            if (it.length > 0) {
-                viewModel.text.value = "Current tag is #${it}."
-            }
-        }
+        activityViewModel.currentTag.removeObservers(viewLifecycleOwner)
+        activityViewModel.currentTag.observe(viewLifecycleOwner, currentTagObserver)
     }
 
+    private val currentTagObserver = Observer<String> {
+        if (it.length > 0) {
+            viewModel.text.value = "Current tag is #${it}."
+        }
+    }
 }
