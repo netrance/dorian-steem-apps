@@ -4,10 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentWalletBinding
 import lee.dorian.steem_ui.ui.base.BaseFragment
@@ -18,6 +17,10 @@ class WalletFragment : BaseFragment<FragmentWalletBinding, WalletViewModel>(R.la
         ViewModelProvider(this).get(WalletViewModel::class.java)
     }
 
+    val activityViewModel by lazy {
+        ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -25,6 +28,19 @@ class WalletFragment : BaseFragment<FragmentWalletBinding, WalletViewModel>(R.la
     ): View? {
         return super.onCreateView(inflater, container, savedInstanceState).apply {
             binding.viewModel = viewModel
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        activityViewModel.currentAccount.removeObservers(viewLifecycleOwner)
+        activityViewModel.currentAccount.observe(viewLifecycleOwner, currentAccountObserver)
+    }
+
+    private val currentAccountObserver = Observer<String> {
+        if (it.length > 2) {
+            viewModel.text.value = "Current account is @${it}."
         }
     }
 
