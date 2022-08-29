@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="lee.dorian.steem_ui.ui.wallet.WalletViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/wallet_balance_bg"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/text_staking"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Staking"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/text_sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="STEEM POWER:"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintLeft_toLeftOf="@id/text_staking"
+            app:layout_constraintTop_toBottomOf="@id/text_staking" />
+
+        <TextView
+            android:id="@+id/text_sp_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 SP"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/text_sp" />
+
+        <TextView
+            android:id="@+id/text_effective_sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - Effective SP:"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintLeft_toLeftOf="@id/text_staking"
+            app:layout_constraintTop_toBottomOf="@id/text_sp" />
+
+        <TextView
+            android:id="@+id/text_effetive_sp_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 SP"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/text_effective_sp" />
+
+        <TextView
+            android:id="@+id/text_delegating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - Delegating:"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintLeft_toLeftOf="@id/text_staking"
+            app:layout_constraintTop_toBottomOf="@id/text_effective_sp" />
+
+        <TextView
+            android:id="@+id/text_delegating_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 SP"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/text_delegating" />
+
+        <TextView
+            android:id="@+id/text_delegated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - Delegated:"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintLeft_toLeftOf="@id/text_staking"
+            app:layout_constraintTop_toBottomOf="@id/text_delegating" />
+
+        <TextView
+            android:id="@+id/text_delegated_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 SP"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/text_delegated" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
