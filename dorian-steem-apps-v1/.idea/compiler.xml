@@ -2,6 +2,9 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="1.7">
+      <module name="Dorian_Steem_Apps.dorian-steem-data" target="1.8" />
+      <module name="Dorian_Steem_Apps.dorian-steem-data.main" target="1.8" />
+      <module name="Dorian_Steem_Apps.dorian-steem-data.test" target="1.8" />
       <module name="Dorian_Steem_Apps.dorian-steem-ui" target="11" />
     </bytecodeTargetLevel>
   </component>
