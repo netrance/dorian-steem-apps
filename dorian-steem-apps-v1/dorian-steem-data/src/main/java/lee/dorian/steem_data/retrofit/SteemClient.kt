@@ -14,6 +14,6 @@ object SteemClient {
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .build()
 
-    // val apiService = retrofit.create(SteemService::class.java)
+    val apiService = retrofit.create(SteemService::class.java)
 
 }
