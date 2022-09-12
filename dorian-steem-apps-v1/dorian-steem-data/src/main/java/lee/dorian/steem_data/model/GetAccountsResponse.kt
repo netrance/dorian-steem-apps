@@ -1,5 +1,8 @@
 package lee.dorian.steem_data.model
 
+import lee.dorian.steem_domain.SteemitWalletDTO
+import java.lang.NumberFormatException
+
 data class GetAccountsResponseEntity(
     val jsonrpc: String,
     val result: Array<SteemitAccountEntity>,
@@ -72,7 +75,31 @@ data class SteemitAccountEntity(
     val witness_votes: Array<Any>,
     val tags_usage: Array<Any>,
     val guest_bloggers: Array<Any>
-)
+) {
+
+    fun toSteemitWalletDTO(): SteemitWalletDTO {
+        val spToBeWithdrawn = try {
+            "${to_withdraw.toDouble() / 1000000.0} VESTS"
+        }
+        catch (e: NumberFormatException) {
+            "0 VESTS"
+        }
+
+        return SteemitWalletDTO(
+            name,
+            balance,
+            sbd_balance,
+            savings_balance,
+            savings_sbd_balance,
+            vesting_shares,
+            delegated_vesting_shares,
+            received_vesting_shares,
+            vesting_withdraw_rate,
+            spToBeWithdrawn
+        )
+    }
+
+}
 
 data class SteemitKeyEntity(
     val weight_threshold: Int,
