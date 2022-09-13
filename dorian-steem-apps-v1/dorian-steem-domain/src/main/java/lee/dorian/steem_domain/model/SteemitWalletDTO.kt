@@ -1,4 +1,4 @@
-package lee.dorian.steem_domain
+package lee.dorian.steem_domain.model
 
 data class SteemitWalletDTO(
     val account: String,

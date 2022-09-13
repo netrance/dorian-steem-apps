@@ -1,6 +1,6 @@
 package lee.dorian.steem_data.model
 
-import lee.dorian.steem_domain.SteemitWalletDTO
+import lee.dorian.steem_domain.model.SteemitWalletDTO
 import java.lang.NumberFormatException
 
 data class GetAccountsResponseEntity(
