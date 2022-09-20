@@ -1,6 +1,6 @@
 package lee.dorian.steem_domain.model
 
-data class SteemitWalletDTO(
+data class SteemitWallet(
     val account: String,
     val steemBalance: String,
     val sbdBalance: String,

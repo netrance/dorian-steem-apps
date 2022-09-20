@@ -1,20 +1,20 @@
 package lee.dorian.steem_data.model
 
-import lee.dorian.steem_domain.model.SteemitWalletDTO
+import lee.dorian.steem_domain.model.SteemitWallet
 import java.lang.NumberFormatException
 
-data class GetAccountsResponseEntity(
+data class GetAccountsResponseDTO(
     val jsonrpc: String,
-    val result: Array<SteemitAccountEntity>,
+    val result: Array<SteemitAccountDTO>,
     val id: Int
 )
 
-data class SteemitAccountEntity(
+data class SteemitAccountDTO(
     val id: String,
     val name: String,
-    val owner: SteemitKeyEntity,
-    val active: SteemitKeyEntity,
-    val posting: SteemitKeyEntity,
+    val owner: SteemitKeyDTO,
+    val active: SteemitKeyDTO,
+    val posting: SteemitKeyDTO,
     val memo_key: String,
     val json_metadata: String,
     val posting_json_metadata: String,
@@ -30,8 +30,8 @@ data class SteemitAccountEntity(
     val lifetime_vote_count: Int,
     val post_count: Int,
     val can_vote: Boolean,
-    val voting_manabar: ManabarEntity,
-    val downvote_manabar: ManabarEntity,
+    val voting_manabar: ManabarDTO,
+    val downvote_manabar: ManabarDTO,
     val voting_power: Int,
     val balance: String,
     val savings_balance: String,
@@ -77,7 +77,7 @@ data class SteemitAccountEntity(
     val guest_bloggers: Array<Any>
 ) {
 
-    fun toSteemitWalletDTO(): SteemitWalletDTO {
+    fun toSteemitWallet(): SteemitWallet {
         val spToBeWithdrawn = try {
             "${to_withdraw.toDouble() / 1000000.0} VESTS"
         }
@@ -85,7 +85,7 @@ data class SteemitAccountEntity(
             "0 VESTS"
         }
 
-        return SteemitWalletDTO(
+        return SteemitWallet(
             name,
             balance,
             sbd_balance,
@@ -101,13 +101,13 @@ data class SteemitAccountEntity(
 
 }
 
-data class SteemitKeyEntity(
+data class SteemitKeyDTO(
     val weight_threshold: Int,
     val account_auths: Array<Any>,
     val key_auths: Array<Array<Any>>
 )
 
-data class ManabarEntity(
+data class ManabarDTO(
     val current_mana: String,
     val last_update_time: Long
 )
