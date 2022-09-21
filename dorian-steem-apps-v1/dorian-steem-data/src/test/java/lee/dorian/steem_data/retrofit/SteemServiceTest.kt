@@ -20,7 +20,7 @@ class SteemServiceTest {
             assertEquals("2.0", responseEntity.jsonrpc ?: "")
             assertNotNull("", responseEntity.result)
             assertEquals(1, responseEntity.result?.size ?: 0)
-            assertEquals(TestData.singleAccount, responseEntity.result[0].name)
+            assertEquals(TestData.singleAccount, responseEntity.result?.get(0)?.name ?: "")
         }
     }
 

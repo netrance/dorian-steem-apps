@@ -14,9 +14,9 @@ class SteemRepositoryImpl: SteemRepository {
             id = 1
         )
 
-        return SteemClient.apiService.getAccounts(getAccountParams).map { responseEntity ->
-            when (responseEntity.result.size) {
-                1 -> arrayOf(responseEntity.result[0].toSteemitWallet())
+        return SteemClient.apiService.getAccounts(getAccountParams).map { responseDTO ->
+            when (responseDTO.result?.size) {
+                1 -> arrayOf(responseDTO.result[0].toSteemitWallet())
                 else -> arrayOf()
             }
         }
