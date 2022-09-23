@@ -1,6 +1,6 @@
 package lee.dorian.steem_data.retrofit
 
-import io.reactivex.Flowable
+import io.reactivex.Single
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetAccountsResponseDTO
 import retrofit2.http.Body
@@ -12,6 +12,6 @@ interface SteemService {
     @POST(".")
     fun getAccounts(
         @Body followingParams: GetAccountsParamsDTO
-    ): Flowable<GetAccountsResponseDTO>
+    ): Single<GetAccountsResponseDTO>
 
 }
