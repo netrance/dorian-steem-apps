@@ -28,6 +28,7 @@ class WalletFragment : BaseFragment<FragmentWalletBinding, WalletViewModel>(R.la
     ): View? {
         return super.onCreateView(inflater, container, savedInstanceState).apply {
             binding.viewModel = viewModel
+            binding.activityViewModel = activityViewModel
         }
     }
 
@@ -40,7 +41,7 @@ class WalletFragment : BaseFragment<FragmentWalletBinding, WalletViewModel>(R.la
 
     private val currentAccountObserver = Observer<String> {
         if (it.length > 2) {
-            viewModel.text.value = "Current account is @${it}."
+            viewModel.readSteemitWallet(it).subscribe()
         }
     }
 

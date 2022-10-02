@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <variable
@@ -40,11 +41,12 @@
             android:id="@+id/text_steem_balance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0 STEEM"
+            android:text="@{viewModel.steemitWallet.steemBalance}"
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@id/text_steem" />
+            app:layout_constraintTop_toTopOf="@id/text_steem"
+            tools:text="0.000 STEEM" />
 
         <TextView
             android:id="@+id/text_sbd"
@@ -57,14 +59,15 @@
             app:layout_constraintTop_toBottomOf="@id/text_steem" />
 
         <TextView
-            android:id="@+id/text_sbd_banalce"
+            android:id="@+id/text_sbd_balance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0 SBD"
+            android:text="@{viewModel.steemitWallet.sbdBalance}"
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@id/text_sbd" />
+            app:layout_constraintTop_toTopOf="@id/text_sbd"
+            tools:text="0.000 SBD" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
