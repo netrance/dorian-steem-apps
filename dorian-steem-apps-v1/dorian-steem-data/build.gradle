@@ -20,7 +20,7 @@ dependencies {
     // rx
     implementation 'io.reactivex.rxjava2:rxjava:2.2.20'
 
-    //
+    // For unit test
     testImplementation 'junit:junit:4.13.2'
     //testImplementation 'android.arch.core:core-testing:1.1.1'
 }
