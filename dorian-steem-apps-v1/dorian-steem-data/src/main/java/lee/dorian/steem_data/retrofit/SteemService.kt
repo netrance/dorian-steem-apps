@@ -3,6 +3,8 @@ package lee.dorian.steem_data.retrofit
 import io.reactivex.Single
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetAccountsResponseDTO
+import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
+import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesResponseDTO
 import retrofit2.http.Body
 import retrofit2.http.POST
 
@@ -13,5 +15,10 @@ interface SteemService {
     fun getAccounts(
         @Body followingParams: GetAccountsParamsDTO
     ): Single<GetAccountsResponseDTO>
+
+    @POST(".")
+    fun getDynamicGlobalProperties(
+        @Body params: GetDynamicGlobalPropertiesParamsDTO
+    ): Single<GetDynamicGlobalPropertiesResponseDTO>
 
 }

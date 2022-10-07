@@ -2,6 +2,7 @@ package lee.dorian.steem_data.retrofit
 
 import lee.dorian.steem_data.constants.TestData
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
+import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -68,10 +69,25 @@ class SteemServiceTest {
             id = 1
         )
 
-        SteemClient.apiService.getAccounts(getAccountParams).subscribe { responseEntity ->
-            assertEquals("2.0", responseEntity.jsonrpc)
-            assertNotNull("", responseEntity.result)
-            assertEquals(0, responseEntity.result?.size)
+        SteemClient.apiService.getAccounts(getAccountParams).subscribe { responseDTO ->
+            assertEquals("2.0", responseDTO.jsonrpc)
+            assertNotNull("", responseDTO.result)
+            assertEquals(0, responseDTO.result?.size)
+        }
+    }
+
+    @Test
+    fun getDynamicGlobalProperties() {
+        val params = GetDynamicGlobalPropertiesParamsDTO(
+            params = arrayOf(),
+            id = 1
+        )
+
+        SteemClient.apiService.getDynamicGlobalProperties(params).subscribe { responseDTO ->
+            assertEquals("2.0", responseDTO.jsonrpc ?: "")
+            assertNotNull(responseDTO.result)
+            assertNotNull(responseDTO.result?.current_witness)
+            assertTrue(responseDTO.result?.current_witness!!.isNotEmpty())
         }
     }
 
