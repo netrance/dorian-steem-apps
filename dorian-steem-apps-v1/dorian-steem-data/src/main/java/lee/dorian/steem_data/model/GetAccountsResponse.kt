@@ -1,6 +1,8 @@
 package lee.dorian.steem_data.model
 
+import lee.dorian.steem_domain.ext.removeSubstring
 import lee.dorian.steem_domain.model.SteemitWallet
+import lee.dorian.steem_domain.util.Converter
 import java.lang.NumberFormatException
 
 data class GetAccountsResponseDTO(
@@ -79,10 +81,26 @@ data class SteemitAccountDTO(
 
     fun toSteemitWallet(): SteemitWallet {
         val spToBeWithdrawn = try {
-            "${to_withdraw?.toDouble() ?: 0} VESTS"
+            "${to_withdraw?.toFloat() ?: 0f} VESTS"
         }
         catch (e: NumberFormatException) {
             "0 VESTS"
+        }
+
+        val effectiveVestingShare = try {
+            val steemPowerVestDouble =
+                vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: Float.NaN
+            val delegatedSteemPowerVestDouble =
+                delegated_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: Float.NaN
+            val receivedSteemPowerVestDouble =
+                received_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: Float.NaN
+            val effectiveSteemPowerVestDouble =
+                steemPowerVestDouble - delegatedSteemPowerVestDouble + receivedSteemPowerVestDouble
+            String.format("%.6f VESTS", effectiveSteemPowerVestDouble)
+        }
+        catch (e: NumberFormatException) {
+            e.printStackTrace()
+            "0.000000 VESTS"
         }
 
         return SteemitWallet(
@@ -92,10 +110,77 @@ data class SteemitAccountDTO(
             savings_balance ?: "0 STEEM",
             savings_sbd_balance ?: "0 SBD",
             vesting_shares ?: "0 VESTS",
+            effectiveVestingShare,
             delegated_vesting_shares ?: "0 VESTS",
             received_vesting_shares ?: "0 VESTS",
             vesting_withdraw_rate ?: "0 VESTS",
             spToBeWithdrawn
+        )
+    }
+
+    fun toSteemitWallet(getDynamicGlobalPropertiesDTO: GetDynamicGlobalPropertiesDTO?): SteemitWallet {
+        if (null == getDynamicGlobalPropertiesDTO) {
+            return toSteemitWallet()
+        }
+
+        val vestingToBeWithdrawn = try {
+            to_withdraw?.toFloat() ?: 0f
+        }
+        catch (e: NumberFormatException) {
+            0f
+        }
+
+        val floatVestingShare = vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatDelegatedVestingShare = delegated_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatReceivedVestingShare = received_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatEffectiveVestingShare = floatVestingShare + floatReceivedVestingShare - floatDelegatedVestingShare
+        val floatVestingWithdrawRate = vesting_withdraw_rate?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatTotalVestingShare = getDynamicGlobalPropertiesDTO.total_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatTotalVestingFundSteem = getDynamicGlobalPropertiesDTO.total_vesting_fund_steem?.removeSubstring(" STEEM")?.toFloat() ?: 0f
+
+        val steemPower = Converter.toSteemPowerFromVest(
+            floatVestingShare,
+            floatTotalVestingShare,
+            floatTotalVestingFundSteem
+        )
+        val effectiveSteemPower = Converter.toSteemPowerFromVest(
+            floatEffectiveVestingShare,
+            floatTotalVestingShare,
+            floatTotalVestingFundSteem
+        )
+        val delegatedSteemPower = Converter.toSteemPowerFromVest(
+            floatDelegatedVestingShare,
+            floatTotalVestingShare,
+            floatTotalVestingFundSteem
+        )
+        val receivedSteemPower = Converter.toSteemPowerFromVest(
+            floatReceivedVestingShare,
+            floatTotalVestingShare,
+            floatTotalVestingFundSteem
+        )
+        val steemPowerWithdrawRate = Converter.toSteemPowerFromVest(
+            floatVestingWithdrawRate,
+            floatTotalVestingShare,
+            floatTotalVestingFundSteem
+        )
+        val steemPowerToBeWithdrawn = Converter.toSteemPowerFromVest(
+            vestingToBeWithdrawn,
+            floatTotalVestingShare,
+            floatTotalVestingFundSteem
+        )
+
+        return SteemitWallet(
+            name ?: "",
+            balance ?: "0 STEEM",
+            sbd_balance ?: "0 SBD",
+            savings_balance ?: "0 STEEM",
+            savings_sbd_balance ?: "0 SBD",
+            "${steemPower} SP",
+            "${effectiveSteemPower} SP",
+            "${delegatedSteemPower} SP",
+            "${receivedSteemPower} SP",
+            "${steemPowerWithdrawRate} SP",
+            "${steemPowerToBeWithdrawn} SP"
         )
     }
 
