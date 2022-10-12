@@ -15,9 +15,10 @@
         <entry key="dorian-steem-ui/src/main/res/layout/fragment_tags.xml" value="0.11367753623188406" />
         <entry key="dorian-steem-ui/src/main/res/layout/fragment_wallet.xml" value="0.11367753623188406" />
         <entry key="dorian-steem-ui/src/main/res/layout/layout_account_lookup.xml" value="0.25" />
+        <entry key="dorian-steem-ui/src/main/res/layout/layout_power_down.xml" value="0.225" />
         <entry key="dorian-steem-ui/src/main/res/layout/layout_steem_balances.xml" value="0.16875" />
         <entry key="dorian-steem-ui/src/main/res/layout/layout_steem_savings.xml" value="0.26766304347826086" />
-        <entry key="dorian-steem-ui/src/main/res/layout/layout_steem_staking.xml" value="0.16875" />
+        <entry key="dorian-steem-ui/src/main/res/layout/layout_steem_staking.xml" value="0.25" />
         <entry key="dorian-steem-ui/src/main/res/layout/layout_tag_lookup.xml" value="0.25" />
         <entry key="dorian-steem-ui/src/main/res/menu/bottom_nav_menu.xml" value="0.21510416666666668" />
       </map>

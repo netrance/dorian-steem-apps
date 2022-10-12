@@ -11,5 +11,6 @@ data class SteemitWallet(
     val delegatedSteemPower: String = "- SP",
     val receivedSteemPower: String = "- SP",
     val spWithdrawRate: String = "- SP",
-    val spToBeWithdrawn: String = "- SP"
+    val totalSPToBeWithdrawn: String = "- SP",
+    val remainingSPToBeWithdrawn: String = "- SP"
 )

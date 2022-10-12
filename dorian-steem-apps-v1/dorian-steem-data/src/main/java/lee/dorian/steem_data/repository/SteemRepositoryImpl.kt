@@ -10,7 +10,7 @@ import lee.dorian.steem_domain.repository.SteemRepository
 class SteemRepositoryImpl: SteemRepository {
 
     override fun readSteemitWallet(account: String): Single<Array<SteemitWallet>> {
-        val getDynamicGlobalPropertiesParams = GetDynamicGlobalPropertiesParamsDTO(params = arrayOf(), id = 1)
+        val getDynamicGlobalPropertiesParams = GetDynamicGlobalPropertiesParamsDTO(id = 1)
         val getAccountParams = GetAccountsParamsDTO(
             params = arrayOf(arrayOf(account)),
             id = 1

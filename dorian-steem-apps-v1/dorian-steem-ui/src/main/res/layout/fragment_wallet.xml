@@ -44,6 +44,15 @@
             app:viewModel="@{viewModel}"
             app:layout_constraintTop_toBottomOf="@id/include_steem_staking" />
 
+        <include
+            android:id="@+id/include_power_down"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            layout="@layout/layout_power_down"
+            app:viewModel="@{viewModel}"
+            app:layout_constraintTop_toBottomOf="@id/include_steem_savings" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

@@ -80,28 +80,23 @@ data class SteemitAccountDTO(
 ) {
 
     fun toSteemitWallet(): SteemitWallet {
-        val spToBeWithdrawn = try {
-            "${to_withdraw?.toFloat() ?: 0f} VESTS"
+        val vestingToBeWithdrawn = try {
+            (to_withdraw?.toFloat() ?: 0f) / 100000f
         }
         catch (e: NumberFormatException) {
-            "0 VESTS"
+            0f
+        }
+        val remainingSPToBeWithdrawn = try {
+            vestingToBeWithdrawn - (withdrawn?.toFloat() ?: 0f / 1000000f)
+        }
+        catch (e: NumberFormatException) {
+            0f
         }
 
-        val effectiveVestingShare = try {
-            val steemPowerVestDouble =
-                vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: Float.NaN
-            val delegatedSteemPowerVestDouble =
-                delegated_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: Float.NaN
-            val receivedSteemPowerVestDouble =
-                received_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: Float.NaN
-            val effectiveSteemPowerVestDouble =
-                steemPowerVestDouble - delegatedSteemPowerVestDouble + receivedSteemPowerVestDouble
-            String.format("%.6f VESTS", effectiveSteemPowerVestDouble)
-        }
-        catch (e: NumberFormatException) {
-            e.printStackTrace()
-            "0.000000 VESTS"
-        }
+        val floatVestingShare = vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatDelegatedVestingShare = delegated_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatReceivedVestingShare = received_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatEffectiveVestingShare = floatVestingShare + floatReceivedVestingShare - floatDelegatedVestingShare
 
         return SteemitWallet(
             name ?: "",
@@ -110,11 +105,12 @@ data class SteemitAccountDTO(
             savings_balance ?: "0 STEEM",
             savings_sbd_balance ?: "0 SBD",
             vesting_shares ?: "0 VESTS",
-            effectiveVestingShare,
+            "${floatEffectiveVestingShare} VESTS",
             delegated_vesting_shares ?: "0 VESTS",
             received_vesting_shares ?: "0 VESTS",
             vesting_withdraw_rate ?: "0 VESTS",
-            spToBeWithdrawn
+            String.format("%.6f VESTS", vestingToBeWithdrawn),
+            String.format("%.6f VESTS", remainingSPToBeWithdrawn)
         )
     }
 
@@ -124,7 +120,13 @@ data class SteemitAccountDTO(
         }
 
         val vestingToBeWithdrawn = try {
-            to_withdraw?.toFloat() ?: 0f
+            (to_withdraw?.toFloat() ?: 0f) / 1000000f
+        }
+        catch (e: NumberFormatException) {
+            0f
+        }
+        val remainingVestToBeWithdrawn = try {
+            vestingToBeWithdrawn - ((withdrawn?.toFloat() ?: 0f) / 1000000f)
         }
         catch (e: NumberFormatException) {
             0f
@@ -163,8 +165,13 @@ data class SteemitAccountDTO(
             floatTotalVestingShare,
             floatTotalVestingFundSteem
         )
-        val steemPowerToBeWithdrawn = Converter.toSteemPowerFromVest(
+        val totalSteemPowerToBeWithdrawn = Converter.toSteemPowerFromVest(
             vestingToBeWithdrawn,
+            floatTotalVestingShare,
+            floatTotalVestingFundSteem
+        )
+        val remainingSteemPowerToBeWithdrawn = Converter.toSteemPowerFromVest(
+            remainingVestToBeWithdrawn,
             floatTotalVestingShare,
             floatTotalVestingFundSteem
         )
@@ -175,12 +182,13 @@ data class SteemitAccountDTO(
             sbd_balance ?: "0 SBD",
             savings_balance ?: "0 STEEM",
             savings_sbd_balance ?: "0 SBD",
-            "${steemPower} SP",
-            "${effectiveSteemPower} SP",
-            "${delegatedSteemPower} SP",
-            "${receivedSteemPower} SP",
-            "${steemPowerWithdrawRate} SP",
-            "${steemPowerToBeWithdrawn} SP"
+            String.format("%.3f SP", steemPower),
+            String.format("%.3f SP", effectiveSteemPower),
+            String.format("%.3f SP", delegatedSteemPower),
+            String.format("%.3f SP", receivedSteemPower),
+            String.format("%.3f SP", steemPowerWithdrawRate),
+            String.format("%.3f SP", totalSteemPowerToBeWithdrawn),
+            String.format("%.3f SP", remainingSteemPowerToBeWithdrawn)
         )
     }
 
