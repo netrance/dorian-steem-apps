@@ -97,6 +97,7 @@ data class SteemitAccountDTO(
         val floatDelegatedVestingShare = delegated_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
         val floatReceivedVestingShare = received_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
         val floatEffectiveVestingShare = floatVestingShare + floatReceivedVestingShare - floatDelegatedVestingShare
+        val nextPowerDownTime = Converter.toLocalTimeFromUTCTime(next_vesting_withdrawal ?: "")
 
         return SteemitWallet(
             name ?: "",
@@ -110,7 +111,8 @@ data class SteemitAccountDTO(
             received_vesting_shares ?: "0 VESTS",
             vesting_withdraw_rate ?: "0 VESTS",
             String.format("%.6f VESTS", vestingToBeWithdrawn),
-            String.format("%.6f VESTS", remainingSPToBeWithdrawn)
+            String.format("%.6f VESTS", remainingSPToBeWithdrawn),
+            nextPowerDownTime
         )
     }
 
@@ -176,6 +178,8 @@ data class SteemitAccountDTO(
             floatTotalVestingFundSteem
         )
 
+        val nextPowerDownTime = Converter.toLocalTimeFromUTCTime(next_vesting_withdrawal ?: "")
+
         return SteemitWallet(
             name ?: "",
             balance ?: "0 STEEM",
@@ -188,7 +192,8 @@ data class SteemitAccountDTO(
             String.format("%.3f SP", receivedSteemPower),
             String.format("%.3f SP", steemPowerWithdrawRate),
             String.format("%.3f SP", totalSteemPowerToBeWithdrawn),
-            String.format("%.3f SP", remainingSteemPowerToBeWithdrawn)
+            String.format("%.3f SP", remainingSteemPowerToBeWithdrawn),
+            nextPowerDownTime
         )
     }
 

@@ -104,7 +104,7 @@
             android:id="@+id/text_next_power_down_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="(Coming soon...)"
+            android:text="@{viewModel.steemitWallet.nextPowerDownTime}"
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintRight_toRightOf="parent"
