@@ -76,7 +76,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
     private val buttonAccountSearchClickListener = View.OnClickListener {
         val account = binding.includeAccountLookup.editSteemitAccount.text.toString()
         if (account.length > 2) {
-            viewModel.currentAccount.value = binding.includeAccountLookup.editSteemitAccount.text.toString()
+            viewModel.currentAccount.value = account
         }
     }
 
