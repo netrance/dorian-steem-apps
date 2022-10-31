@@ -41,7 +41,7 @@ class WalletFragment : BaseFragment<FragmentWalletBinding, WalletViewModel>(R.la
 
     private val currentAccountObserver = Observer<String> {
         if (it.length > 2) {
-            viewModel.readSteemitWallet(it).subscribe()
+            viewModel.readSteemitWallet(it)
         }
     }
 
