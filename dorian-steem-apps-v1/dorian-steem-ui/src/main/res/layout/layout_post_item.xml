@@ -1,119 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="8dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/text_title"
+    <data>
+        <variable
+            name="postItem"
+            type="lee.dorian.steem_domain.model.PostItem" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_post_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="2"
-        android:text=""
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Title Example: Lorem ipsum dolor sit amet, consectetur adipiscing elit..." />
+        android:padding="8dp">
 
-    <ImageView
-        android:id="@+id/image_thumbnail"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_title"
-        tools:src="@mipmap/ic_launcher" />
+        <TextView
+            android:id="@+id/text_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:text="@{postItem.title}"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Title Example: Lorem ipsum dolor sit amet, consectetur adipiscing elit..." />
 
-    <TextView
-        android:id="@+id/text_content"
-        android:layout_width="0dp"
-        android:layout_height="24sp"
-        android:layout_marginLeft="12dp"
-        android:ellipsize="marquee"
-        android:maxLines="1"
-        android:text=""
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        app:layout_constraintTop_toTopOf="@id/image_thumbnail"
-        app:layout_constraintLeft_toRightOf="@id/image_thumbnail"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:text="Content example: Lorem ipsum dolor sit amet, consectetur adipiscing elit," />
+        <ImageView
+            android:id="@+id/image_thumbnail"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="5dp"
+            app:srcURL="@{postItem.thumbnailURL}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_title"
+            tools:src="@mipmap/ic_launcher" />
 
-    <TextView
-        android:id="@+id/text_main_tag"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:textSize="16sp"
-        app:layout_constraintLeft_toLeftOf="@id/text_content"
-        app:layout_constraintTop_toBottomOf="@id/text_content"
-        app:layout_constraintBottom_toTopOf="@id/text_rewards"
-        tools:text="Tag or Community" />
+        <TextView
+            android:id="@+id/text_content"
+            android:layout_width="0dp"
+            android:layout_height="24sp"
+            android:layout_marginLeft="10dp"
+            android:ellipsize="marquee"
+            android:maxLines="1"
+            android:text="@{postItem.content}"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            app:layout_constraintTop_toTopOf="@id/image_thumbnail"
+            app:layout_constraintLeft_toRightOf="@id/image_thumbnail"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:text="Content example: Lorem ipsum dolor sit amet, consectetur adipiscing elit," />
 
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:textSize="16sp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_content"
-        app:layout_constraintBottom_toTopOf="@id/text_rewards"
-        tools:text="1 days ago" />
+        <TextView
+            android:id="@+id/text_main_tag"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@{postItem.tagOrCommunity}"
+            android:textSize="16sp"
+            app:layout_constraintLeft_toLeftOf="@id/text_content"
+            app:layout_constraintTop_toBottomOf="@id/text_content"
+            app:layout_constraintBottom_toTopOf="@id/text_rewards"
+            tools:text="Tag or Community" />
 
-    <TextView
-        android:id="@+id/text_rewards"
-        android:layout_width="wrap_content"
-        android:layout_height="18sp"
-        android:maxLines="1"
-        android:text=""
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@id/image_thumbnail"
-        app:layout_constraintLeft_toLeftOf="@id/text_content"
-        tools:text="$987.654" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@{postItem.time}"
+            android:textSize="16sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_content"
+            app:layout_constraintBottom_toTopOf="@id/text_rewards"
+            tools:text="1 days ago" />
 
-    <TextView
-        android:id="@+id/text_upvotes"
-        android:layout_width="wrap_content"
-        android:layout_height="18sp"
-        android:layout_marginLeft="10dp"
-        android:maxLines="1"
-        android:text=""
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        app:layout_constraintTop_toTopOf="@id/text_rewards"
-        app:layout_constraintLeft_toRightOf="@id/text_rewards"
-        tools:text="🔺123" />
+        <TextView
+            android:id="@+id/text_rewards"
+            android:layout_width="wrap_content"
+            android:layout_height="18sp"
+            android:maxLines="1"
+            android:text='@{String.format("$%f", postItem.rewards)}'
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/image_thumbnail"
+            app:layout_constraintLeft_toLeftOf="@id/text_content"
+            tools:text="$987.654" />
 
-    <TextView
-        android:id="@+id/text_downvotes"
-        android:layout_width="wrap_content"
-        android:layout_height="18sp"
-        android:layout_marginLeft="10dp"
-        android:maxLines="1"
-        android:text=""
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        app:layout_constraintTop_toTopOf="@id/text_rewards"
-        app:layout_constraintLeft_toRightOf="@id/text_upvotes"
-        tools:text="🔻0" />
+        <TextView
+            android:id="@+id/text_upvotes"
+            android:layout_width="wrap_content"
+            android:layout_height="18sp"
+            android:layout_marginLeft="3dp"
+            android:maxLines="1"
+            android:text='@{String.format("🔺%d", postItem.upvoteCount)}'
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:layout_constraintTop_toTopOf="@id/text_rewards"
+            app:layout_constraintLeft_toRightOf="@id/text_rewards"
+            tools:text="🔺123" />
 
-    <TextView
-        android:id="@+id/text_account"
-        android:layout_width="wrap_content"
-        android:layout_height="18sp"
-        android:layout_marginLeft="12dp"
-        android:maxLines="1"
-        android:text=""
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:text="dorian-mobileapp (99)" />
+        <TextView
+            android:id="@+id/text_downvotes"
+            android:layout_width="wrap_content"
+            android:layout_height="18sp"
+            android:layout_marginLeft="3dp"
+            android:maxLines="1"
+            android:text='@{String.format("🔻%d", postItem.downvoteCount)}'
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:layout_constraintTop_toTopOf="@id/text_rewards"
+            app:layout_constraintLeft_toRightOf="@id/text_upvotes"
+            tools:text="🔻0" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/text_account_reputation"
+            android:layout_width="wrap_content"
+            android:layout_height="18sp"
+            android:layout_marginLeft="12dp"
+            android:maxLines="1"
+            android:text='@{String.format("%s (%d)", postItem.account, postItem.reputation)}'
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:text="dorian-mobileapp (99)" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
