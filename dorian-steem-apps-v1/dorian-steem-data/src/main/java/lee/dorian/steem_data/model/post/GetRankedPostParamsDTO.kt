@@ -2,16 +2,16 @@ package lee.dorian.steem_data.model.post
 
 data class GetRankedPostParamsDTO(
     val jsonrpc: String = "2.0",
-    val method: String = "bridge.get_ranked_postss",
-    val params: List<Params>,
+    val method: String = "bridge.get_ranked_posts",
+    val params: InnerParams,
     val id: Int
 ) {
 
-    data class Params(
+    data class InnerParams(
         val sort: String = SORT_TRENDING,
         val tag: String = "",
         val observer: String = "",
-        val limit: Int = 20,
+        val limit: Int = DEFAULT_LIMIT,
         val start_author: String = "",
         val start_permlink: String = ""
     ) {
@@ -24,6 +24,8 @@ data class GetRankedPostParamsDTO(
             const val SORT_PAYOUT = "payout"
             const val SORT_PAYOUT_COMMENTS = "payout_comments"
             const val SORT_MUTED = "muted"
+
+            const val DEFAULT_LIMIT = 20
         }
 
     }

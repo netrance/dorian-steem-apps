@@ -55,7 +55,8 @@ data class PostItemDTO(
             upvoteCount,
             downvoteCount,
             author ?: "",
-            author_reputation?.toInt() ?: 0
+            author_reputation?.toInt() ?: 0,
+            permlink ?: ""
         )
     }
 

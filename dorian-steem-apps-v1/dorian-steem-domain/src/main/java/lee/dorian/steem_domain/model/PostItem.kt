@@ -10,5 +10,6 @@ data class PostItem(
     val upvoteCount: Int,
     val downvoteCount: Int,
     val account: String,
-    val reputation: Int
+    val reputation: Int,
+    val permlink: String
 )
