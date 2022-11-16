@@ -5,6 +5,8 @@ import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetAccountsResponseDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesResponseDTO
+import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
+import lee.dorian.steem_data.model.post.GetRankedPostsResponseDTO
 import retrofit2.http.Body
 import retrofit2.http.POST
 
@@ -20,5 +22,11 @@ interface SteemService {
     fun getDynamicGlobalProperties(
         @Body params: GetDynamicGlobalPropertiesParamsDTO
     ): Single<GetDynamicGlobalPropertiesResponseDTO>
+
+    // Runs bridge.get_ranked_posts API.
+    @POST(".")
+    fun getRankedPosts(
+        @Body params: GetRankedPostParamsDTO
+    ): Single<GetRankedPostsResponseDTO>
 
 }

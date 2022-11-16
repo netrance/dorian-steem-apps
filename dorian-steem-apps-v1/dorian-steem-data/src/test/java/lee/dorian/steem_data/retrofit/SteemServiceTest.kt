@@ -3,6 +3,7 @@ package lee.dorian.steem_data.retrofit
 import lee.dorian.steem_data.constants.TestData
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
+import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -88,6 +89,32 @@ class SteemServiceTest {
             assertNotNull(responseDTO.result)
             assertNotNull(responseDTO.result?.current_witness)
             assertTrue(responseDTO.result?.current_witness!!.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun getRankedPost() {
+        val params = GetRankedPostParamsDTO(
+            params = GetRankedPostParamsDTO.InnerParams(
+                sort = GetRankedPostParamsDTO.InnerParams.SORT_TRENDING,
+                tag = "kr",
+                limit = 30
+            ),
+            id = 1
+        )
+
+        SteemClient.apiService.getRankedPosts(params).subscribe { responseDTO ->
+            val postItemDTOList = responseDTO.result ?: listOf()
+
+            assertEquals("2.0", responseDTO.jsonrpc ?: "")
+            assertNotNull(responseDTO.result)
+            assertTrue(postItemDTOList.size == 30)
+            for (postItemDTO in postItemDTOList) {
+                assertNotNull(postItemDTO.author)
+                assertTrue((postItemDTO.author ?: "").isNotEmpty())
+                assertNotNull(postItemDTO.title)
+                assertTrue((postItemDTO.title ?: "").isNotEmpty())
+            }
         }
     }
 
