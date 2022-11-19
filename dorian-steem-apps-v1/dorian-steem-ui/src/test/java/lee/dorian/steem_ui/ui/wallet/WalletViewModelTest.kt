@@ -12,17 +12,17 @@ class WalletViewModelTest : CommonPartOfViewModelTest() {
     // Test case 1: Trying to get the wallet of a valid account.
     @Test
     fun readSteemitWallet_case1() {
-        walletViewModel.readSteemitWallet("dorian-mobileapp").subscribe { steemitWallets ->
-            assertEquals("dorian-mobileapp", walletViewModel.steemitWallet.value?.account)
-        }
+        walletViewModel.readSteemitWallet("dorian-mobileapp")
+        Thread.sleep(3000)
+        assertEquals("dorian-mobileapp", walletViewModel.steemitWallet.value?.account)
     }
 
     // Test case 2: Trying to get the wallet of an invalid account.
     @Test
     fun readSteemitWallet_case2() {
-        walletViewModel.readSteemitWallet("invalid10293845").subscribe { steemitWallets ->
-            assertEquals("", walletViewModel.steemitWallet.value?.account)
-        }
+        walletViewModel.readSteemitWallet("invalid10293845")
+        Thread.sleep(3000)
+        assertEquals("", walletViewModel.steemitWallet.value?.account)
     }
 
 }
