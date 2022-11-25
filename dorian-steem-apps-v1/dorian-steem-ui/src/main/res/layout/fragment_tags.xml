@@ -57,6 +57,7 @@
             android:id="@+id/list_post_item"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            app:postItemList="@{viewModel.rankedPosts}"
             app:layout_constraintTop_toBottomOf="@id/radiogroup_sort"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:listitem="@layout/layout_post_item" />
