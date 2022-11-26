@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioGroup
+import android.widget.RadioGroup.OnCheckedChangeListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentTagsBinding
@@ -34,14 +37,48 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        activityViewModel.currentTag.removeObservers(viewLifecycleOwner)
-        activityViewModel.currentTag.observe(viewLifecycleOwner, currentTagObserver)
-    }
+        activityViewModel.currentTag.apply {
+            removeObservers(viewLifecycleOwner)
+            observe(viewLifecycleOwner, currentTagObserver)
+        }
 
-    private val currentTagObserver = Observer<String> {
-        if (it.length > 0) {
-            viewModel.text.value = "Current tag is #${it}."
+        viewModel.sort.apply {
+            removeObservers(viewLifecycleOwner)
+            observe(viewLifecycleOwner, currentSortObserver)
+        }
+
+        binding.listPostItem.adapter = PostItemListAdapter()
+        binding.radiogroupSort.apply {
+            setOnCheckedChangeListener(sortCheckedChangedListener)
+            clearCheck()
+            check(R.id.radiobtn_trending)
         }
     }
 
+    private val currentSortObserver = Observer<String> { sort ->
+        val tag = activityViewModel.currentTag.value ?: ""
+        if ((tag.length >= 2) and (sort.isNotEmpty())) {
+            viewModel.readRankedPosts(
+                tag
+            )
+        }
+    }
+
+    private val currentTagObserver = Observer<String> { tag ->
+        val sort = viewModel.sort.value ?: ""
+        if ((tag.length >= 2) and (sort.isNotEmpty())) {
+            viewModel.readRankedPosts(
+                tag
+            )
+        }
+    }
+
+    private val sortCheckedChangedListener = OnCheckedChangeListener { radioGroup, radioButtonId ->
+        viewModel.sort.value = when (radioButtonId) {
+            R.id.radiobtn_trending -> GetRankedPostParamsDTO.InnerParams.SORT_TRENDING
+            R.id.radiobtn_created -> GetRankedPostParamsDTO.InnerParams.SORT_CREATED
+            R.id.radiobtn_payout -> GetRankedPostParamsDTO.InnerParams.SORT_PAYOUT
+            else -> GetRankedPostParamsDTO.InnerParams.SORT_TRENDING
+        }
+    }
 }

@@ -84,7 +84,7 @@
             android:layout_width="wrap_content"
             android:layout_height="18sp"
             android:maxLines="1"
-            android:text='@{String.format("$%f", postItem.rewards)}'
+            android:text='@{String.format("$%.3f", postItem.rewards)}'
             android:textColor="@color/black"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="@id/image_thumbnail"
@@ -97,12 +97,12 @@
             android:layout_height="18sp"
             android:layout_marginLeft="3dp"
             android:maxLines="1"
-            android:text='@{String.format("🔺%d", postItem.upvoteCount)}'
+            android:text='@{String.format("\uD83D\uDD3A%d", postItem.upvoteCount)}'
             android:textColor="@color/black"
             android:textSize="14sp"
             app:layout_constraintTop_toTopOf="@id/text_rewards"
             app:layout_constraintLeft_toRightOf="@id/text_rewards"
-            tools:text="🔺123" />
+            tools:text="\uD83D\uDD3A123" />
 
         <TextView
             android:id="@+id/text_downvotes"
@@ -110,12 +110,12 @@
             android:layout_height="18sp"
             android:layout_marginLeft="3dp"
             android:maxLines="1"
-            android:text='@{String.format("🔻%d", postItem.downvoteCount)}'
+            android:text='@{String.format("\uD83D\uDD3B%d", postItem.downvoteCount)}'
             android:textColor="@color/black"
             android:textSize="14sp"
             app:layout_constraintTop_toTopOf="@id/text_rewards"
             app:layout_constraintLeft_toRightOf="@id/text_upvotes"
-            tools:text="🔻0" />
+            tools:text="\uD83D\uDD3B0" />
 
         <TextView
             android:id="@+id/text_account_reputation"
