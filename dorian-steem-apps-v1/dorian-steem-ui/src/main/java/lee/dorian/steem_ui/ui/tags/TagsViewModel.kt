@@ -21,23 +21,19 @@ class TagsViewModel : BaseViewModel() {
 
     val limit = GetRankedPostParamsDTO.InnerParams.DEFAULT_LIMIT
 
-    val tag = MutableLiveData("")
     val sort = MutableLiveData("")
     val rankedPosts = MutableLiveData<MutableList<PostItem>>(mutableListOf())
     val readRankedPostsUseCase = ReadRankedPostsUseCase(SteemRepositoryImpl())
 
     fun readRankedPosts(
-        newSort: String,
-        newTag: String,
+        tag: String,
         limit: Int = this.limit
     ) {
-        sort.value = newSort
-        tag.value = newTag
         rankedPosts.value = mutableListOf()
 
         readRankedPostsUseCase(
             sort.value ?: GetRankedPostParamsDTO.InnerParams.SORT_TRENDING,
-            tag.value ?: ""
+            tag
         )
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
@@ -54,7 +50,10 @@ class TagsViewModel : BaseViewModel() {
         }
     }
 
-    fun appendRankedPosts() {
+    fun appendRankedPosts(
+        tag: String,
+        limit: Int = this.limit
+    ) {
         val rankedPostsValue = rankedPosts.value ?: listOf()
         if (rankedPostsValue.size < GetRankedPostParamsDTO.InnerParams.DEFAULT_LIMIT) {
             return
@@ -67,7 +66,7 @@ class TagsViewModel : BaseViewModel() {
 
         readRankedPostsUseCase(
             sort.value ?: GetRankedPostParamsDTO.InnerParams.SORT_TRENDING,
-            tag.value ?: "",
+            tag,
             lastPostItem = lastPostItem
         )
         .subscribeOn(Schedulers.io())
