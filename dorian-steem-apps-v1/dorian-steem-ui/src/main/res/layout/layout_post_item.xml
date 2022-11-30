@@ -14,7 +14,8 @@
         android:id="@+id/layout_post_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:paddingHorizontal="8dp"
+        android:paddingTop="8dp">
 
         <TextView
             android:id="@+id/text_title"
@@ -36,11 +37,13 @@
             android:id="@+id/image_thumbnail"
             android:layout_width="80dp"
             android:layout_height="80dp"
+            android:layout_marginBottom="8dp"
             android:layout_marginTop="5dp"
             android:scaleType="centerCrop"
             android:src="@{postItem.thumbnailURL}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/text_title"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:src="@mipmap/ic_launcher" />
 
         <TextView
@@ -129,9 +132,15 @@
             android:textColor="@color/black"
             android:textSize="14sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/image_thumbnail"
             app:layout_constraintRight_toRightOf="parent"
             tools:text="dorian-mobileapp (99)" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
