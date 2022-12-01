@@ -79,6 +79,7 @@ class TagsViewModel : BaseViewModel() {
         .subscribe { rankedPostItemList ->
             if (rankedPostsValue.isNotEmpty()) {
                 rankedPosts.value?.addAll(rankedPostItemList)
+                rankedPosts.postValue(rankedPosts.value)
             }
         }
         .also { disposable ->

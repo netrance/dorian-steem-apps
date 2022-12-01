@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioGroup
 import android.widget.RadioGroup.OnCheckedChangeListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
@@ -47,7 +49,13 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
             observe(viewLifecycleOwner, currentSortObserver)
         }
 
-        binding.listPostItem.adapter = PostItemListAdapter()
+        binding.listPostItem.apply {
+            adapter = PostItemListAdapter()
+            addOnScrollListener(rankedPostsScrollListener)
+            if (itemAnimator is SimpleItemAnimator) {
+                (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+            }
+        }
         binding.radiogroupSort.apply {
             setOnCheckedChangeListener(sortCheckedChangedListener)
             clearCheck()
@@ -81,4 +89,18 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
             else -> GetRankedPostParamsDTO.InnerParams.SORT_TRENDING
         }
     }
+
+    private val rankedPostsScrollListener: RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+
+            binding.viewModel?.let {
+                if (!binding.listPostItem.canScrollVertically(1)) {
+                    val tag =activityViewModel.currentTag.value ?: ""
+                    it.appendRankedPosts(tag)
+                }
+            }
+        }
+    }
+
 }
