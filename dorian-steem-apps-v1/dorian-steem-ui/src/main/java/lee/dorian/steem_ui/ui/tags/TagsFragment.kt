@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.RadioGroup.OnCheckedChangeListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
@@ -50,12 +51,12 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
         }
 
         binding.listPostItem.apply {
-            adapter = PostItemListAdapter()
-            addOnScrollListener(rankedPostsScrollListener)
-            if (itemAnimator is SimpleItemAnimator) {
-                (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+            adapter = PostItemListAdapter().apply {
+                setHasStableIds(true)
             }
+            addOnScrollListener(rankedPostsScrollListener)
         }
+
         binding.radiogroupSort.apply {
             setOnCheckedChangeListener(sortCheckedChangedListener)
             clearCheck()
