@@ -29,6 +29,10 @@ class PostItemListAdapter : RecyclerView.Adapter<PostItemListAdapter.PostItemLis
 
     override fun getItemCount(): Int = postItemList.size
 
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
     fun setList(list: List<PostItem>) {
         this.postItemList.apply {
             clear()
