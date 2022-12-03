@@ -14,13 +14,13 @@ object Converter {
         return (totalVestingFundSteem * vestingAmount) / totalVestingShare
     }
 
-    fun toLocalTimeFromUTCTime(utcTime: String): String {
+    fun toLocalTimeFromUTCTime(utcTime: String, timeFormat: String): String {
         if (utcTime.isEmpty()) {
             return ""
         }
 
         try {
-            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val sdf = SimpleDateFormat(timeFormat)
             val date = sdf.parse(utcTime.replace("T", " ").trim())
             val longUtcTime = date.getTime()
             val offset: Int = TimeZone.getDefault().getOffset(longUtcTime)

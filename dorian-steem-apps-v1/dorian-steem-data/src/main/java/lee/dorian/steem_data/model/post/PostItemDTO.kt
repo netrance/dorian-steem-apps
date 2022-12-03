@@ -40,6 +40,10 @@ data class PostItemDTO(
 
     fun toPostItem(): PostItem {
         val thumbnailURL = json_metadata?.getThumbnailURL() ?: ""
+        val tagOrCommunity = when {
+            (null == community_title) -> category ?: ""
+            else -> community_title ?: ""
+        }
         val voteCount = active_votes?.size ?: 0
         val upvotes = active_votes?.filter { activeVote -> activeVote.isUpvote() }
         val upvoteCount = upvotes?.size ?: 0
@@ -49,8 +53,8 @@ data class PostItemDTO(
             title ?: "",
             thumbnailURL,
             body ?: "",
-            category ?: "",
-            Converter.toLocalTimeFromUTCTime(created ?: ""),
+            tagOrCommunity,
+            Converter.toLocalTimeFromUTCTime(created ?: "", "yyyy-MM-dd HH:mm"),
             payout ?: 0f,
             upvoteCount,
             downvoteCount,

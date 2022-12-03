@@ -100,7 +100,7 @@ data class SteemitAccountDTO(
         val floatVestingWithdrawRate = vesting_withdraw_rate?.removeSubstring(" VESTS")?.toFloat() ?: 0f
         val nextPowerDownTime = when {
             (0f == floatVestingWithdrawRate) -> ""
-            else -> Converter.toLocalTimeFromUTCTime(next_vesting_withdrawal ?: "")
+            else -> Converter.toLocalTimeFromUTCTime(next_vesting_withdrawal ?: "", "yyyy-MM-dd HH:mm:ss")
         }
 
         return SteemitWallet(
@@ -187,7 +187,7 @@ data class SteemitAccountDTO(
 
         val nextPowerDownTime = when {
             (0f == floatVestingWithdrawRate) -> ""
-            else -> Converter.toLocalTimeFromUTCTime(next_vesting_withdrawal ?: "")
+            else -> Converter.toLocalTimeFromUTCTime(next_vesting_withdrawal ?: "", "yyyy-MM-dd HH:mm:ss")
         }
 
         return SteemitWallet(
