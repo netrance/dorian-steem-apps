@@ -40,9 +40,11 @@ data class PostItemDTO(
 
     fun toPostItem(): PostItem {
         val thumbnailURL = json_metadata?.getThumbnailURL() ?: ""
+        val tag = category ?: ""
+        val communityTitle = community_title ?: ""
         val tagOrCommunity = when {
-            (null == community_title) -> category ?: ""
-            else -> community_title ?: ""
+            (communityTitle.isEmpty()) -> tag
+            else -> communityTitle
         }
         val voteCount = active_votes?.size ?: 0
         val upvotes = active_votes?.filter { activeVote -> activeVote.isUpvote() }
