@@ -22,13 +22,15 @@ fun bind(recyclerView: RecyclerView?, postItemList: List<PostItem>?) {
 
 @BindingAdapter("android:src")
 fun setSrc(imageView: ImageView?, url: String?) {
-    // To prevent any exceptions from Glide
-    if ((null == imageView) or (null == url) or (url!!.isEmpty())) {
+    // To prevent null pointer exceptions
+    if ((null == imageView) or (null == url)) {
         return
     }
 
     Glide.with(imageView!!)
         .load(Uri.parse(url))
         .placeholder(R.mipmap.ic_launcher)
+        .error(R.mipmap.ic_launcher)
+        .fallback(R.mipmap.ic_launcher)
         .into(imageView!!)
 }
