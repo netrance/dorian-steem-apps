@@ -29,8 +29,8 @@ fun setSrc(imageView: ImageView?, url: String?) {
 
     Glide.with(imageView!!)
         .load(Uri.parse(url))
-        .placeholder(R.mipmap.ic_launcher)
-        .error(R.mipmap.ic_launcher)
-        .fallback(R.mipmap.ic_launcher)
+        .placeholder(R.drawable.default_post_thumbnail)
+        .error(R.drawable.default_post_thumbnail)
+        .fallback(R.drawable.default_post_thumbnail)
         .into(imageView!!)
 }
