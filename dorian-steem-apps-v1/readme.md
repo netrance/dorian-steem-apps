@@ -1,0 +1,1 @@
+dorian-steem-apps-v1 is the project directory of the first version of Dorian Steem application based on Android.
