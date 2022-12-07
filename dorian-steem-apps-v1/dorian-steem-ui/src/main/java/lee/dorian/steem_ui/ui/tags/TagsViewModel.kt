@@ -27,7 +27,8 @@ class TagsViewModel : BaseViewModel() {
 
     fun readRankedPosts(
         tag: String,
-        limit: Int = this.limit
+        limit: Int = this.limit,
+        handleAfterReading: (() -> Unit) = {}
     ) {
         rankedPosts.value = mutableListOf()
 
@@ -40,10 +41,12 @@ class TagsViewModel : BaseViewModel() {
         .onErrorReturn { error ->
             error.printStackTrace()
             liveThrowable.value = error
+            handleAfterReading()
             listOf()
         }
         .subscribe { rankedPostItemList ->
             rankedPosts.value = rankedPostItemList.toMutableList()
+            handleAfterReading()
         }
         .also { disposable ->
             compositeDisposable.add(disposable)

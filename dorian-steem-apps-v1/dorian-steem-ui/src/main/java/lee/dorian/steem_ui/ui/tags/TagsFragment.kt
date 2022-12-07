@@ -11,10 +11,12 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentTagsBinding
+import lee.dorian.steem_ui.ext.showToastShortly
 import lee.dorian.steem_ui.ui.base.BaseFragment
 
 class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.fragment_tags) {
@@ -62,23 +64,32 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
             clearCheck()
             check(R.id.radiobtn_trending)
         }
+
+        binding.swipeRefreshPostList.setOnRefreshListener(swipeRefreshPostListRefreshListener)
     }
 
     private val currentSortObserver = Observer<String> { sort ->
-        val tag = activityViewModel.currentTag.value ?: ""
-        if ((tag.length >= 2) and (sort.isNotEmpty())) {
-            viewModel.readRankedPosts(
-                tag
-            )
-        }
+        readRankedPosts()
     }
 
     private val currentTagObserver = Observer<String> { tag ->
+        readRankedPosts()
+    }
+
+    private fun readRankedPosts() {
+        val tag = activityViewModel.currentTag.value ?: ""
         val sort = viewModel.sort.value ?: ""
-        if ((tag.length >= 2) and (sort.isNotEmpty())) {
-            viewModel.readRankedPosts(
-                tag
-            )
+
+        if (sort.isEmpty()) {
+            showToastShortly(getString(R.string.error_sort_is_not_set))
+            return
+        }
+
+        binding.swipeRefreshPostList.isRefreshing = true
+        viewModel.readRankedPosts(
+            tag
+        ) {
+            binding.swipeRefreshPostList.isRefreshing = false
         }
     }
 
@@ -102,6 +113,10 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
                 }
             }
         }
+    }
+
+    private val swipeRefreshPostListRefreshListener = OnRefreshListener {
+        readRankedPosts()
     }
 
 }
