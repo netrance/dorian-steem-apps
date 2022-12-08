@@ -3,6 +3,7 @@ package lee.dorian.steem_ui.ui.tags
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.RadioGroup.OnCheckedChangeListener
 import androidx.lifecycle.Observer
@@ -42,16 +43,6 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        activityViewModel.currentTag.apply {
-            removeObservers(viewLifecycleOwner)
-            observe(viewLifecycleOwner, currentTagObserver)
-        }
-
-        viewModel.sort.apply {
-            removeObservers(viewLifecycleOwner)
-            observe(viewLifecycleOwner, currentSortObserver)
-        }
-
         binding.listPostItem.apply {
             adapter = PostItemListAdapter().apply {
                 setHasStableIds(true)
@@ -60,16 +51,22 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
         }
 
         binding.radiogroupSort.apply {
-            setOnCheckedChangeListener(sortCheckedChangedListener)
             clearCheck()
+            setOnCheckedChangeListener(sortCheckedChangedListener)
             check(R.id.radiobtn_trending)
         }
 
-        binding.swipeRefreshPostList.setOnRefreshListener(swipeRefreshPostListRefreshListener)
-    }
+        binding.apply {
+            radiobtnTrending.setOnClickListener(radiobtnSortClickListener)
+            radiobtnCreated.setOnClickListener(radiobtnSortClickListener)
+            radiobtnPayout.setOnClickListener(radiobtnSortClickListener)
+            swipeRefreshPostList.setOnRefreshListener(swipeRefreshPostListRefreshListener)
+        }
 
-    private val currentSortObserver = Observer<String> { sort ->
-        readRankedPosts()
+        activityViewModel.currentTag.apply {
+            removeObservers(viewLifecycleOwner)
+            observe(viewLifecycleOwner, currentTagObserver)
+        }
     }
 
     private val currentTagObserver = Observer<String> { tag ->
@@ -102,13 +99,17 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
         }
     }
 
+    private val radiobtnSortClickListener = OnClickListener {
+        readRankedPosts()
+    }
+
     private val rankedPostsScrollListener: RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
 
             binding.viewModel?.let {
                 if (!binding.listPostItem.canScrollVertically(1)) {
-                    val tag =activityViewModel.currentTag.value ?: ""
+                    val tag = activityViewModel.currentTag.value ?: ""
                     it.appendRankedPosts(tag)
                 }
             }
