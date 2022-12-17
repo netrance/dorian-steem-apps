@@ -49,7 +49,8 @@ data class PostItemDTO(
         val voteCount = active_votes?.size ?: 0
         val upvotes = active_votes?.filter { activeVote -> activeVote.isUpvote() }
         val upvoteCount = upvotes?.size ?: 0
-        val downvoteCount = voteCount - upvoteCount
+        val downvotes = active_votes?.filter { activeVote -> activeVote.isDownvote() }
+        val downvoteCount = downvotes?.size ?: 0
         val activeVotes = active_votes?.map { currentVoteDTO ->
             currentVoteDTO.toActiveVote(net_rshares ?: 0L, payout ?: 0f)
         } ?: listOf()
