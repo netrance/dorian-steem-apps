@@ -1,5 +1,6 @@
 package lee.dorian.steem_ui.ui.tags
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,17 +9,16 @@ import android.view.ViewGroup
 import android.widget.RadioGroup.OnCheckedChangeListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
+import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentTagsBinding
 import lee.dorian.steem_ui.ext.showToastShortly
 import lee.dorian.steem_ui.ui.base.BaseFragment
+import lee.dorian.steem_ui.ui.voter.VoteListActivity
 
 class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.fragment_tags) {
 
@@ -44,7 +44,7 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
         super.onViewCreated(view, savedInstanceState)
 
         binding.listPostItem.apply {
-            adapter = PostItemListAdapter().apply {
+            adapter = PostItemListAdapter(upvoteViewClickListener).apply {
                 setHasStableIds(true)
             }
             addOnScrollListener(rankedPostsScrollListener)
@@ -118,6 +118,16 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
 
     private val swipeRefreshPostListRefreshListener = OnRefreshListener {
         readRankedPosts()
+    }
+
+    private val upvoteViewClickListener = object: PostItemListAdapter.OnUpvoteViewClickListener {
+        override fun onClick(postItem: PostItem) {
+            // open new activity to show upvoting list
+            Intent(requireActivity(), VoteListActivity::class.java).apply {
+                this.putExtra("voter_list", postItem.activeVotes.toTypedArray())
+                startActivity(this)
+            }
+        }
     }
 
 }

@@ -9,6 +9,7 @@ data class PostItem(
     val rewards: Float,
     val upvoteCount: Int,
     val downvoteCount: Int,
+    val activeVotes: List<ActiveVote>,
     val account: String,
     val reputation: Int,
     val permlink: String

@@ -1,12 +1,15 @@
 package lee.dorian.steem_ui.ui.tags
 
 import android.view.LayoutInflater
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.databinding.LayoutPostItemBinding
 
-class PostItemListAdapter : RecyclerView.Adapter<PostItemListAdapter.PostItemListViewHolder>() {
+class PostItemListAdapter(
+    val upvoteViewClickListener: OnUpvoteViewClickListener
+) : RecyclerView.Adapter<PostItemListAdapter.PostItemListViewHolder>() {
 
     val postItemList = mutableListOf<PostItem>()
 
@@ -21,6 +24,7 @@ class PostItemListAdapter : RecyclerView.Adapter<PostItemListAdapter.PostItemLis
     override fun onBindViewHolder(holder: PostItemListViewHolder, position: Int) {
         try {
             holder.bind(postItemList[position])
+            holder.binding.textUpvotes.setOnClickListener { upvoteViewClickListener.onClick(postItemList[position]) }
         }
         catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
@@ -42,11 +46,15 @@ class PostItemListAdapter : RecyclerView.Adapter<PostItemListAdapter.PostItemLis
     }
 
     inner class PostItemListViewHolder(
-        private val binding: LayoutPostItemBinding
+        val binding: LayoutPostItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(postItem: PostItem) {
             binding.postItem = postItem
         }
+    }
+
+    interface OnUpvoteViewClickListener {
+        fun onClick(postItem: PostItem)
     }
 
 }

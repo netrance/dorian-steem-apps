@@ -15,7 +15,7 @@ data class PostItemDTO(
     val updated: String?,
     val depth: Int?,
     val children: Int?,
-    val net_shares: Int?,
+    val net_rshares: Long?,
     val is_payout: Boolean?,
     val payout_at: String?,
     val payout: Float?,
@@ -50,6 +50,9 @@ data class PostItemDTO(
         val upvotes = active_votes?.filter { activeVote -> activeVote.isUpvote() }
         val upvoteCount = upvotes?.size ?: 0
         val downvoteCount = voteCount - upvoteCount
+        val activeVotes = active_votes?.map { currentVoteDTO ->
+            currentVoteDTO.toActiveVote(net_rshares ?: 0L, payout ?: 0f)
+        } ?: listOf()
 
         return PostItem(
             title ?: "",
@@ -60,6 +63,7 @@ data class PostItemDTO(
             payout ?: 0f,
             upvoteCount,
             downvoteCount,
+            activeVotes,
             author ?: "",
             author_reputation?.toInt() ?: 0,
             permlink ?: ""

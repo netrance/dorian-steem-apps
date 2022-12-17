@@ -6,4 +6,8 @@
 
     <!-- Strings for TagsFragment -->
     <string name="error_sort_is_not_set">Please select one of the sorts.</string>
+
+    <!-- Strings for VoteListActivity -->
+    <string name="title_vote_list">Vote List</string>
+
 </resources>

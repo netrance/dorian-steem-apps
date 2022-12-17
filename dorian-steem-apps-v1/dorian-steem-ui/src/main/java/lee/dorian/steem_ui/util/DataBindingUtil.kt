@@ -1,15 +1,15 @@
 package lee.dorian.steem_ui.util
 
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.Target
+import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.ui.tags.PostItemListAdapter
+import lee.dorian.steem_ui.ui.voter.VoteListAdapter
 
 @BindingAdapter("postItemList")
 fun bind(recyclerView: RecyclerView?, postItemList: List<PostItem>?) {
@@ -33,4 +33,13 @@ fun setSrc(imageView: ImageView?, url: String?) {
         .error(R.drawable.default_post_thumbnail)
         .fallback(R.drawable.default_post_thumbnail)
         .into(imageView!!)
+}
+
+@BindingAdapter("votes")
+fun bind(recyclerView: RecyclerView?, votes: Array<ActiveVote>?) {
+    (recyclerView?.adapter as VoteListAdapter)?.let {
+        if (null != votes) {
+            it.setVotes(votes)
+        }
+    }
 }
