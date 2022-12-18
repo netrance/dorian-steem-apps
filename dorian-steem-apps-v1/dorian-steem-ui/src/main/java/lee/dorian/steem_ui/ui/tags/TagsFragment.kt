@@ -44,7 +44,7 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
         super.onViewCreated(view, savedInstanceState)
 
         binding.listPostItem.apply {
-            adapter = PostItemListAdapter(upvoteViewClickListener).apply {
+            adapter = PostItemListAdapter(upvoteViewClickListener, downvoteViewClickListener).apply {
                 setHasStableIds(true)
             }
             addOnScrollListener(rankedPostsScrollListener)
@@ -120,11 +120,37 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
         readRankedPosts()
     }
 
-    private val upvoteViewClickListener = object: PostItemListAdapter.OnUpvoteViewClickListener {
+    private val upvoteViewClickListener = object: PostItemListAdapter.OnVoteCountViewClickListener {
         override fun onClick(postItem: PostItem) {
             // open new activity to show upvoting list
+            val upvotes = postItem.activeVotes.filter { vote ->
+                vote.isUpvote()
+            }.toTypedArray().apply { sortByDescending { it.value } }
+
+            if (upvotes.isEmpty()) {
+                return
+            }
+
             Intent(requireActivity(), VoteListActivity::class.java).apply {
-                this.putExtra("voter_list", postItem.activeVotes.toTypedArray())
+                this.putExtra(VoteListActivity.INTENT_BUNDLE_VOTER_LIST, upvotes)
+                startActivity(this)
+            }
+        }
+    }
+
+    private val downvoteViewClickListener = object: PostItemListAdapter.OnVoteCountViewClickListener {
+        override fun onClick(postItem: PostItem) {
+            // open new activity to show upvoting list
+            val downvotes = postItem.activeVotes.filter { vote ->
+                vote.isDownvote()
+            }.toTypedArray().apply { sortBy { it.value } }
+
+            if (downvotes.isEmpty()) {
+                return
+            }
+
+            Intent(requireActivity(), VoteListActivity::class.java).apply {
+                this.putExtra(VoteListActivity.INTENT_BUNDLE_VOTER_LIST, downvotes)
                 startActivity(this)
             }
         }

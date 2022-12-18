@@ -16,8 +16,8 @@
 
         <ImageView
             android:id="@+id/image_voter_profile"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="@dimen/voter_thumbnail_width"
+            android:layout_height="@dimen/voter_thumbnail_height"
             android:layout_margin="10dp"
             android:src='@{String.format("https://steemitimages.com/u/%s/avatar/small", vote.voter)}'
             app:layout_constraintBottom_toBottomOf="parent"

@@ -8,6 +8,8 @@ import com.bumptech.glide.Glide
 import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.R
+import lee.dorian.steem_ui.ext.toDPFromDimension
+import lee.dorian.steem_ui.ext.toPixelFromDP
 import lee.dorian.steem_ui.ui.tags.PostItemListAdapter
 import lee.dorian.steem_ui.ui.voter.VoteListAdapter
 
@@ -27,12 +29,25 @@ fun setSrc(imageView: ImageView?, url: String?) {
         return
     }
 
-    Glide.with(imageView!!)
-        .load(Uri.parse(url))
-        .placeholder(R.drawable.default_post_thumbnail)
-        .error(R.drawable.default_post_thumbnail)
-        .fallback(R.drawable.default_post_thumbnail)
-        .into(imageView!!)
+    val context = imageView!!.context
+    val imageWidth = context?.toDPFromDimension(R.dimen.voter_thumbnail_width)?.toInt() ?: 0
+    val imageHeight = context?.toDPFromDimension(R.dimen.voter_thumbnail_height)?.toInt() ?: 0
+
+    if ((imageWidth == 0) and (imageHeight == 0)) {
+        Glide.with(imageView!!)
+            .load(R.drawable.default_post_thumbnail)
+            .override(imageWidth, imageHeight)
+            .into(imageView!!)
+    }
+    else {
+        Glide.with(imageView!!)
+            .load(Uri.parse(url))
+            .override(imageWidth, imageHeight)
+            .placeholder(R.drawable.default_post_thumbnail)
+            .error(R.drawable.default_post_thumbnail)
+            .fallback(R.drawable.default_post_thumbnail)
+            .into(imageView!!)
+    }
 }
 
 @BindingAdapter("votes")
