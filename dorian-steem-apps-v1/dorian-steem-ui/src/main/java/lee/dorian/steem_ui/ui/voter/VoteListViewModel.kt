@@ -6,6 +6,6 @@ import lee.dorian.steem_ui.ui.base.BaseViewModel
 
 class VoteListViewModel : BaseViewModel() {
 
-    val votes: MutableLiveData<Array<ActiveVote>> = MutableLiveData(arrayOf())
+    val votes: MutableLiveData<ArrayList<ActiveVote>> = MutableLiveData(arrayListOf())
 
 }

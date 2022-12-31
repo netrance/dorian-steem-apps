@@ -2,13 +2,16 @@ package lee.dorian.steem_ui.ui.voter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_ui.databinding.LayoutVoteItemBinding
 
-class VoteListAdapter() : RecyclerView.Adapter<VoteListAdapter.VoterListViewHolder>() {
+class VoteListAdapter() : RecyclerView.Adapter<VoteListAdapter.VoterListViewHolder>(), Filterable {
 
-    var voteArray = arrayOf<ActiveVote>()
+    var voteArrayList = arrayListOf<ActiveVote>()
+    var filteredVoteArrayList = arrayListOf<ActiveVote>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VoterListViewHolder {
         return VoterListViewHolder(LayoutVoteItemBinding.inflate(
@@ -20,21 +23,22 @@ class VoteListAdapter() : RecyclerView.Adapter<VoteListAdapter.VoterListViewHold
 
     override fun onBindViewHolder(holder: VoterListViewHolder, position: Int) {
         try {
-            holder.bind(voteArray[position])
+            holder.bind(filteredVoteArrayList[position])
         }
         catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
         }
     }
 
-    override fun getItemCount(): Int = voteArray.size
+    override fun getItemCount(): Int = filteredVoteArrayList.size
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
     }
 
-    fun setVotes(votes: Array<ActiveVote>) {
-        this.voteArray = votes
+    fun setVotes(votes: ArrayList<ActiveVote>) {
+        this.voteArrayList = votes
+        this.filteredVoteArrayList = votes
         notifyDataSetChanged()
     }
 
@@ -44,6 +48,27 @@ class VoteListAdapter() : RecyclerView.Adapter<VoteListAdapter.VoterListViewHold
         fun bind(activeVote: ActiveVote) {
             binding.vote = activeVote
         }
+    }
+
+    override fun getFilter(): Filter = object: Filter() {
+        override fun performFiltering(constraint: CharSequence?): FilterResults {
+            val partOfSteemitAccount = constraint?.toString() ?: ""
+
+            val filteredVoteArrayList = when {
+                (partOfSteemitAccount.isEmpty()) -> voteArrayList
+                else -> voteArrayList.filter { it.voter.contains(partOfSteemitAccount) }
+            }
+
+            return FilterResults().apply {
+                this.values = filteredVoteArrayList
+            }
+        }
+
+        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+            filteredVoteArrayList = (results?.values as ArrayList<ActiveVote>)
+            notifyDataSetChanged()
+        }
+
     }
 
 }

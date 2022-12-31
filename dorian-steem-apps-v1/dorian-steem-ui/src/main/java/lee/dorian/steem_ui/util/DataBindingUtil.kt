@@ -51,7 +51,7 @@ fun setSrc(imageView: ImageView?, url: String?) {
 }
 
 @BindingAdapter("votes")
-fun bind(recyclerView: RecyclerView?, votes: Array<ActiveVote>?) {
+fun bind(recyclerView: RecyclerView?, votes: ArrayList<ActiveVote>?) {
     (recyclerView?.adapter as VoteListAdapter)?.let {
         if (null != votes) {
             it.setVotes(votes)

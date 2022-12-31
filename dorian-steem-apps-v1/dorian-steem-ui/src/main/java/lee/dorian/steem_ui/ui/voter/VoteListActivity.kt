@@ -2,6 +2,8 @@ package lee.dorian.steem_ui.ui.voter
 
 import android.os.Build
 import android.os.Bundle
+import android.view.KeyEvent
+import android.view.View.OnClickListener
 import androidx.lifecycle.ViewModelProvider
 import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_ui.BaseActivity
@@ -22,18 +24,36 @@ class VoteListActivity : BaseActivity<ActivityVoteListBinding, VoteListViewModel
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_vote_list)
 
-        //val voterList = intent.getSerializableExtra("voter_list", Array<ActiveVote>::class.java)
-        val voterList = when {
+        val voterArrayList = when {
             (Build.VERSION.SDK_INT >= 33) -> {
-                intent.getSerializableExtra(INTENT_BUNDLE_VOTER_LIST, Array<ActiveVote>::class.java)
+                intent.getSerializableExtra(INTENT_BUNDLE_VOTER_LIST) as ArrayList<ActiveVote>
+                //intent.getSerializableExtra(INTENT_BUNDLE_VOTER_LIST, ArrayList<ActiveVote>::class.java)    // Cannot build
             }
             else -> {
-                intent.getSerializableExtra(INTENT_BUNDLE_VOTER_LIST) as Array<ActiveVote>
+                intent.getSerializableExtra(INTENT_BUNDLE_VOTER_LIST) as ArrayList<ActiveVote>
             }
         }
         binding.viewModel = viewModel
-        viewModel.votes.value = voterList
+        viewModel.votes.value = voterArrayList
         binding.listVoter.adapter = VoteListAdapter()
+
+        // Set listeners.
+        binding.imgbtnSearch.setOnClickListener(imgbtnSearchButtonClickListener)
+        binding.editVoter.setOnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                binding.imgbtnSearch.performClick()
+                true
+            }
+            false
+        }
     }
 
+    val imgbtnSearchButtonClickListener = OnClickListener {
+        with (binding.listVoter.adapter) {
+            if (this is VoteListAdapter) {
+                this.filter.filter(binding.editVoter.text.toString())
+            }
+        }
+
+    }
 }
