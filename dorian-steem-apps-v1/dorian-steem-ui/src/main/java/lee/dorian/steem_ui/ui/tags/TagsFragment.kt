@@ -144,14 +144,15 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
             // open new activity to show upvoting list
             val downvotes = postItem.activeVotes.filter { vote ->
                 vote.isDownvote()
-            }.toTypedArray().apply { sortBy { it.value } }
+            }.sortedByDescending { it.value }
 
             if (downvotes.isEmpty()) {
                 return
             }
 
+            val downvoteArrayList = ArrayList(downvotes)
             Intent(requireActivity(), VoteListActivity::class.java).apply {
-                this.putExtra(VoteListActivity.INTENT_BUNDLE_VOTER_LIST, downvotes)
+                this.putExtra(VoteListActivity.INTENT_BUNDLE_VOTER_LIST, downvoteArrayList)
                 startActivity(this)
             }
         }
