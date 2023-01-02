@@ -29,9 +29,8 @@ fun setSrc(imageView: ImageView?, url: String?) {
         return
     }
 
-    val context = imageView!!.context
-    val imageWidth = context?.toDPFromDimension(R.dimen.voter_thumbnail_width)?.toInt() ?: 0
-    val imageHeight = context?.toDPFromDimension(R.dimen.voter_thumbnail_height)?.toInt() ?: 0
+    val imageWidth = imageView!!.width //context?.toDPFromDimension(R.dimen.voter_thumbnail_width)?.toInt() ?: 0
+    val imageHeight = imageView!!.height //context?.toDPFromDimension(R.dimen.voter_thumbnail_height)?.toInt() ?: 0
 
     if ((imageWidth == 0) and (imageHeight == 0)) {
         Glide.with(imageView!!)
