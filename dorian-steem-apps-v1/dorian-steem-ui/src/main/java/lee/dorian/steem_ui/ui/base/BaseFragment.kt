@@ -40,6 +40,7 @@ abstract class BaseFragment<VDB: ViewDataBinding, VM: BaseViewModel>(
 
     override fun onDestroyView() {
         super.onDestroyView()
+        viewModel.compositeDisposable.clear()
         _binding = null
     }
 
