@@ -6,9 +6,12 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import lee.dorian.steem_domain.model.ActiveVote
+import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.databinding.LayoutVoteItemBinding
 
-class VoteListAdapter() : RecyclerView.Adapter<VoteListAdapter.VoterListViewHolder>(), Filterable {
+class VoteListAdapter(
+    val profileImageClickListener: OnProfileImageClickListener
+) : RecyclerView.Adapter<VoteListAdapter.VoterListViewHolder>(), Filterable {
 
     var voteArrayList = arrayListOf<ActiveVote>()
     var filteredVoteArrayList = arrayListOf<ActiveVote>()
@@ -24,6 +27,9 @@ class VoteListAdapter() : RecyclerView.Adapter<VoteListAdapter.VoterListViewHold
     override fun onBindViewHolder(holder: VoterListViewHolder, position: Int) {
         try {
             holder.bind(filteredVoteArrayList[position])
+            holder.binding.imageVoterProfile.setOnClickListener {
+                profileImageClickListener.onClick(voteArrayList[position].voter)
+            }
         }
         catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
@@ -69,6 +75,10 @@ class VoteListAdapter() : RecyclerView.Adapter<VoteListAdapter.VoterListViewHold
             notifyDataSetChanged()
         }
 
+    }
+
+    interface OnProfileImageClickListener {
+        fun onClick(steemitAccount: String)
     }
 
 }

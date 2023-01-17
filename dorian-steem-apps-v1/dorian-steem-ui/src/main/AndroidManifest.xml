@@ -15,7 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DorianSteemApps"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ui.profile.ProfileImageActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name="lee.dorian.steem_ui.MainActivity"
             android:exported="true"
@@ -26,16 +32,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.voter.VoteListActivity"
-            android:label="@string/title_vote_list"
-            android:exported="false">
+            android:exported="false"
+            android:label="@string/title_vote_list">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
     </application>
 
 </manifest>
