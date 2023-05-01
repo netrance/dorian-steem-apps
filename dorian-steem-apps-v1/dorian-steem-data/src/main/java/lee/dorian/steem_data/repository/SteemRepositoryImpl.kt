@@ -1,15 +1,19 @@
 package lee.dorian.steem_data.repository
 
 import io.reactivex.Single
+import kotlinx.coroutines.*
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_data.retrofit.SteemClient
+import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_domain.model.SteemitWallet
 import lee.dorian.steem_domain.repository.SteemRepository
 
-class SteemRepositoryImpl: SteemRepository {
+class SteemRepositoryImpl(
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+): SteemRepository {
 
     override fun readSteemitWallet(account: String): Single<Array<SteemitWallet>> {
         val getDynamicGlobalPropertiesParams = GetDynamicGlobalPropertiesParamsDTO(id = 1)
@@ -34,27 +38,47 @@ class SteemRepositoryImpl: SteemRepository {
         }
     }
 
-    override fun readRankedPosts(
+    override suspend fun readRankedPosts(
         sort: String,
         tag: String,
         observer: String,
         limit: Int,
-        lastPostItem: PostItem?
-    ): Single<List<PostItem>> {
+        existingList: List<PostItem>
+    ): ApiResult<List<PostItem>> = withContext(dispatcher) {
+        val lastPostAuthor = when {
+            (existingList.isEmpty()) -> ""
+            else -> existingList.last().account
+        }
+        val lastPostPermlink = when {
+            (existingList.isEmpty()) -> ""
+            else -> existingList.last().permlink
+        }
         val innerParams = GetRankedPostParamsDTO.InnerParams(
             sort,
             tag,
             observer,
             limit,
-            lastPostItem?.account ?: "",
-            lastPostItem?.permlink ?: ""
+            lastPostAuthor,
+            lastPostPermlink
         )
         val getRankedPostsParams = GetRankedPostParamsDTO(params = innerParams, id = 1)
 
-        return SteemClient.apiService.getRankedPosts(getRankedPostsParams).map { response ->
-            (response.result ?: listOf()).map { postItemDTO ->
-                postItemDTO.toPostItem()
+        // return
+        try {
+            val response = SteemClient.apiService.getRankedPosts(getRankedPostsParams)
+            if (!response.isSuccessful) {
+                ApiResult.Failure(response.errorBody()?.string() ?: "")
             }
+            else {
+                val postItems = (response.body()?.result ?: listOf()).map { postItemDTO ->
+                    postItemDTO.toPostItem()
+                }
+
+                ApiResult.Success(postItems)
+            }
+        }
+        catch (e: java.lang.Exception) {
+            ApiResult.Error(e)
         }
     }
 

@@ -21,7 +21,7 @@ import lee.dorian.steem_ui.ui.voter.VoteListAdapter
 
 @BindingAdapter("postItemList")
 fun bind(recyclerView: RecyclerView?, postItemList: List<PostItem>?) {
-    (recyclerView?.adapter as PostItemListAdapter)?.let {
+    (recyclerView?.adapter as PostItemListAdapter).let {
         if (null != postItemList) {
             it.setList(postItemList)
         }

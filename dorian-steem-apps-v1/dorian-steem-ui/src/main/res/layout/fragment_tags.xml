@@ -65,7 +65,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:postItemList="@{viewModel.rankedPosts}"
                 tools:listitem="@layout/layout_post_item" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

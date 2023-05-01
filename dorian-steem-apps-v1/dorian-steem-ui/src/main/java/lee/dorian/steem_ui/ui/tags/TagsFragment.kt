@@ -9,9 +9,11 @@ import android.view.ViewGroup
 import android.widget.RadioGroup.OnCheckedChangeListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
-import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.launch
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
@@ -36,7 +38,7 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
         savedInstanceState: Bundle?
     ): View? {
         return super.onCreateView(inflater, container, savedInstanceState).apply {
-            binding.viewModel = viewModel
+            //binding.viewModel = viewModel
         }
     }
 
@@ -67,36 +69,44 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
             removeObservers(viewLifecycleOwner)
             observe(viewLifecycleOwner, currentTagObserver)
         }
+
+        lifecycleScope.apply {
+            launch { viewModel.flowTagsState.collect(tagsStateCollector) }
+            launch { viewModel.flowTag.collect(tagCollector) }
+            launch { viewModel.flowSort.collect(sortCollector) }
+        }
     }
 
-    private val currentTagObserver = Observer<String> { tag ->
+    private val currentTagObserver = Observer<String> { newTag ->
+        viewModel.updateTag(newTag)
+    }
+
+    private val tagCollector = FlowCollector<String> { newTag ->
         readRankedPosts()
     }
 
-    private fun readRankedPosts() {
-        val tag = activityViewModel.currentTag.value ?: ""
-        val sort = viewModel.sort.value ?: ""
+    private val sortCollector = FlowCollector<String> { newSort ->
+        readRankedPosts()
+    }
 
-        if (sort.isEmpty()) {
-            showToastShortly(getString(R.string.error_sort_is_not_set))
-            return
-        }
-
-        binding.swipeRefreshPostList.isRefreshing = true
-        viewModel.readRankedPosts(
-            tag
-        ) {
-            binding.swipeRefreshPostList.isRefreshing = false
+    private val tagsStateCollector = FlowCollector<TagsState> { newState ->
+        binding.swipeRefreshPostList.isRefreshing = false
+        when (newState) {
+            is TagsState.Loading -> {
+                binding.swipeRefreshPostList.isRefreshing = true
+                updateRankedList(listOf())
+            }
+            is TagsState.Error, is TagsState.Failure -> {
+                showToastShortly(getString(R.string.error_cannot_load))
+            }
+            is TagsState.Success -> {
+                updateRankedList(newState.tagList)
+            }
         }
     }
 
     private val sortCheckedChangedListener = OnCheckedChangeListener { radioGroup, radioButtonId ->
-        viewModel.sort.value = when (radioButtonId) {
-            R.id.radiobtn_trending -> GetRankedPostParamsDTO.InnerParams.SORT_TRENDING
-            R.id.radiobtn_created -> GetRankedPostParamsDTO.InnerParams.SORT_CREATED
-            R.id.radiobtn_payout -> GetRankedPostParamsDTO.InnerParams.SORT_PAYOUT
-            else -> GetRankedPostParamsDTO.InnerParams.SORT_TRENDING
-        }
+        viewModel.updateSort(radioButtonId)
     }
 
     private val radiobtnSortClickListener = OnClickListener {
@@ -107,11 +117,9 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
 
-            binding.viewModel?.let {
-                if (!binding.listPostItem.canScrollVertically(1)) {
-                    val tag = activityViewModel.currentTag.value ?: ""
-                    it.appendRankedPosts(tag)
-                }
+            if (!binding.listPostItem.canScrollVertically(1)) {
+                val tag = activityViewModel.currentTag.value ?: ""
+                viewModel.appendRankedPosts(tag)
             }
         }
     }
@@ -141,7 +149,7 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
 
     private val downvoteViewClickListener = object: PostItemListAdapter.OnVoteCountViewClickListener {
         override fun onClick(postItem: PostItem) {
-            // open new activity to show upvoting list
+            // open new activity to show downvoting list
             val downvotes = postItem.activeVotes.filter { vote ->
                 vote.isDownvote()
             }.sortedByDescending { it.value }
@@ -156,6 +164,21 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
                 startActivity(this)
             }
         }
+    }
+
+    private fun updateRankedList(postItemList: List<PostItem>) {
+        (binding.listPostItem.adapter as PostItemListAdapter).setList(postItemList)
+    }
+
+    private fun readRankedPosts() {
+        val sort = viewModel._flowSort.value
+
+        if (sort.isEmpty()) {
+            showToastShortly(getString(R.string.error_sort_is_not_set))
+            return
+        }
+
+        viewModel.readRankedPosts()
     }
 
 }

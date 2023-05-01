@@ -1,93 +1,91 @@
 package lee.dorian.steem_ui.ui.tags
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
+import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.PostItem
-import lee.dorian.steem_domain.model.SteemitWallet
 import lee.dorian.steem_domain.usecase.ReadRankedPostsUseCase
+import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.ui.base.BaseViewModel
 
 class TagsViewModel : BaseViewModel() {
 
-    // Will be deleted soon...
-    val text by lazy {
-        MutableLiveData("This is tags Fragment")
-    }
-
     val limit = GetRankedPostParamsDTO.InnerParams.DEFAULT_LIMIT
 
-    val sort = MutableLiveData("")
-    val rankedPosts = MutableLiveData<MutableList<PostItem>>(mutableListOf())
+    private val _flowTagsState: MutableStateFlow<TagsState> = MutableStateFlow(TagsState.Loading)
+    val flowTagsState = _flowTagsState.asStateFlow()
+
+    val _flowTag = MutableStateFlow("")
+    val flowTag = _flowTag.asStateFlow()
+
+    val _flowSort = MutableStateFlow(GetRankedPostParamsDTO.InnerParams.SORT_TRENDING)
+    val flowSort = _flowSort.asStateFlow()
+
     val readRankedPostsUseCase = ReadRankedPostsUseCase(SteemRepositoryImpl())
 
-    fun readRankedPosts(
-        tag: String,
-        limit: Int = this.limit,
-        handleAfterReading: (() -> Unit) = {}
-    ) {
-        rankedPosts.value = mutableListOf()
+    fun updateTag(tag: String) = viewModelScope.launch {
+        _flowTag.emit(tag)
+    }
 
-        readRankedPostsUseCase(
-            sort.value ?: GetRankedPostParamsDTO.InnerParams.SORT_TRENDING,
-            tag
-        )
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .onErrorReturn { error ->
-            error.printStackTrace()
-            liveThrowable.value = error
-            handleAfterReading()
-            listOf()
+    fun updateSort(checkedRadioButtonId: Int) = viewModelScope.launch {
+        val newSort = when (checkedRadioButtonId) {
+            R.id.radiobtn_trending -> GetRankedPostParamsDTO.InnerParams.SORT_TRENDING
+            R.id.radiobtn_created -> GetRankedPostParamsDTO.InnerParams.SORT_CREATED
+            R.id.radiobtn_payout -> GetRankedPostParamsDTO.InnerParams.SORT_PAYOUT
+            else -> GetRankedPostParamsDTO.InnerParams.SORT_TRENDING
         }
-        .subscribe { rankedPostItemList ->
-            rankedPosts.value = rankedPostItemList.toMutableList()
-            handleAfterReading()
+
+        _flowSort.emit(newSort)
+    }
+
+    fun readRankedPosts(
+        limit: Int = this.limit
+    ) = viewModelScope.launch {
+        _flowTagsState.emit(TagsState.Loading)
+        val apiResult = readRankedPostsUseCase(_flowSort.value, _flowTag.value)
+        val newTagsState = when (apiResult) {
+            is ApiResult.Failure -> TagsState.Failure(apiResult.content)
+            is ApiResult.Error -> TagsState.Error(apiResult.throwable)
+            is ApiResult.Success -> {
+                val newTagList = mutableListOf<PostItem>().apply {
+                    addAll(apiResult.data)
+                }
+                TagsState.Success(newTagList)
+            }
         }
-        .also { disposable ->
-            compositeDisposable.add(disposable)
-        }
+        _flowTagsState.emit(newTagsState)
     }
 
     fun appendRankedPosts(
         tag: String,
         limit: Int = this.limit
-    ) {
-        val rankedPostsValue = rankedPosts.value ?: listOf()
-        if (rankedPostsValue.size < GetRankedPostParamsDTO.InnerParams.DEFAULT_LIMIT) {
-            return
+    ) = viewModelScope.launch {
+        val recentTagsState = _flowTagsState.value
+        val existingRankedPosts = when (recentTagsState) {
+            is TagsState.Success -> recentTagsState.tagList
+            else -> listOf()
         }
 
-        val lastPostItem = when {
-            (rankedPostsValue.isEmpty()) -> null
-            else -> rankedPostsValue.last()
-        } ?: return
-
-        readRankedPostsUseCase(
-            sort.value ?: GetRankedPostParamsDTO.InnerParams.SORT_TRENDING,
-            tag,
-            lastPostItem = lastPostItem
-        )
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .onErrorReturn { error ->
-            error.printStackTrace()
-            liveThrowable.value = error
-            listOf()
+        if (existingRankedPosts.size < GetRankedPostParamsDTO.InnerParams.DEFAULT_LIMIT) {
+            return@launch
         }
-        .subscribe { rankedPostItemList ->
-            if (rankedPostsValue.isNotEmpty()) {
-                rankedPosts.value?.addAll(rankedPostItemList)
-                rankedPosts.postValue(rankedPosts.value)
+
+        val apiResult = readRankedPostsUseCase(_flowSort.value, tag, existingList = existingRankedPosts)
+        val newTagsState = when (apiResult) {
+            is ApiResult.Failure -> TagsState.Failure(apiResult.content)
+            is ApiResult.Error -> TagsState.Error(apiResult.throwable)
+            is ApiResult.Success -> {
+                val newTagList = mutableListOf<PostItem>().apply {
+                    addAll(existingRankedPosts)
+                    addAll(apiResult.data)
+                }
+                TagsState.Success(newTagList)
             }
         }
-        .also { disposable ->
-            compositeDisposable.add(disposable)
-        }
+        _flowTagsState.emit(newTagsState)
     }
 
 }
