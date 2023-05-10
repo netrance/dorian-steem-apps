@@ -8,7 +8,9 @@ import lee.dorian.steem_domain.model.SteemitWallet
 
 interface SteemRepository {
 
-    fun readSteemitWallet(account: String): Single<Array<SteemitWallet>>
+    suspend fun readSteemitWallet(
+        account: String
+    ): ApiResult<Array<SteemitWallet>>
 
     suspend fun readRankedPosts(
         sort: String,

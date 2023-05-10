@@ -1,6 +1,5 @@
 package lee.dorian.steem_data.repository
 
-import io.reactivex.Single
 import kotlinx.coroutines.*
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
@@ -15,26 +14,46 @@ class SteemRepositoryImpl(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ): SteemRepository {
 
-    override fun readSteemitWallet(account: String): Single<Array<SteemitWallet>> {
+    override suspend fun readSteemitWallet(
+        account: String
+    ): ApiResult<Array<SteemitWallet>> = withContext(dispatcher) {
         val getDynamicGlobalPropertiesParams = GetDynamicGlobalPropertiesParamsDTO(id = 1)
         val getAccountParams = GetAccountsParamsDTO(
             params = arrayOf(arrayOf(account)),
             id = 1
         )
 
-        return Single.zip(
-            SteemClient.apiService.getDynamicGlobalProperties(getDynamicGlobalPropertiesParams),
-            SteemClient.apiService.getAccounts(getAccountParams)
-        ) { getDynamicGlobalPropertiesResponse, getAccountsResponseDTO ->
-            val getAccountsResponseResult = getAccountsResponseDTO.result ?: arrayOf()
-            when (getAccountsResponseResult.size) {
-                1 -> arrayOf(
-                    getAccountsResponseResult[0].toSteemitWallet(
-                        getDynamicGlobalPropertiesResponse.result
-                    )
-                )
-                else -> arrayOf()
+        try {
+            val responseDGP = SteemClient.apiService.getDynamicGlobalProperties(
+                getDynamicGlobalPropertiesParams
+            )
+            if (!responseDGP.isSuccessful) {
+                ApiResult.Failure(responseDGP.errorBody()?.string() ?: "")
             }
+
+            val nullableDGP = responseDGP.body()?.result
+            if (null == nullableDGP) {
+                ApiResult.Failure("Failed to read dynamic global properties" ?: "")
+            }
+
+            val dgp = nullableDGP!!
+            val responseAccounts = SteemClient.apiService.getAccounts(getAccountParams)
+            if (!responseAccounts.isSuccessful) {
+                ApiResult.Failure(responseDGP.errorBody()?.string() ?: "")
+            }
+
+            responseAccounts.body()?.result?.let {
+                val accounts = when (it.size) {
+                    1 -> arrayOf(it[0].toSteemitWallet(dgp))
+                    else -> arrayOf()
+                }
+
+                ApiResult.Success(accounts)
+            } ?: ApiResult.Failure("Failed to read accounts" ?: "")
+        }
+        catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            ApiResult.Error(e)
         }
     }
 
@@ -63,7 +82,6 @@ class SteemRepositoryImpl(
         )
         val getRankedPostsParams = GetRankedPostParamsDTO(params = innerParams, id = 1)
 
-        // return
         try {
             val response = SteemClient.apiService.getRankedPosts(getRankedPostsParams)
             if (!response.isSuccessful) {

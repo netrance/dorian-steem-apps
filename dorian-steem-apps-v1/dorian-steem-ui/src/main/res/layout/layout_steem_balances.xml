@@ -5,6 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="kotlinx.coroutines.flow.StateFlow" />
+
         <variable
             name="viewModel"
             type="lee.dorian.steem_ui.ui.wallet.WalletViewModel" />
@@ -41,7 +43,7 @@
             android:id="@+id/text_steem_balance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.steemitWallet.steemBalance}"
+            android:text=""
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintRight_toRightOf="parent"
@@ -62,7 +64,7 @@
             android:id="@+id/text_sbd_balance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.steemitWallet.sbdBalance}"
+            android:text=""
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintRight_toRightOf="parent"

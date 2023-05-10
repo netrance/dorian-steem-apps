@@ -15,19 +15,19 @@ interface SteemService {
 
     // Runs condenser_api.get_accounts API.
     @POST(".")
-    fun getAccounts(
+    suspend fun getAccounts(
         @Body followingParams: GetAccountsParamsDTO
-    ): Single<GetAccountsResponseDTO>
+    ): Response<GetAccountsResponseDTO>
 
     @POST(".")
-    fun getDynamicGlobalProperties(
+    suspend fun getDynamicGlobalProperties(
         @Body params: GetDynamicGlobalPropertiesParamsDTO
-    ): Single<GetDynamicGlobalPropertiesResponseDTO>
+    ): Response<GetDynamicGlobalPropertiesResponseDTO>
 
     // Runs bridge.get_ranked_posts API.
     @POST(".")
     suspend fun getRankedPosts(
         @Body params: GetRankedPostParamsDTO
-    ): Response<GetRankedPostsResponseDTO> // Single<GetRankedPostsResponseDTO>
+    ): Response<GetRankedPostsResponseDTO>
 
 }
