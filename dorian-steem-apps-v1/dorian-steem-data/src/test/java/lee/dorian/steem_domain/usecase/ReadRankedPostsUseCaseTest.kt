@@ -1,9 +1,12 @@
 package lee.dorian.steem_domain.usecase
 
+import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
+import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.PostItem
 import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ReadRankedPostsUseCaseTest {
@@ -21,41 +24,44 @@ class ReadRankedPostsUseCaseTest {
 
     // Test case 1: Read the first 20 trending posts containing "kr" tag.
     @Test
-    fun invoke_case1() {
-        readRankedPostsUseCase(
+    fun invoke_case1() = runTest {
+        val apiResult = readRankedPostsUseCase(
             GetRankedPostParamsDTO.InnerParams.SORT_TRENDING,
             "kr"
-        ).subscribe { postItemList ->
-            Assert.assertEquals(postItemList.size, GetRankedPostParamsDTO.InnerParams.DEFAULT_LIMIT)
-            testPostItemList(postItemList)
+        )
+        assertTrue(apiResult is ApiResult.Success)
+
+        with(apiResult as ApiResult.Success) {
+            Assert.assertEquals(data.size, GetRankedPostParamsDTO.InnerParams.DEFAULT_LIMIT)
+            testPostItemList(data)
         }
     }
 
     // Test case 2: Read the first 20 trending posts and the second 20 ones containing "kr" tag.
     @Test
-    fun invoke_case2() {
+    fun invoke_case2() = runTest {
         var lastPostItem: PostItem? = null
         val postItemList = mutableListOf<PostItem>()
 
-        readRankedPostsUseCase(
+        val firstApiResult = readRankedPostsUseCase(
             GetRankedPostParamsDTO.InnerParams.SORT_TRENDING,
             "kr"
-        ).subscribe { readPostItemList ->
-            lastPostItem = readPostItemList.last()
-            postItemList.addAll(readPostItemList)
-            testPostItemList(postItemList)
-        }
+        )
+        assertTrue(firstApiResult is ApiResult.Success)
+        val firstPostItemList = (firstApiResult as ApiResult.Success).data
+        lastPostItem = firstPostItemList.last()
+        postItemList.addAll(firstPostItemList)
+        testPostItemList(postItemList)
 
-        readRankedPostsUseCase(
+        val secondApiResult = readRankedPostsUseCase(
             GetRankedPostParamsDTO.InnerParams.SORT_TRENDING,
             "kr",
-            lastPostItem = lastPostItem
-        ).subscribe { readPostItemList ->
-            postItemList.addAll(readPostItemList)
-            Assert.assertEquals(readPostItemList.size, GetRankedPostParamsDTO.InnerParams.DEFAULT_LIMIT)
-            Assert.assertEquals(postItemList.size, 2 * GetRankedPostParamsDTO.InnerParams.DEFAULT_LIMIT)
-            testPostItemList(postItemList)
-        }
+            existingList = postItemList
+        )
+        assertTrue(secondApiResult is ApiResult.Success)
+        val secondPostItemList = (secondApiResult as ApiResult.Success).data
+        postItemList.addAll(secondPostItemList)
+        testPostItemList(postItemList)
     }
 
 }

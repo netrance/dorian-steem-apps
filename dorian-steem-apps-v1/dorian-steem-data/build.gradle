@@ -11,6 +11,7 @@ java {
 dependencies {
     // To refer to other modules
     implementation project(":dorian-steem-domain")
+    implementation project(":dorian-steem-test")
 
     // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -25,5 +26,6 @@ dependencies {
 
     // For unit test
     testImplementation 'junit:junit:4.13.2'
-    //testImplementation 'android.arch.core:core-testing:1.1.1'
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
 }

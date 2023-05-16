@@ -16,3 +16,4 @@ rootProject.name = "Dorian Steem Apps"
 include ':dorian-steem-ui'
 include ':dorian-steem-domain'
 include ':dorian-steem-data'
+include ':dorian-steem-test'
