@@ -1,4 +1,4 @@
-package lee.dorian.steem_data.constants
+package lee.dorian.steem_test
 
 object TestData {
 

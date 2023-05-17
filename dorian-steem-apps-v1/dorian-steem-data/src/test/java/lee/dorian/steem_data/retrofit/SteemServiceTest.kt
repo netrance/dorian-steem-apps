@@ -1,7 +1,7 @@
 package lee.dorian.steem_data.retrofit
 
 import kotlinx.coroutines.test.runTest
-import lee.dorian.steem_data.constants.TestData
+import lee.dorian.steem_test.TestData
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO

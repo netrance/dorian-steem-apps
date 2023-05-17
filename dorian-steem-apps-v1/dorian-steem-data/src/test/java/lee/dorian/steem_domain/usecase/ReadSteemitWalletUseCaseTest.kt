@@ -1,7 +1,7 @@
 package lee.dorian.steem_domain.usecase
 
 import kotlinx.coroutines.test.runTest
-import lee.dorian.steem_data.constants.TestData
+import lee.dorian.steem_test.TestData
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ApiResult
 import org.junit.Assert.assertEquals

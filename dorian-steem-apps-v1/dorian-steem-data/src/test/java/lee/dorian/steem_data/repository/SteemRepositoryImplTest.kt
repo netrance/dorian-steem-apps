@@ -1,7 +1,7 @@
 package lee.dorian.steem_data.repository
 
 import kotlinx.coroutines.test.runTest
-import lee.dorian.steem_data.constants.TestData
+import lee.dorian.steem_test.TestData
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_domain.model.ApiResult
 import org.junit.Test
