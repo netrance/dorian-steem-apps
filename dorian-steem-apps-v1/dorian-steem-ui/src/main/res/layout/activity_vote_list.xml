@@ -39,8 +39,7 @@
             android:layout_height="0dp"
             app:layout_constraintTop_toBottomOf="@id/edit_voter"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:votes="@{viewModel.votes}" />
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

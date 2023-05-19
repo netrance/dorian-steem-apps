@@ -5,6 +5,8 @@ import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View.OnClickListener
+import android.view.View.OnKeyListener
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_ui.BaseActivity
@@ -22,9 +24,12 @@ class VoteListActivity : BaseActivity<ActivityVoteListBinding, VoteListViewModel
         ViewModelProvider(this).get(VoteListViewModel::class.java)
     }
 
+    val voteListAdapter by lazy {
+        VoteListAdapter(profileImageClickListener)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_vote_list)
 
         val voterArrayList = when {
             (Build.VERSION.SDK_INT >= 33) -> {
@@ -36,21 +41,27 @@ class VoteListActivity : BaseActivity<ActivityVoteListBinding, VoteListViewModel
             }
         }
         binding.viewModel = viewModel
+        binding.lifecycleOwner = this
         viewModel.votes.value = voterArrayList
-        binding.listVoter.adapter = VoteListAdapter(profileImageClickListener)
+        binding.listVoter.adapter = voteListAdapter
 
         // Set listeners.
         binding.imgbtnSearch.setOnClickListener(imgbtnSearchButtonClickListener)
-        binding.editVoter.setOnKeyListener { v, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                binding.imgbtnSearch.performClick()
-                true
-            }
-            false
-        }
+        binding.editVoter.setOnKeyListener(editVoterKeyListener)
+
+        // Observe live data.
+        viewModel.votes.observe(this, votesObserver)
     }
 
-    val imgbtnSearchButtonClickListener = OnClickListener {
+    private val editVoterKeyListener = OnKeyListener { v, keyCode, event ->
+        if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            binding.imgbtnSearch.performClick()
+            true
+        }
+        false
+    }
+
+    private val imgbtnSearchButtonClickListener = OnClickListener {
         with (binding.listVoter.adapter) {
             if (this is VoteListAdapter) {
                 this.filter.filter(binding.editVoter.text.toString())
@@ -58,11 +69,16 @@ class VoteListActivity : BaseActivity<ActivityVoteListBinding, VoteListViewModel
         }
     }
 
-    val profileImageClickListener = object: VoteListAdapter.OnProfileImageClickListener {
+    private val profileImageClickListener = object: VoteListAdapter.OnProfileImageClickListener {
         override fun onClick(steemitAccount: String) {
             startActivity(Intent(this@VoteListActivity, ProfileImageActivity::class.java).apply {
                 putExtra(ProfileImageActivity.INTENT_BUNDLE_STEEMIT_ACCOUNT, steemitAccount)
             })
         }
     }
+
+    private val votesObserver = Observer<ArrayList<ActiveVote>> {
+        voteListAdapter.setVotes(it)
+    }
+
 }

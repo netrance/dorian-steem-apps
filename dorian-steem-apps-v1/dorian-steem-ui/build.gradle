@@ -47,6 +47,7 @@ dependencies {
     // To refer to other modules
     implementation project(':dorian-steem-domain')
     implementation project(':dorian-steem-data')
+    implementation project(":dorian-steem-test")
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'

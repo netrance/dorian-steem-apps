@@ -1,9 +1,8 @@
 package lee.dorian.steem_ui.ui.wallet
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.setMain
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.usecase.ReadSteemitWalletUseCase
+import lee.dorian.steem_test.CommonPartOfViewModelTest
 import org.junit.*
 
 import org.junit.Assert.*

@@ -1,5 +1,7 @@
 package lee.dorian.steem_ui.ui.wallet
 
+import kotlinx.coroutines.test.runTest
+import lee.dorian.steem_test.CommonPartOfViewModelTest
 import lee.dorian.steem_ui.ui.tags.TagsViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -35,13 +37,19 @@ class TagsViewModelTest : CommonPartOfViewModelTest() {
             readRankedPosts()
         }
         Thread.sleep(3000)
+        tagViewModel.flowTagsState.value.also { newState ->
+            assertTrue(newState is TagsState.Success)
+            val tags = (newState as TagsState.Success).tagList
+            assertEquals(tags.size, tagViewModel.limit)
+        }
+
         tagViewModel.appendRankedPosts("kr")
         Thread.sleep(3000)
-
-        val tagsState = tagViewModel.flowTagsState.value
-        assertTrue(tagsState is TagsState.Success)
-        val tags = (tagsState as TagsState.Success).tagList
-        assertEquals(tags.size, 2 * tagViewModel.limit)
+        tagViewModel.flowTagsState.value.also { newState ->
+            assertTrue(newState is TagsState.Success)
+            val tags = (newState as TagsState.Success).tagList
+            assertEquals(tags.size, 2 * tagViewModel.limit)
+        }
     }
 
 }

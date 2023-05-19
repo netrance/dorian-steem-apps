@@ -10,11 +10,12 @@ import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.databinding.LayoutVoteItemBinding
 
 class VoteListAdapter(
-    val profileImageClickListener: OnProfileImageClickListener
+    private val profileImageClickListener: OnProfileImageClickListener
 ) : RecyclerView.Adapter<VoteListAdapter.VoterListViewHolder>(), Filterable {
 
-    var voteArrayList = arrayListOf<ActiveVote>()
-    var filteredVoteArrayList = arrayListOf<ActiveVote>()
+    private var voteArrayList = arrayListOf<ActiveVote>()
+    private var filteredVoteArrayList = arrayListOf<ActiveVote>()
+    private var filterConstraint = ""
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VoterListViewHolder {
         return VoterListViewHolder(LayoutVoteItemBinding.inflate(
@@ -44,11 +45,10 @@ class VoteListAdapter(
 
     fun setVotes(votes: ArrayList<ActiveVote>) {
         this.voteArrayList = votes
-        this.filteredVoteArrayList = votes
-        notifyDataSetChanged()
+        refreshFilteredList()
     }
 
-    inner class VoterListViewHolder(
+    class VoterListViewHolder(
         val binding: LayoutVoteItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(activeVote: ActiveVote) {
@@ -59,6 +59,7 @@ class VoteListAdapter(
     override fun getFilter(): Filter = object: Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults {
             val partOfSteemitAccount = constraint?.toString() ?: ""
+            filterConstraint = partOfSteemitAccount
 
             val filteredVoteArrayList = when {
                 (partOfSteemitAccount.isEmpty()) -> voteArrayList
@@ -75,6 +76,10 @@ class VoteListAdapter(
             notifyDataSetChanged()
         }
 
+    }
+
+    private fun refreshFilteredList() {
+        filter.filter(filterConstraint)
     }
 
     interface OnProfileImageClickListener {
