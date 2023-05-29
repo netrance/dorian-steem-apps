@@ -9,7 +9,8 @@ import lee.dorian.steem_ui.ext.load
 
 class PostItemListAdapter(
     private val upvoteViewClickListener: OnVoteCountViewClickListener,
-    private val downvoteViewClickListener: OnVoteCountViewClickListener
+    private val downvoteViewClickListener: OnVoteCountViewClickListener,
+    private val postImageViewClickListener: OnPostImageViewClickListener
 ) : RecyclerView.Adapter<PostItemListAdapter.PostItemListViewHolder>() {
 
     private val postItemList = mutableListOf<PostItem>()
@@ -27,6 +28,7 @@ class PostItemListAdapter(
             holder.bind(postItemList[position])
             holder.binding.textUpvotes.setOnClickListener { upvoteViewClickListener.onClick(postItemList[position]) }
             holder.binding.textDownvotes.setOnClickListener { downvoteViewClickListener.onClick(postItemList[position]) }
+            holder.binding.imageThumbnail.setOnClickListener { postImageViewClickListener.onClick(postItemList[position].imageURLs) }
         }
         catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
@@ -67,6 +69,10 @@ class PostItemListAdapter(
 
     interface OnVoteCountViewClickListener {
         fun onClick(postItem: PostItem)
+    }
+
+    interface OnPostImageViewClickListener {
+        fun onClick(imageURLs: List<String>)
     }
 
 }

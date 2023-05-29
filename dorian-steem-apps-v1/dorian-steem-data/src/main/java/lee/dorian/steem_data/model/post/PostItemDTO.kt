@@ -40,6 +40,7 @@ data class PostItemDTO(
 
     fun toPostItem(): PostItem {
         val thumbnailURL = json_metadata?.getThumbnailURL() ?: ""
+        val imageURLs = json_metadata?.image ?: listOf()
         val tag = category ?: ""
         val communityTitle = community_title ?: ""
         val tagOrCommunity = when {
@@ -58,6 +59,7 @@ data class PostItemDTO(
         return PostItem(
             title ?: "",
             thumbnailURL,
+            imageURLs,
             body ?: "",
             tagOrCommunity,
             Converter.toLocalTimeFromUTCTime(created ?: "", "yyyy-MM-dd HH:mm"),

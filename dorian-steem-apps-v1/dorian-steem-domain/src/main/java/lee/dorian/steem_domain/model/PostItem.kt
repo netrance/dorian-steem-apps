@@ -3,6 +3,7 @@ package lee.dorian.steem_domain.model
 data class PostItem(
     val title: String,
     val thumbnailURL: String,
+    val imageURLs: List<String>,
     val content: String,
     val tagOrCommunity: String,
     val time: String,

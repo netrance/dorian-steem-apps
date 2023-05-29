@@ -20,6 +20,7 @@ import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentTagsBinding
 import lee.dorian.steem_ui.ext.showToastShortly
 import lee.dorian.steem_ui.ui.base.BaseFragment
+import lee.dorian.steem_ui.ui.post.PostImagePagerActivity
 import lee.dorian.steem_ui.ui.voter.VoteListActivity
 
 class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.fragment_tags) {
@@ -46,7 +47,11 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
         super.onViewCreated(view, savedInstanceState)
 
         binding.listPostItem.apply {
-            adapter = PostItemListAdapter(upvoteViewClickListener, downvoteViewClickListener).apply {
+            adapter = PostItemListAdapter(
+                upvoteViewClickListener,
+                downvoteViewClickListener,
+                postImageViewClickListener
+            ).apply {
                 setHasStableIds(true)
             }
             addOnScrollListener(rankedPostsScrollListener)
@@ -162,6 +167,21 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
             Intent(requireActivity(), VoteListActivity::class.java).apply {
                 this.putExtra(VoteListActivity.INTENT_BUNDLE_VOTER_LIST, downvoteArrayList)
                 startActivity(this)
+            }
+        }
+    }
+
+    private val postImageViewClickListener = object: PostItemListAdapter.OnPostImageViewClickListener {
+        override fun onClick(imageURLs: List<String>) {
+            Intent(requireActivity(), PostImagePagerActivity::class.java).also {
+                if (imageURLs.isEmpty()) {
+                    showToastShortly(getString(R.string.error_no_post_image))
+                    return
+                }
+
+                val imageURLArrayList = ArrayList(imageURLs)
+                it.putExtra(PostImagePagerActivity.INTENT_BUNDLE_IMAGE_URL_LIST, imageURLArrayList)
+                startActivity(it)
             }
         }
     }

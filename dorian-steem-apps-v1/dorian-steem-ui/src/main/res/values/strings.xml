@@ -9,6 +9,7 @@
 
     <!-- Strings for TagsFragment -->
     <string name="error_sort_is_not_set">Please select one of the sorts.</string>
+    <string name="error_no_post_image">No image from this post</string>
 
     <!-- Strings for VoteListActivity -->
     <string name="title_vote_list">Vote List</string>

@@ -17,6 +17,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ui.post.PostImagePagerActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.profile.ProfileImageActivity"
             android:exported="false">
             <meta-data
