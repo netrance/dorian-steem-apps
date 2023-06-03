@@ -57,7 +57,7 @@ class WalletFragment : BaseFragment<FragmentWalletBinding, WalletViewModel>(R.la
     private val walletStateCollector = FlowCollector<WalletState> { state ->
         when (state) {
             is WalletState.Success -> updateWallet(state.wallet)
-            is WalletState.Failure, is WalletState.Error -> {
+            else -> {
                 showToastShortly(getString(R.string.error_cannot_load))
             }
         }
