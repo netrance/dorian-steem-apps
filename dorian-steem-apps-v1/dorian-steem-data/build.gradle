@@ -3,6 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
+apply from: '../build.dependencies.gradle'
+
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -14,17 +16,17 @@ dependencies {
     implementation project(":dorian-steem-test")
 
     // retrofit
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation retrofit.retrofit
+    implementation retrofit.adapter_java
+    implementation retrofit.converter_gson
 
     // rx
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.20'
+    implementation rxjava.rxjava
 
     // coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation coroutines.coroutines
 
     // For unit test
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+    testImplementation others.junit
+    testImplementation coroutines.coroutines_test
 }

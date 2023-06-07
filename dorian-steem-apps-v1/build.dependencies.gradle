@@ -1,0 +1,47 @@
+ext {
+    androidx = [
+        appcompat: 'androidx.appcompat:appcompat:1.4.2',
+        constraintlayout: 'androidx.constraintlayout:constraintlayout:2.1.4',
+        core: 'androidx.core:core-ktx:1.7.0',
+        lifecycle_livedata_ktx: 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1',
+        lifecycle_viewmodel_ktx: 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1',
+        navigation_fragment_ktx: 'androidx.navigation:navigation-fragment-ktx:2.5.3',
+        navigation_ui_ktx: 'androidx.navigation:navigation-ui-ktx:2.5.3',
+        swiperefreshlayout: 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0',
+
+        // for test
+        core_testing: 'androidx.arch.core:core-testing:2.2.0',
+        espresso_core: 'androidx.test.espresso:espresso-core:3.5.1',
+        junit: 'androidx.test.ext:junit:1.1.5'
+    ]
+
+    glide = [
+        glide: 'com.github.bumptech.glide:glide:4.11.0',
+        compiler: 'com.github.bumptech.glide:compiler:4.11.0'
+    ]
+
+    google = [
+        material: 'com.google.android.material:material:1.9.0'
+    ]
+
+    retrofit = [
+        retrofit: 'com.squareup.retrofit2:retrofit:2.9.0',
+        adapter_java: 'com.squareup.retrofit2:adapter-rxjava2:2.3.0',
+        converter_gson: 'com.squareup.retrofit2:converter-gson:2.9.0'
+    ]
+
+    rxjava = [
+        rxjava: 'io.reactivex.rxjava2:rxjava:2.2.20',
+        rxandroid: 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    ]
+
+    coroutines = [
+        coroutines: 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4',
+        // for test
+        coroutines_test: 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
+    ]
+
+    others = [
+        junit: 'junit:junit:4.13.2'
+    ]
+}

@@ -4,6 +4,8 @@ plugins {
     id 'kotlin-kapt'
 }
 
+apply from: '../build.dependencies.gradle'
+
 android {
     compileSdk 33
 
@@ -49,34 +51,38 @@ dependencies {
     implementation project(':dorian-steem-data')
     implementation project(":dorian-steem-test")
 
-    implementation 'androidx.core:core-ktx:1.10.1'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    // ext block is located in build.dependencies.gradle file.
+    // androidx map is located in ext block.
+    implementation androidx.core
+    implementation androidx.appcompat
+    implementation androidx.constraintlayout
+    implementation androidx.lifecycle_livedata_ktx
+    implementation androidx.lifecycle_viewmodel_ktx
+    implementation androidx.navigation_fragment_ktx
+    implementation androidx.navigation_ui_ktx
+    implementation androidx.swiperefreshlayout
 
     // glide
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation glide.glide
+    annotationProcessor glide.compiler
+
+    // google
+    implementation google.material
 
     // rx
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.20'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation rxjava.rxjava
+    implementation rxjava.rxandroid
 
     // coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation coroutines.coroutines
 
     // for unit test
     testImplementation project(':dorian-steem-data')
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation "androidx.arch.core:core-testing:2.2.0"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+    testImplementation others.junit
+    testImplementation androidx.core_testing
+    testImplementation coroutines.coroutines_test
 
     // for UI test
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation androidx.junit
+    androidTestImplementation androidx.espresso_core
 }

@@ -3,6 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
+apply from: '../build.dependencies.gradle'
+
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -10,9 +12,9 @@ java {
 
 dependencies {
     // coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+    implementation coroutines.coroutines
+    implementation coroutines.coroutines_test
 
     // For unit test
-    implementation 'junit:junit:4.13.2'
+    implementation others.junit
 }
