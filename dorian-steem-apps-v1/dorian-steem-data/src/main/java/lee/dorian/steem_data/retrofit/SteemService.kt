@@ -5,6 +5,8 @@ import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetAccountsResponseDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesResponseDTO
+import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
+import lee.dorian.steem_data.model.post.GetDiscussionResponseDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostsResponseDTO
 import retrofit2.Response
@@ -29,5 +31,11 @@ interface SteemService {
     suspend fun getRankedPosts(
         @Body params: GetRankedPostParamsDTO
     ): Response<GetRankedPostsResponseDTO>
+
+    // Runs bridge.get_discussion API.
+    @POST(".")
+    suspend fun getDiscussion(
+        @Body params: GetDiscussionParamsDTO
+    ): Response<GetDiscussionResponseDTO>
 
 }

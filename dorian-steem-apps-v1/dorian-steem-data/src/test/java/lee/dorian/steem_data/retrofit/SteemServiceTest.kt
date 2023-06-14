@@ -4,6 +4,7 @@ import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_test.TestData
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
+import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import org.junit.Test
 
@@ -158,4 +159,22 @@ class SteemServiceTest {
         fail("The body of response is empty!")
     }
 
+    @Test
+    fun getDiscussion() = runTest {
+        val account = "dorian-lee"
+        val permlink = "1000"
+        val params = GetDiscussionParamsDTO(
+            params = GetDiscussionParamsDTO.InnerParams(account, permlink),
+            id = 1
+        )
+
+        val response = SteemClient.apiService.getDiscussion(params)
+        assertNotNull(response.body())
+
+        val postResult = response.body()?.result ?: mapOf()
+        assertTrue(postResult.isNotEmpty())
+
+        val rootPost = postResult["${account}/${permlink}"]
+        assertNotNull(rootPost)
+    }
 }
