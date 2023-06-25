@@ -1,5 +1,6 @@
 package lee.dorian.steem_data.model.post
 
+import lee.dorian.steem_domain.model.Post
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_domain.util.Converter
 
@@ -73,4 +74,47 @@ data class PostItemDTO(
         )
     }
 
+    fun toPost(): Post {
+        val thumbnailURL = json_metadata?.getThumbnailURL() ?: ""
+        val tags = json_metadata?.tags ?: listOf()
+        val imageURLs = json_metadata?.image ?: listOf()
+        val app = json_metadata?.app ?: ""
+        val communityTag = community ?: ""
+        val communityTitle = community_title ?: ""
+        val authorRewards = author_payout_value?.replace(" SBD", "")?.toFloat() ?: 0f
+        val curationRewards = curator_payout_value?.replace(" SBD", "")?.toFloat() ?: 0f
+        val promoted = promoted?.replace(" SBD", "")?.toFloat() ?: 0f
+        val voteCount = active_votes?.size ?: 0
+        val upvotes = active_votes?.filter { activeVote -> activeVote.isUpvote() }
+        val upvoteCount = upvotes?.size ?: 0
+        val downvotes = active_votes?.filter { activeVote -> activeVote.isDownvote() }
+        val downvoteCount = downvotes?.size ?: 0
+        val activeVotes = active_votes?.map { currentVoteDTO ->
+            currentVoteDTO.toActiveVote(net_rshares ?: 0L, payout ?: 0f)
+        } ?: listOf()
+
+        return Post(
+            title ?: "",
+            thumbnailURL,
+            tags,
+            imageURLs,
+            app,
+            communityTag,
+            communityTitle,
+            body ?: "",
+            Converter.toLocalTimeFromUTCTime(created ?: "", "yyyy-MM-dd HH:mm"),
+            payout ?: 0f,
+            authorRewards,
+            curationRewards,
+            is_payout ?: false,
+            Converter.toLocalTimeFromUTCTime(payout_at ?: "", "yyyy-MM-dd HH:mm"),
+            upvoteCount,
+            downvoteCount,
+            activeVotes,
+            promoted,
+            author ?: "",
+            author_reputation?.toInt() ?: 0,
+            permlink ?: ""
+        )
+    }
 }

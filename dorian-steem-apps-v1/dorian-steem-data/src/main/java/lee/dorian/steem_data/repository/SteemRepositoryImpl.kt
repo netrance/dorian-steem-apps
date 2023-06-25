@@ -3,9 +3,11 @@ package lee.dorian.steem_data.repository
 import kotlinx.coroutines.*
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
+import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_data.retrofit.SteemClient
 import lee.dorian.steem_domain.model.ApiResult
+import lee.dorian.steem_domain.model.Post
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_domain.model.SteemitWallet
 import lee.dorian.steem_domain.repository.SteemRepository
@@ -93,6 +95,34 @@ class SteemRepositoryImpl(
                 }
 
                 ApiResult.Success(postItems)
+            }
+        }
+        catch (e: java.lang.Exception) {
+            ApiResult.Error(e)
+        }
+    }
+
+    override suspend fun readPostAndReplies(
+        account: String,
+        permlink: String
+    ): ApiResult<List<Post>> = withContext(dispatcher) {
+        val innerParams = GetDiscussionParamsDTO.InnerParams(account, permlink)
+        val getDiscussionParamsDTO = GetDiscussionParamsDTO(
+            params = innerParams,
+            id = 1
+        )
+
+        try {
+            val response = SteemClient.apiService.getDiscussion(getDiscussionParamsDTO)
+            if (!response.isSuccessful) {
+                ApiResult.Failure(response.errorBody()?.string() ?: "")
+            }
+            else {
+                val postItemDTOList = (response.body()?.result ?: mapOf()).values.toList()
+                val postList = postItemDTOList.map {
+                    it.toPost()
+                }
+                ApiResult.Success(postList)
             }
         }
         catch (e: java.lang.Exception) {

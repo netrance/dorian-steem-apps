@@ -1,8 +1,7 @@
 package lee.dorian.steem_domain.repository
 
-import io.reactivex.Single
-import kotlinx.coroutines.flow.Flow
 import lee.dorian.steem_domain.model.ApiResult
+import lee.dorian.steem_domain.model.Post
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_domain.model.SteemitWallet
 
@@ -20,5 +19,10 @@ interface SteemRepository {
         //lastPostItem: PostItem? = null
         existingList: List<PostItem>
     ): ApiResult<List<PostItem>>
+
+    suspend fun readPostAndReplies(
+        account: String,
+        permlink: String
+    ): ApiResult<List<Post>>
 
 }

@@ -52,4 +52,18 @@ class SteemRepositoryImplTest {
         }
     }
 
+    @Test
+    fun readPost() = runTest {
+        val apiResult = steemRepository.readPostAndReplies(
+            "dorian-lee",
+            "1000"
+        )
+
+        assertTrue(apiResult is ApiResult.Success)
+        val postList = (apiResult as ApiResult.Success).data
+        assertTrue(postList.size > 0)
+        assertTrue(postList[0].account == "dorian-lee")
+        assertTrue(postList[0].permlink == "1000")
+    }
+
 }
