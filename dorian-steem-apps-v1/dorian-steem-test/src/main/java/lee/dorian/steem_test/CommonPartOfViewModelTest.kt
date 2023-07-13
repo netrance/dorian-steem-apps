@@ -25,4 +25,7 @@ open class CommonPartOfViewModelTest {
         Dispatchers.resetMain()
     }
 
+    companion object {
+        const val WAITING_TIME_MSEC = 5000L
+    }
 }
