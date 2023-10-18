@@ -1,4 +1,4 @@
-package lee.dorian.steem_ui.ui.post
+package lee.dorian.steem_ui.ui.post.content
 
 import lee.dorian.steem_domain.model.Post
 

@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 apply from: '../build.dependencies.gradle'
@@ -47,6 +48,8 @@ android {
 
 dependencies {
     // To refer to other modules
+    implementation project(':dorian-android-ktx')
+    implementation project(':dorian-ktx')
     implementation project(':dorian-steem-domain')
     implementation project(':dorian-steem-data')
     implementation project(":dorian-steem-test")
@@ -67,6 +70,7 @@ dependencies {
     annotationProcessor glide.compiler
 
     // google
+    implementation google.flexbox
     implementation google.material
 
     // rx
@@ -75,6 +79,9 @@ dependencies {
 
     // coroutines
     implementation coroutines.coroutines
+
+    // other libraries
+    // ...
 
     // for unit test
     testImplementation project(':dorian-steem-data')

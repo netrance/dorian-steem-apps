@@ -1,4 +1,4 @@
-package lee.dorian.steem_ui.ui.post
+package lee.dorian.steem_ui.ui.post.content
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,15 +9,20 @@ import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.Post
 import lee.dorian.steem_domain.usecase.ReadPostAndRepliesUseCase
+import lee.dorian.steem_ui.ui.base.BaseViewModel
 
 class PostViewModel(
     private val readPostAndRepliesUseCase: ReadPostAndRepliesUseCase = ReadPostAndRepliesUseCase(SteemRepositoryImpl())
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _flowPostState: MutableStateFlow<PostState> = MutableStateFlow(PostState.Loading)
     val flowPostState = _flowPostState.asStateFlow()
 
-    fun readPostAndReplies(author: String, permlink: String) = viewModelScope.launch {
+    fun initState(author: String, permlink: String) = viewModelScope.launch {
+        readPostAndReplies(author, permlink)
+    }
+
+    suspend fun readPostAndReplies(author: String, permlink: String) {
         _flowPostState.emit(PostState.Loading)
         val apiResult = readPostAndRepliesUseCase(author, permlink)
         val newState = when (apiResult) {

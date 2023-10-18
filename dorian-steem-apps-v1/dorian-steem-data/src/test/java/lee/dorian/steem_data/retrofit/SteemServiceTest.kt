@@ -161,8 +161,8 @@ class SteemServiceTest {
 
     @Test
     fun getDiscussion() = runTest {
-        val account = "dorian-lee"
-        val permlink = "1000"
+        val account = "rme" //"dorian-lee"
+        val permlink = "crypto-inheritance-wallet-card-update-04" //""1000"
         val params = GetDiscussionParamsDTO(
             params = GetDiscussionParamsDTO.InnerParams(account, permlink),
             id = 1

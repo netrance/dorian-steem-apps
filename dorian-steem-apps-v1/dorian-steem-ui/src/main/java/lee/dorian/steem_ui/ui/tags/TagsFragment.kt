@@ -10,6 +10,7 @@ import android.widget.RadioGroup.OnCheckedChangeListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import kotlinx.coroutines.flow.FlowCollector
@@ -48,6 +49,7 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
 
         binding.listPostItem.apply {
             adapter = PostItemListAdapter(
+                postItemViewClickListener,
                 upvoteViewClickListener,
                 downvoteViewClickListener,
                 postImageViewClickListener
@@ -64,9 +66,9 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
         }
 
         binding.apply {
-            radiobtnTrending.setOnClickListener(radiobtnSortClickListener)
-            radiobtnCreated.setOnClickListener(radiobtnSortClickListener)
-            radiobtnPayout.setOnClickListener(radiobtnSortClickListener)
+            radiobtnTrending.setOnClickListener(radiobtnTrendingClickListener)
+            radiobtnCreated.setOnClickListener(radiobtnCreatedClickListener)
+            radiobtnPayout.setOnClickListener(radiobtnPayoutClickListener)
             swipeRefreshPostList.setOnRefreshListener(swipeRefreshPostListRefreshListener)
         }
 
@@ -111,11 +113,19 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
     }
 
     private val sortCheckedChangedListener = OnCheckedChangeListener { radioGroup, radioButtonId ->
-        viewModel.updateSort(radioButtonId)
+        //viewModel.updateSort(radioButtonId)
     }
 
-    private val radiobtnSortClickListener = OnClickListener {
-        readRankedPosts()
+    private val radiobtnTrendingClickListener = OnClickListener {
+        viewModel.updateSort(R.id.radiobtn_trending)
+    }
+
+    private val radiobtnCreatedClickListener = OnClickListener {
+        viewModel.updateSort(R.id.radiobtn_created)
+    }
+
+    private val radiobtnPayoutClickListener = OnClickListener {
+        viewModel.updateSort(R.id.radiobtn_payout)
     }
 
     private val rankedPostsScrollListener: RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener() {
@@ -183,6 +193,17 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
                 it.putExtra(PostImagePagerActivity.INTENT_BUNDLE_IMAGE_URL_LIST, imageURLArrayList)
                 startActivity(it)
             }
+        }
+    }
+
+    private val postItemViewClickListener = object: PostItemListAdapter.OnPostItemViewClickListener {
+        override fun onClick(author: String, permlink: String) {
+            val navController = findNavController()
+            val action = TagsFragmentDirections.actionNavigationTagsToNavigationPost(
+                author = author,
+                permlink = permlink
+            )
+            navController.navigate(action)
         }
     }
 

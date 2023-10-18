@@ -42,18 +42,32 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
         setViewVisibilities(dest.id)
     }
 
+    // Added to allow back button on tool bar of PostFragment to be clicked
+    // Reference - https://stackoverflow.com/questions/59834398/android-navigation-component-back-button-not-working
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
     fun setViewVisibilities(destID: Int) {
         val layoutTagLookup = binding.includeTagLookup.layoutTagLookup
         val layoutAccountLookup = binding.includeAccountLookup.layoutAccountLookup
 
+        binding.navView.visibility = View.VISIBLE
         when (destID) {
             R.id.navigation_tags -> {
                 layoutTagLookup.visibility = View.VISIBLE
                 layoutAccountLookup.visibility = View.GONE
             }
-            else ->  {
+            R.id.navigation_profile, R.id.navigation_wallet -> {
                 layoutTagLookup.visibility = View.GONE
                 layoutAccountLookup.visibility = View.VISIBLE
+            }
+            // Added R.id.navigation_post. Others will be added later. (15th Jun 2023)
+            else ->  {
+                layoutTagLookup.visibility = View.GONE
+                layoutAccountLookup.visibility = View.GONE
+                binding.navView.visibility = View.GONE
             }
         }
     }
@@ -67,7 +81,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
 
     private val buttonTagSearchClickListener = View.OnClickListener {
         val tag = binding.includeTagLookup.editSteemitTag.text.toString()
-        if (tag.length > 0) {
+        if (tag.isNotEmpty()) {
             viewModel.currentTag.value = binding.includeTagLookup.editSteemitTag.text.toString()
         }
     }

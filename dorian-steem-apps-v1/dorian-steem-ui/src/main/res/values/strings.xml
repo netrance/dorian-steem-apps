@@ -3,6 +3,7 @@
     <string name="title_tags">Tags</string>
     <string name="title_profile">Profile</string>
     <string name="title_wallet">Wallet</string>
+    <string name="title_post">Post</string>
 
     <!-- Common strings -->
     <string name="error_cannot_load">Cannot load. Please check your internet connection.</string>

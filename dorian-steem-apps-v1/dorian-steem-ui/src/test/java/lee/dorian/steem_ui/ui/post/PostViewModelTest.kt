@@ -4,6 +4,8 @@ import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.usecase.ReadPostAndRepliesUseCase
 import lee.dorian.steem_test.CommonPartOfViewModelTest
+import lee.dorian.steem_ui.ui.post.content.PostState
+import lee.dorian.steem_ui.ui.post.content.PostViewModel
 import org.junit.Assert.*
 import org.junit.Test
 

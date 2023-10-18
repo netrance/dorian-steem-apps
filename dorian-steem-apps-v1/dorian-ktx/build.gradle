@@ -1,0 +1,18 @@
+plugins {
+    id 'java-library'
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+apply from: '../build.dependencies.gradle'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+}
+
+dependencies {
+    implementation others.commonmark
+    implementation others.commonmark_ext_gfm_tables
+    implementation others.jsoup
+    implementation others.unbescape
+}

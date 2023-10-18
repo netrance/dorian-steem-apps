@@ -9,7 +9,15 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import lee.dorian.steem_ui.R
+import lee.dorian.dorian_android_ktx.R
+
+fun ImageView.loadGif(resId: Int) {
+    Glide.with(this).load(resId)
+}
+
+fun ImageView.unload() {
+    Glide.with(this).clear(this)
+}
 
 fun ImageView.load(url: String) {
     val imageWidth = this.width

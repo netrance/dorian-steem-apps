@@ -12,6 +12,7 @@ java {
 
 dependencies {
     // To refer to other modules
+    implementation project(":dorian-ktx")
     implementation project(":dorian-steem-domain")
     implementation project(":dorian-steem-test")
 

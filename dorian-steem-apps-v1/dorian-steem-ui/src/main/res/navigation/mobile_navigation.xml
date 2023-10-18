@@ -9,7 +9,11 @@
         android:id="@+id/navigation_tags"
         android:name="lee.dorian.steem_ui.ui.tags.TagsFragment"
         android:label="@string/title_tags"
-        tools:layout="@layout/fragment_tags" />
+        tools:layout="@layout/fragment_tags" >
+        <action
+            android:id="@+id/action_navigation_tags_to_navigation_post"
+            app:destination="@id/navigation_post" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_profile"
@@ -22,4 +26,18 @@
         android:name="lee.dorian.steem_ui.ui.wallet.WalletFragment"
         android:label="@string/title_wallet"
         tools:layout="@layout/fragment_wallet" />
+
+    <fragment
+        android:id="@+id/navigation_post"
+        android:name="lee.dorian.steem_ui.ui.post.content.PostFragment"
+        android:label="Post"
+        tools:layout="@layout/fragment_post">
+        <argument
+            android:name="author"
+            app:argType="string" />
+        <argument
+            android:name="permlink"
+            app:argType="string" />
+    </fragment>
+
 </navigation>

@@ -21,6 +21,7 @@ ext {
     ]
 
     google = [
+        flexbox: 'com.google.android.flexbox:flexbox:3.0.0',
         material: 'com.google.android.material:material:1.9.0'
     ]
 
@@ -42,6 +43,10 @@ ext {
     ]
 
     others = [
-        junit: 'junit:junit:4.13.2'
+        commonmark: 'org.commonmark:commonmark:0.20.0',
+        commonmark_ext_gfm_tables: 'org.commonmark:commonmark-ext-gfm-tables:0.20.0',
+        jsoup: 'org.jsoup:jsoup:1.16.1',
+        junit: 'junit:junit:4.13.2',
+        unbescape: 'org.unbescape:unbescape:1.1.6.RELEASE'
     ]
 }

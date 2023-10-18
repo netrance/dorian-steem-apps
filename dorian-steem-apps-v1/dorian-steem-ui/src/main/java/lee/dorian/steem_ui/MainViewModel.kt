@@ -15,6 +15,7 @@ class MainViewModel(val app: Application) : AndroidViewModel(app) {
             R.id.navigation_tags -> "${appName} - ${app.getString(R.string.title_tags)}"
             R.id.navigation_profile -> "${appName} - ${app.getString(R.string.title_profile)}"
             R.id.navigation_wallet -> "${appName} - ${app.getString(R.string.title_wallet)}"
+            R.id.navigation_post -> "${appName} - ${app.getString(R.string.title_post)}"
             else -> "${appName}"
         }
     }

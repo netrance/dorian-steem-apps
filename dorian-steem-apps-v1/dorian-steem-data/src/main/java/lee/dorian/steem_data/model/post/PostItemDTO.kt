@@ -24,7 +24,7 @@ data class PostItemDTO(
     val author_payout_value: String?,
     val curator_payout_value: String?,
     val promoted: String?,
-    val replies: List<Any>?,    // it is empty list
+    val replies: List<String>?,    // it is empty list
     val active_votes: List<ActiveVoteDTO>?,
     val author_reputation: Float?,
     val stats: PostStatsDTO?,
@@ -76,7 +76,7 @@ data class PostItemDTO(
 
     fun toPost(): Post {
         val thumbnailURL = json_metadata?.getThumbnailURL() ?: ""
-        val tags = json_metadata?.tags ?: listOf()
+        val tags = json_metadata?.getTags() ?: listOf()
         val imageURLs = json_metadata?.image ?: listOf()
         val app = json_metadata?.app ?: ""
         val communityTag = community ?: ""

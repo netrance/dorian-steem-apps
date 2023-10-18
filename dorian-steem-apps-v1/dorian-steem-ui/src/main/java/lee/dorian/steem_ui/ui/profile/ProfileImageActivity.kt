@@ -33,7 +33,7 @@ class ProfileImageActivity : BaseActivity<ActivityProfileImageBinding, ProfileIm
 
     private val steemitAccountObserver = Observer<String> {
         when (it.isEmpty()) {
-            true -> binding.imageProfile.setImageResource(R.drawable.no_image_available)
+            true -> binding.imageProfile.setImageResource(lee.dorian.dorian_android_ktx.R.drawable.no_image_available)
             else -> binding.imageProfile.load("https://steemitimages.com/u/${it}/avatar/large")
         }
     }

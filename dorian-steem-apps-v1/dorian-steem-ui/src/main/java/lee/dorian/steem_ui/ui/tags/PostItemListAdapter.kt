@@ -8,6 +8,7 @@ import lee.dorian.steem_ui.databinding.LayoutPostItemBinding
 import lee.dorian.steem_ui.ext.load
 
 class PostItemListAdapter(
+    private val postItemClickListener: OnPostItemViewClickListener,
     private val upvoteViewClickListener: OnVoteCountViewClickListener,
     private val downvoteViewClickListener: OnVoteCountViewClickListener,
     private val postImageViewClickListener: OnPostImageViewClickListener
@@ -25,10 +26,12 @@ class PostItemListAdapter(
 
     override fun onBindViewHolder(holder: PostItemListViewHolder, position: Int) {
         try {
-            holder.bind(postItemList[position])
-            holder.binding.textUpvotes.setOnClickListener { upvoteViewClickListener.onClick(postItemList[position]) }
-            holder.binding.textDownvotes.setOnClickListener { downvoteViewClickListener.onClick(postItemList[position]) }
-            holder.binding.imageThumbnail.setOnClickListener { postImageViewClickListener.onClick(postItemList[position].imageURLs) }
+            val post = postItemList[position]
+            holder.bind(post)
+            holder.binding.layoutPostItem.setOnClickListener { postItemClickListener.onClick(post.account, post.permlink) }
+            holder.binding.textUpvotes.setOnClickListener { upvoteViewClickListener.onClick(post) }
+            holder.binding.textDownvotes.setOnClickListener { downvoteViewClickListener.onClick(post) }
+            holder.binding.imageThumbnail.setOnClickListener { postImageViewClickListener.onClick(post.imageURLs) }
         }
         catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
@@ -73,6 +76,10 @@ class PostItemListAdapter(
 
     interface OnPostImageViewClickListener {
         fun onClick(imageURLs: List<String>)
+    }
+
+    interface OnPostItemViewClickListener {
+        fun onClick(author: String, permlink: String)
     }
 
 }

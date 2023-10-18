@@ -1,0 +1,64 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'androidx.navigation.safeargs.kotlin'
+}
+
+apply from: '../build.dependencies.gradle'
+
+android {
+    namespace 'lee.dorian.dorian_android_ktx'
+    compileSdk 33
+
+    defaultConfig {
+        minSdk 24
+        targetSdk 33
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjvm-default=enable']
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    // To refer to other modules
+    implementation project(':dorian-ktx')
+
+    implementation androidx.core
+    implementation androidx.appcompat
+
+    // glide
+    implementation glide.glide
+    annotationProcessor glide.compiler
+
+    // google
+    implementation google.material
+
+    // other libraries
+    implementation others.commonmark
+    implementation others.commonmark_ext_gfm_tables
+    implementation others.jsoup
+    implementation others.unbescape
+
+    // for unit test
+    testImplementation others.junit
+
+    // for UI test
+    androidTestImplementation androidx.junit
+    androidTestImplementation androidx.espresso_core
+}
