@@ -47,7 +47,7 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.listPostItem.apply {
+        binding.listRankedPostItem.apply {
             adapter = PostItemListAdapter(
                 postItemViewClickListener,
                 upvoteViewClickListener,
@@ -57,12 +57,6 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
                 setHasStableIds(true)
             }
             addOnScrollListener(rankedPostsScrollListener)
-        }
-
-        binding.radiogroupSort.apply {
-            clearCheck()
-            setOnCheckedChangeListener(sortCheckedChangedListener)
-            check(R.id.radiobtn_trending)
         }
 
         binding.apply {
@@ -79,62 +73,50 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
 
         lifecycleScope.apply {
             launch { viewModel.flowTagsState.collect(tagsStateCollector) }
-            launch { viewModel.flowTag.collect(tagCollector) }
-            launch { viewModel.flowSort.collect(sortCollector) }
         }
     }
 
     private val currentTagObserver = Observer<String> { newTag ->
-        viewModel.updateTag(newTag)
-    }
+        val tagState: TagsState = viewModel.flowTagsState.value
+        if (tagState is TagsState.Success) {
+            if (newTag == viewModel.tag) {
+                updateRankedList(tagState.tagList)
+                return@Observer
+            }
+        }
 
-    private val tagCollector = FlowCollector<String> { newTag ->
-        readRankedPosts()
-    }
-
-    private val sortCollector = FlowCollector<String> { newSort ->
+        viewModel.tag = newTag
         readRankedPosts()
     }
 
     private val tagsStateCollector = FlowCollector<TagsState> { newState ->
         binding.swipeRefreshPostList.isRefreshing = false
         when (newState) {
-            is TagsState.Loading -> {
-                binding.swipeRefreshPostList.isRefreshing = true
-                updateRankedList(listOf())
-            }
-            is TagsState.Error, is TagsState.Failure -> {
-                showToastShortly(getString(R.string.error_cannot_load))
-            }
-            is TagsState.Success -> {
-                updateRankedList(newState.tagList)
-            }
+            is TagsState.Loading -> binding.swipeRefreshPostList.isRefreshing = true
+            is TagsState.Error, is TagsState.Failure -> showToastShortly(getString(R.string.error_cannot_load))
+            is TagsState.Success -> updateRankedList(newState.tagList)
         }
     }
 
-    private val sortCheckedChangedListener = OnCheckedChangeListener { radioGroup, radioButtonId ->
-        //viewModel.updateSort(radioButtonId)
-    }
-
     private val radiobtnTrendingClickListener = OnClickListener {
-        viewModel.updateSort(R.id.radiobtn_trending)
+        updateSort(R.id.radiobtn_trending)
     }
 
     private val radiobtnCreatedClickListener = OnClickListener {
-        viewModel.updateSort(R.id.radiobtn_created)
+        updateSort(R.id.radiobtn_created)
     }
 
     private val radiobtnPayoutClickListener = OnClickListener {
-        viewModel.updateSort(R.id.radiobtn_payout)
+        updateSort(R.id.radiobtn_payout)
     }
 
     private val rankedPostsScrollListener: RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
 
-            if (!binding.listPostItem.canScrollVertically(1)) {
-                val tag = activityViewModel.currentTag.value ?: ""
-                viewModel.appendRankedPosts(tag)
+            if (!binding.listRankedPostItem.canScrollVertically(1)) {
+                //val tag = activityViewModel.currentTag.value ?: ""
+                viewModel.appendRankedPosts()
             }
         }
     }
@@ -208,18 +190,21 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
     }
 
     private fun updateRankedList(postItemList: List<PostItem>) {
-        (binding.listPostItem.adapter as PostItemListAdapter).setList(postItemList)
+        (binding.listRankedPostItem.adapter as PostItemListAdapter).setList(postItemList)
+    }
+
+    private fun emptyRankedList() {
+        updateRankedList(listOf())
     }
 
     private fun readRankedPosts() {
-        val sort = viewModel._flowSort.value
-
-        if (sort.isEmpty()) {
-            showToastShortly(getString(R.string.error_sort_is_not_set))
-            return
-        }
-
+        emptyRankedList()
         viewModel.readRankedPosts()
+    }
+
+    private fun updateSort(checkedRadioButtonId: Int) {
+        viewModel.updateSort(checkedRadioButtonId)
+        readRankedPosts()
     }
 
 }

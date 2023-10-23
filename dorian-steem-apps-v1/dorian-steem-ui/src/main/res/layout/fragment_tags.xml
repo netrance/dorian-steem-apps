@@ -61,7 +61,7 @@
             app:layout_constraintBottom_toBottomOf="parent">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list_post_item"
+                android:id="@+id/list_ranked_post_item"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

@@ -18,17 +18,9 @@ class TagsViewModel : BaseViewModel() {
     private val _flowTagsState: MutableStateFlow<TagsState> = MutableStateFlow(TagsState.Loading)
     val flowTagsState = _flowTagsState.asStateFlow()
 
-    val _flowTag = MutableStateFlow("")
-    val flowTag = _flowTag.asStateFlow()
-
-    val _flowSort = MutableStateFlow(GetRankedPostParamsDTO.InnerParams.SORT_TRENDING)
-    val flowSort = _flowSort.asStateFlow()
-
+    var tag = ""
+    var sort = GetRankedPostParamsDTO.InnerParams.SORT_TRENDING
     val readRankedPostsUseCase = ReadRankedPostsUseCase(SteemRepositoryImpl())
-
-    fun updateTag(tag: String) = viewModelScope.launch {
-        _flowTag.emit(tag)
-    }
 
     fun updateSort(checkedRadioButtonId: Int) = viewModelScope.launch {
         val newSort = when (checkedRadioButtonId) {
@@ -38,14 +30,14 @@ class TagsViewModel : BaseViewModel() {
             else -> GetRankedPostParamsDTO.InnerParams.SORT_TRENDING
         }
 
-        _flowSort.emit(newSort)
+        this@TagsViewModel.sort = newSort
     }
 
     fun readRankedPosts(
         limit: Int = this.limit
     ) = viewModelScope.launch {
         _flowTagsState.emit(TagsState.Loading)
-        val apiResult = readRankedPostsUseCase(_flowSort.value, _flowTag.value)
+        val apiResult = readRankedPostsUseCase(sort, tag)    //_flowSort.value, _flowTag.value)
         val newTagsState = when (apiResult) {
             is ApiResult.Failure -> TagsState.Failure(apiResult.content)
             is ApiResult.Error -> TagsState.Error(apiResult.throwable)
@@ -60,7 +52,6 @@ class TagsViewModel : BaseViewModel() {
     }
 
     fun appendRankedPosts(
-        tag: String,
         limit: Int = this.limit
     ) = viewModelScope.launch {
         val recentTagsState = _flowTagsState.value
@@ -73,7 +64,7 @@ class TagsViewModel : BaseViewModel() {
             return@launch
         }
 
-        val apiResult = readRankedPostsUseCase(_flowSort.value, tag, existingList = existingRankedPosts)
+        val apiResult = readRankedPostsUseCase(sort, tag, existingList = existingRankedPosts)
         val newTagsState = when (apiResult) {
             is ApiResult.Failure -> TagsState.Failure(apiResult.content)
             is ApiResult.Error -> TagsState.Error(apiResult.throwable)
