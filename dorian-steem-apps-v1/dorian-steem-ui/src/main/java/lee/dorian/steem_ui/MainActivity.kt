@@ -1,7 +1,9 @@
 package lee.dorian.steem_ui
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
+import android.view.View.OnKeyListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -74,9 +76,18 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
 
     private fun setUpListeners() {
         binding.run {
+            includeTagLookup.editSteemitTag.setOnKeyListener(editSteemitTagKeyListener)
             includeTagLookup.buttonTagSearch.setOnClickListener(buttonTagSearchClickListener)
             includeAccountLookup.buttonAccountSearch.setOnClickListener(buttonAccountSearchClickListener)
         }
+    }
+
+    private val editSteemitTagKeyListener = OnKeyListener { view, keyCode, event ->
+        if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            binding.includeTagLookup.buttonTagSearch.performClick()
+            true
+        }
+        false
     }
 
     private val buttonTagSearchClickListener = View.OnClickListener {

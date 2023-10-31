@@ -32,6 +32,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:hint="Input Steemit tag."
+            android:inputType="text"
+            android:maxLines="1"
             android:textSize="15sp"
             app:layout_constraintLeft_toRightOf="@id/text_sharp"
             app:layout_constraintRight_toLeftOf="@id/button_tag_search" />
