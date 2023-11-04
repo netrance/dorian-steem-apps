@@ -1,9 +1,16 @@
 package lee.dorian.dorian_android_ktx.android.context
 
 import android.app.Activity
+import android.content.Context
 import android.os.Build
 import android.view.View
 import android.view.WindowInsets
+import android.view.inputmethod.InputMethodManager
+
+fun Activity.hideKeyboard(view: View) {
+    val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+}
 
 // Refer to https://developer.android.com/training/system-ui/immersive
 fun Activity.setLeanBackFullscreen() {

@@ -11,6 +11,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import lee.dorian.dorian_android_ktx.android.context.hideKeyboard
 import lee.dorian.steem_ui.databinding.ActivityMainBinding
 
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.activity_main) {
@@ -95,6 +96,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
         if (tag.isNotEmpty()) {
             viewModel.currentTag.value = binding.includeTagLookup.editSteemitTag.text.toString()
         }
+        hideKeyboard(it)
     }
 
     private val buttonAccountSearchClickListener = View.OnClickListener {
