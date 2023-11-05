@@ -6,6 +6,7 @@
     <string name="title_post">Post</string>
 
     <!-- Common strings -->
+    <string name="loading">Loading ...</string>
     <string name="error_cannot_load">Cannot load. Please check your internet connection.</string>
 
     <!-- Strings for TagsFragment -->

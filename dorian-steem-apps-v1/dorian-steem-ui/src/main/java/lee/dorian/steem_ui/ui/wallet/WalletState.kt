@@ -4,6 +4,8 @@ import lee.dorian.steem_domain.model.SteemitWallet
 
 sealed interface WalletState {
 
+    object Empty: WalletState
+
     object Loading: WalletState
 
     data class Success(val wallet: SteemitWallet) : WalletState

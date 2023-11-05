@@ -56,10 +56,10 @@ class WalletFragment : BaseFragment<FragmentWalletBinding, WalletViewModel>(R.la
 
     private val walletStateCollector = FlowCollector<WalletState> { state ->
         when (state) {
+            is WalletState.Empty -> updateWalletAsEmpty()
+            is WalletState.Loading -> updateWalletAsLoading()
             is WalletState.Success -> updateWallet(state.wallet)
-            else -> {
-                showToastShortly(getString(R.string.error_cannot_load))
-            }
+            else -> showToastShortly(getString(R.string.error_cannot_load))
         }
     }
 
@@ -83,6 +83,57 @@ class WalletFragment : BaseFragment<FragmentWalletBinding, WalletViewModel>(R.la
             textPowerDownRateAmount.text = "${wallet.spWithdrawRate}"
             textSteemPowerWithdrawnAmount.text = "${wallet.remainingSPToBeWithdrawn}"
             textNextPowerDownTime.text = "${wallet.nextPowerDownTime}"
+        }
+    }
+
+    private fun updateWalletAsEmpty() {
+        val zeroSbd = "0.000 SBD"
+        val zeroSteem = "0.000 STEEM"
+        val zeroSteemPower = "0.000 SP"
+
+        binding.includeSteemBalances.apply {
+            textSteemBalance.text = zeroSteem
+            textSbdBalance.text = zeroSbd
+        }
+        binding.includeSteemStaking.apply {
+            textSpAmount.text = zeroSteemPower
+            textEffetiveSpAmount.text = zeroSteemPower
+            textDelegatingAmount.text = zeroSteemPower
+            textDelegatedAmount.text = zeroSteemPower
+        }
+        binding.includeSteemSavings.apply {
+            textSteemSaving.text = zeroSteem
+            textSbdSaving.text = zeroSbd
+        }
+        binding.includePowerDown.apply {
+            textSpToPowerDownAmount.text = zeroSteemPower
+            textPowerDownRateAmount.text = zeroSteemPower
+            textSteemPowerWithdrawnAmount.text = zeroSteemPower
+            textNextPowerDownTime.text = "0"
+        }
+    }
+
+    private fun updateWalletAsLoading() {
+        val loading = getString(R.string.loading)
+        binding.includeSteemBalances.apply {
+            textSteemBalance.text = loading
+            textSbdBalance.text = loading
+        }
+        binding.includeSteemStaking.apply {
+            textSpAmount.text = loading
+            textEffetiveSpAmount.text = loading
+            textDelegatingAmount.text = loading
+            textDelegatedAmount.text = loading
+        }
+        binding.includeSteemSavings.apply {
+            textSteemSaving.text = loading
+            textSbdSaving.text = loading
+        }
+        binding.includePowerDown.apply {
+            textSpToPowerDownAmount.text = loading
+            textPowerDownRateAmount.text = loading
+            textSteemPowerWithdrawnAmount.text = loading
+            textNextPowerDownTime.text = loading
         }
     }
 
