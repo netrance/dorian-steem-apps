@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import android.widget.RadioGroup.OnCheckedChangeListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -22,7 +21,6 @@ import lee.dorian.steem_ui.databinding.FragmentTagsBinding
 import lee.dorian.steem_ui.ext.showToastShortly
 import lee.dorian.steem_ui.ui.base.BaseFragment
 import lee.dorian.steem_ui.ui.post.PostImagePagerActivity
-import lee.dorian.steem_ui.ui.voter.VoteListActivity
 
 class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.fragment_tags) {
 
@@ -127,39 +125,13 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
 
     private val upvoteViewClickListener = object: PostItemListAdapter.OnVoteCountViewClickListener {
         override fun onClick(postItem: PostItem) {
-            // open new activity to show upvoting list
-            val upvotes = postItem.activeVotes.filter { vote ->
-                vote.isUpvote()
-            }.sortedByDescending { it.value }
-
-            if (upvotes.isEmpty()) {
-                return
-            }
-
-            val upvoteArrayList = ArrayList(upvotes)
-            Intent(requireActivity(), VoteListActivity::class.java).apply {
-                this.putExtra(VoteListActivity.INTENT_BUNDLE_VOTER_LIST, upvoteArrayList)
-                startActivity(this)
-            }
+            this@TagsFragment.startUpvoteListActivity(postItem.activeVotes)
         }
     }
 
     private val downvoteViewClickListener = object: PostItemListAdapter.OnVoteCountViewClickListener {
         override fun onClick(postItem: PostItem) {
-            // open new activity to show downvoting list
-            val downvotes = postItem.activeVotes.filter { vote ->
-                vote.isDownvote()
-            }.sortedByDescending { it.value }
-
-            if (downvotes.isEmpty()) {
-                return
-            }
-
-            val downvoteArrayList = ArrayList(downvotes)
-            Intent(requireActivity(), VoteListActivity::class.java).apply {
-                this.putExtra(VoteListActivity.INTENT_BUNDLE_VOTER_LIST, downvoteArrayList)
-                startActivity(this)
-            }
+            this@TagsFragment.startDownvoteListActivity(postItem.activeVotes)
         }
     }
 

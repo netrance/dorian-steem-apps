@@ -51,6 +51,7 @@ class PostFragment : BaseFragment<FragmentPostBinding, PostViewModel>(R.layout.f
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialize views.
         binding.webContent.webChromeClient = webChromeClient
         binding.listTag.layoutManager.also {
             if (it is FlexboxLayoutManager) {
@@ -60,6 +61,10 @@ class PostFragment : BaseFragment<FragmentPostBinding, PostViewModel>(R.layout.f
             }
         }
 
+        // Sets listeners.
+        binding.textUpvotes.setOnClickListener(textUpvotesClickListener)
+        binding.textDownvotes.setOnClickListener(textDownvotesClickListener)
+
         lifecycleScope.launch {
             viewModel.flowPostState.collect(postStateCollector)
         }
@@ -67,6 +72,20 @@ class PostFragment : BaseFragment<FragmentPostBinding, PostViewModel>(R.layout.f
         val author = args.author
         val permlink = args.permlink
         viewModel.initState(author, permlink)
+    }
+
+    private val textUpvotesClickListener = View.OnClickListener {
+        val postState = viewModel.flowPostState.value
+        if (postState is PostState.Success) {
+            startUpvoteListActivity(postState.post.activeVotes)
+        }
+    }
+
+    private val textDownvotesClickListener = View.OnClickListener {
+        val postState = viewModel.flowPostState.value
+        if (postState is PostState.Success) {
+            startDownvoteListActivity(postState.post.activeVotes)
+        }
     }
 
     private val postStateCollector = FlowCollector<PostState> { state ->
