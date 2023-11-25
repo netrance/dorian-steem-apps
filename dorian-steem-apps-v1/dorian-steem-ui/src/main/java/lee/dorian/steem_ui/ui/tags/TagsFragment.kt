@@ -6,9 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
@@ -45,6 +43,7 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.swipeRefreshPostList.isRefreshing = false
         binding.listRankedPostItem.apply {
             adapter = PostItemListAdapter(
                 postItemViewClickListener,
@@ -69,8 +68,8 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
             observe(viewLifecycleOwner, currentTagObserver)
         }
 
-        lifecycleScope.apply {
-            launch { viewModel.flowTagsState.collect(tagsStateCollector) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.flowTagsState.collect(tagsStateCollector)
         }
     }
 
@@ -88,11 +87,15 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
     }
 
     private val tagsStateCollector = FlowCollector<TagsState> { newState ->
-        binding.swipeRefreshPostList.isRefreshing = false
         when (newState) {
-            is TagsState.Loading -> binding.swipeRefreshPostList.isRefreshing = true
-            is TagsState.Error, is TagsState.Failure -> showToastShortly(getString(R.string.error_cannot_load))
-            is TagsState.Success -> updateRankedList(newState.tagList)
+            is TagsState.Error, is TagsState.Failure -> {
+                showToastShortly(getString(R.string.error_cannot_load))
+            }
+            is TagsState.Success -> {
+                binding.swipeRefreshPostList.isRefreshing = false
+                updateRankedList(newState.tagList)
+            }
+            else -> {}
         }
     }
 
@@ -113,7 +116,6 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
             super.onScrolled(recyclerView, dx, dy)
 
             if (!binding.listRankedPostItem.canScrollVertically(1)) {
-                //val tag = activityViewModel.currentTag.value ?: ""
                 viewModel.appendRankedPosts()
             }
         }
@@ -162,16 +164,18 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
     }
 
     private fun updateRankedList(postItemList: List<PostItem>) {
-        (binding.listRankedPostItem.adapter as PostItemListAdapter).setList(postItemList)
+        binding.swipeRefreshPostList.isRefreshing = false
+        (binding?.listRankedPostItem?.adapter as PostItemListAdapter).setList(postItemList)
     }
 
     private fun emptyRankedList() {
-        updateRankedList(listOf())
+        (binding?.listRankedPostItem?.adapter as PostItemListAdapter).setList(listOf())
     }
 
     private fun readRankedPosts() {
         emptyRankedList()
         viewModel.readRankedPosts()
+        binding.swipeRefreshPostList.isRefreshing = true
     }
 
     private fun updateSort(checkedRadioButtonId: Int) {
