@@ -39,20 +39,21 @@
             android:scaleType="centerCrop"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/text_title"
-            app:layout_constraintBottom_toBottomOf="parent"
             tools:src="@mipmap/ic_launcher" />
 
         <TextView
             android:id="@+id/text_content"
             android:layout_width="0dp"
-            android:layout_height="24sp"
+            android:layout_height="0dp"
             android:layout_marginLeft="10dp"
-            android:ellipsize="marquee"
-            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="3"
             android:text=""
             android:textColor="@color/black"
             android:textSize="18sp"
             app:layout_constraintTop_toTopOf="@id/image_thumbnail"
+            app:layout_constraintBottom_toBottomOf="@id/image_thumbnail"
             app:layout_constraintLeft_toRightOf="@id/image_thumbnail"
             app:layout_constraintRight_toRightOf="parent"
             tools:text="Content example: Lorem ipsum dolor sit amet, consectetur adipiscing elit," />
@@ -61,14 +62,14 @@
             android:id="@+id/text_main_tag"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:ellipsize="marquee"
             android:maxLines="1"
             android:text=""
             android:textSize="16sp"
-            app:layout_constraintTop_toBottomOf="@id/text_content"
-            app:layout_constraintLeft_toLeftOf="@id/text_content"
+            app:layout_constraintTop_toBottomOf="@id/image_thumbnail"
+            app:layout_constraintLeft_toLeftOf="@id/image_thumbnail"
             app:layout_constraintRight_toLeftOf="@id/text_created_time"
-            app:layout_constraintBottom_toTopOf="@id/text_rewards"
             tools:text="Tag or Community" />
 
         <TextView
@@ -79,20 +80,22 @@
             android:text=""
             android:textSize="16sp"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_content"
-            app:layout_constraintBottom_toTopOf="@id/text_rewards"
+            app:layout_constraintTop_toTopOf="@id/text_main_tag"
             tools:text="1 days ago" />
 
         <TextView
             android:id="@+id/text_rewards"
             android:layout_width="wrap_content"
             android:layout_height="18sp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="8dp"
             android:maxLines="1"
             android:text=''
             android:textColor="@color/black"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@id/image_thumbnail"
-            app:layout_constraintLeft_toLeftOf="@id/text_content"
+            app:layout_constraintTop_toBottomOf="@id/text_main_tag"
+            app:layout_constraintBottom_toTopOf="@id/view_separator"
+            app:layout_constraintLeft_toLeftOf="@id/text_main_tag"
             tools:text="$987.654" />
 
         <TextView
@@ -131,11 +134,12 @@
             android:textColor="@color/black"
             android:textSize="14sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/image_thumbnail"
+            app:layout_constraintTop_toTopOf="@id/text_rewards"
             app:layout_constraintRight_toRightOf="parent"
             tools:text="dorian-mobileapp (99)" />
 
         <View
+            android:id="@+id/view_separator"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
