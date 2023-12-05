@@ -5,6 +5,8 @@ import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetAccountsResponseDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesResponseDTO
+import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
+import lee.dorian.steem_data.model.follow.GetFollowCountResponseDTO
 import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
 import lee.dorian.steem_data.model.post.GetDiscussionResponseDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
@@ -25,6 +27,12 @@ interface SteemService {
     suspend fun getDynamicGlobalProperties(
         @Body params: GetDynamicGlobalPropertiesParamsDTO
     ): Response<GetDynamicGlobalPropertiesResponseDTO>
+
+    // Runs condenser_api.get_follow_count API.
+    @POST(".")
+    suspend fun getFollowCount(
+        @Body followingParams: GetFollowCountParamsDTO
+    ): Response<GetFollowCountResponseDTO>
 
     // Runs bridge.get_ranked_posts API.
     @POST(".")

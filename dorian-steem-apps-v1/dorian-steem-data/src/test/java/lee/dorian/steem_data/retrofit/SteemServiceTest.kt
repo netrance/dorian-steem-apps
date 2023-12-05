@@ -4,6 +4,7 @@ import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_test.TestData
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
+import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
 import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import org.junit.Test
@@ -126,6 +127,22 @@ class SteemServiceTest {
         }
 
         fail("The body of response is empty!")
+    }
+
+    @Test
+    fun getFollowCount() = runTest {
+        val params = GetFollowCountParamsDTO(
+            params = arrayOf("dorian-lee"),
+            id = 1
+        )
+
+        val response = SteemClient.apiService.getFollowCount(params)
+        assertTrue(response.isSuccessful)
+        response.body()?.result?.let { result ->
+            assertTrue(result.account == "dorian-lee")
+            assertTrue(result.following_count > 0)
+            assertTrue(result.follower_count > 0)
+        }
     }
 
     @Test
