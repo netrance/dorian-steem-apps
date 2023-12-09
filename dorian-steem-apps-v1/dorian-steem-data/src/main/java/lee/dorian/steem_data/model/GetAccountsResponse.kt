@@ -1,6 +1,8 @@
 package lee.dorian.steem_data.model
 
+import lee.dorian.steem_data.model.follow.GetFollowCountResponseDTO
 import lee.dorian.steem_domain.ext.removeSubstring
+import lee.dorian.steem_domain.model.SteemitProfile
 import lee.dorian.steem_domain.model.SteemitWallet
 import lee.dorian.steem_domain.util.Converter
 import java.lang.NumberFormatException
@@ -78,6 +80,24 @@ data class SteemitAccountDTO(
     val tags_usage: Array<Any>?,
     val guest_bloggers: Array<Any>?
 ) {
+
+    fun toSteemitProfile(followCountResponseDTO: GetFollowCountResponseDTO): SteemitProfile {
+        val account = this.name ?: ""
+        val about = ""
+        val followingCount = followCountResponseDTO.result.following_count
+        val folowerCount = followCountResponseDTO.result.follower_count
+        val location = ""
+        val website = ""
+
+        return SteemitProfile(
+            account,
+            about,
+            followingCount,
+            folowerCount,
+            location,
+            website
+        )
+    }
 
     fun toSteemitWallet(): SteemitWallet {
         val vestingToBeWithdrawn = try {
