@@ -1,11 +1,12 @@
 package lee.dorian.steem_domain.repository
 
-import lee.dorian.steem_domain.model.ApiResult
-import lee.dorian.steem_domain.model.Post
-import lee.dorian.steem_domain.model.PostItem
-import lee.dorian.steem_domain.model.SteemitWallet
+import lee.dorian.steem_domain.model.*
 
 interface SteemRepository {
+
+    suspend fun readSteemitProfile(
+        account: String
+    ): ApiResult<SteemitProfile>
 
     suspend fun readSteemitWallet(
         account: String

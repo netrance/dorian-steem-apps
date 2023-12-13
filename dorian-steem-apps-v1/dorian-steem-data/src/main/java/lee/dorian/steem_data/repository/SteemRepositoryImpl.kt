@@ -3,18 +3,53 @@ package lee.dorian.steem_data.repository
 import kotlinx.coroutines.*
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
+import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
 import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_data.retrofit.SteemClient
-import lee.dorian.steem_domain.model.ApiResult
-import lee.dorian.steem_domain.model.Post
-import lee.dorian.steem_domain.model.PostItem
-import lee.dorian.steem_domain.model.SteemitWallet
+import lee.dorian.steem_domain.model.*
 import lee.dorian.steem_domain.repository.SteemRepository
 
 class SteemRepositoryImpl(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ): SteemRepository {
+
+    override suspend fun readSteemitProfile(account: String): ApiResult<SteemitProfile> = withContext(dispatcher) {
+        val getFollowCountParams = GetFollowCountParamsDTO(
+            params = arrayOf(account),
+            id = 1
+        )
+        val getAccountParams = GetAccountsParamsDTO(
+            params = arrayOf(arrayOf(account)),
+            id = 1
+        )
+
+        try {
+            val responseFollowCount = SteemClient.apiService.getFollowCount(getFollowCountParams)
+            if (!responseFollowCount.isSuccessful) {
+                ApiResult.Failure(responseFollowCount.errorBody()?.string() ?: "")
+            }
+
+            val responseAccounts = SteemClient.apiService.getAccounts(getAccountParams)
+            if (!responseAccounts.isSuccessful) {
+                ApiResult.Failure(responseAccounts.errorBody()?.string() ?: "")
+            }
+
+            responseAccounts.body()?.result?.let {
+                val followCount = responseFollowCount.body()!!
+                if (it.size == 1) {
+                    ApiResult.Success(it[0].toSteemitProfile(followCount))
+                }
+                else {
+                    ApiResult.Success(SteemitProfile()) //ApiResult.Failure("Failed to read accounts" ?: "")
+                }
+            } ?: ApiResult.Failure("Failed to read accounts" ?: "")
+        }
+        catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            ApiResult.Error(e)
+        }
+    }
 
     override suspend fun readSteemitWallet(
         account: String

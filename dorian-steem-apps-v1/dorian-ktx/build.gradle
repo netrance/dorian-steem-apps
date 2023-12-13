@@ -14,5 +14,9 @@ dependencies {
     implementation others.commonmark
     implementation others.commonmark_ext_gfm_tables
     implementation others.jsoup
+    implementation retrofit.converter_gson
     implementation others.unbescape
+
+    // For unit test
+    testImplementation others.junit
 }

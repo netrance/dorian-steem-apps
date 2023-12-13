@@ -1,5 +1,7 @@
 package lee.dorian.steem_domain.ext
 
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.node.Node
 import org.commonmark.parser.Parser
@@ -84,4 +86,14 @@ fun String.convertMarkdownToHtmlDocument(): Document {
     }
 
     return document
+}
+
+fun String.toJsonObject(defaultValue: JsonObject = JsonObject()): JsonObject {
+    val jsonParser = JsonParser()
+    val jsonObject = jsonParser.parse(this)
+
+    return when {
+        (jsonObject.isJsonNull) -> defaultValue
+        else -> jsonObject as JsonObject
+    }
 }

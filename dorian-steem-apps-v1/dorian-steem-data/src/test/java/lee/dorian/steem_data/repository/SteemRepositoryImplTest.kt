@@ -12,6 +12,31 @@ class SteemRepositoryImplTest {
 
     val steemRepository = SteemRepositoryImpl()
 
+    // Test case 1: Trying to get the profile of a valid account.
+    @Test
+    fun readSteemitProfile_case1() = runTest {
+        val account = "dorian-lee"
+        val apiResult = steemRepository.readSteemitProfile(account)
+        assertTrue(apiResult is ApiResult.Success)
+
+        val profile = (apiResult as ApiResult.Success).data
+        assertEquals(account, profile.account)
+        assertTrue(profile.followingCount > 0)
+        assertTrue(profile.followerCount > 0)
+    }
+
+    // Test case 2: Trying to get the profile of an invalid account.
+    @Test
+    fun readSteemitProfile_case2() = runTest {
+        val apiResult = steemRepository.readSteemitProfile(TestData.invalidSingleAccount)
+        assertTrue(apiResult is ApiResult.Success)
+
+        val profile = (apiResult as ApiResult.Success).data
+        assertEquals("", profile.account)
+        assertTrue(profile.followingCount == 0)
+        assertTrue(profile.followerCount == 0)
+    }
+
     // Test case 1: Trying to get the wallet of a valid account.
     @Test
     fun readSteemitWallet_case1() = runTest {

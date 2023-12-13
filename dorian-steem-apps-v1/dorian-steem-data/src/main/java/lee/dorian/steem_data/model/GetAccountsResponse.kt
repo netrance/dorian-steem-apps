@@ -1,7 +1,9 @@
 package lee.dorian.steem_data.model
 
+import com.google.gson.JsonObject
 import lee.dorian.steem_data.model.follow.GetFollowCountResponseDTO
 import lee.dorian.steem_domain.ext.removeSubstring
+import lee.dorian.steem_domain.ext.toJsonObject
 import lee.dorian.steem_domain.model.SteemitProfile
 import lee.dorian.steem_domain.model.SteemitWallet
 import lee.dorian.steem_domain.util.Converter
@@ -83,19 +85,29 @@ data class SteemitAccountDTO(
 
     fun toSteemitProfile(followCountResponseDTO: GetFollowCountResponseDTO): SteemitProfile {
         val account = this.name ?: ""
-        val about = ""
         val followingCount = followCountResponseDTO.result.following_count
         val folowerCount = followCountResponseDTO.result.follower_count
-        val location = ""
-        val website = ""
+
+        val jsonMetadata = when {
+            (null == this.posting_json_metadata) -> this.posting_json_metadata?.toJsonObject() ?: JsonObject()
+            else -> json_metadata?.toJsonObject() ?: JsonObject()
+        }
+        val jsonProfile = jsonMetadata.getAsJsonObject("profile")
+        val name = jsonProfile.get("name")?.asString ?: ""
+        val about = jsonProfile.get("about")?.asString ?: ""
+        val location = jsonProfile.get("location")?.asString ?: ""
+        val website = jsonProfile.get("website")?.asString ?: ""
+        val coverImageURL = jsonProfile.get("cover_image")?.asString ?: ""
 
         return SteemitProfile(
             account,
+            name,
             about,
             followingCount,
             folowerCount,
             location,
-            website
+            website,
+            coverImageURL
         )
     }
 
