@@ -15,10 +15,10 @@ class TagsViewModelTest : CommonPartOfViewModelTest() {
     private val tagViewModel = TagsViewModel()
 
     @Test
-    fun readRankedPosts() {
+    fun readRankedPosts() = runTest {
         tagViewModel.apply {
-            updateTag("kr")
-            updateSort(R.id.radiobtn_trending)
+            tag = "kr"
+            sort = "trending"
             readRankedPosts()
         }
         Thread.sleep(3000)
@@ -30,10 +30,10 @@ class TagsViewModelTest : CommonPartOfViewModelTest() {
     }
 
     @Test
-    fun appendRankedPosts() {
+    fun appendRankedPosts() = runTest {
         tagViewModel.apply {
-            updateTag("kr")
-            updateSort(R.id.radiobtn_trending)
+            tag = "kr"
+            sort = "trending"
             readRankedPosts()
         }
         Thread.sleep(3000)
@@ -43,7 +43,7 @@ class TagsViewModelTest : CommonPartOfViewModelTest() {
             assertEquals(tags.size, tagViewModel.limit)
         }
 
-        tagViewModel.appendRankedPosts("kr")
+        tagViewModel.appendRankedPosts()
         Thread.sleep(3000)
         tagViewModel.flowTagsState.value.also { newState ->
             assertTrue(newState is TagsState.Success)
