@@ -40,7 +40,6 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
 
     private val currentAccountObserver = Observer<String> {
         if (it.length > 0) {
-            viewModel.text.value = "Current account is @${it}."
         }
     }
 
