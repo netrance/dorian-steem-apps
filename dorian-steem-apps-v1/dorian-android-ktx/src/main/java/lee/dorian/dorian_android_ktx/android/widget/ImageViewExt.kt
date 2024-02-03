@@ -19,14 +19,14 @@ fun ImageView.unload() {
     Glide.with(this).clear(this)
 }
 
-fun ImageView.load(url: String) {
+fun ImageView.load(url: String, defaultDrawableId: Int? = R.drawable.no_image_available) {
     val imageWidth = this.width
     val imageHeight = this.height
     val thisImageView = this
 
     if (url.isEmpty() or (!url.startsWith("https://"))) {
         Glide.with(thisImageView)
-            .load(R.drawable.no_image_available)
+            .load(defaultDrawableId)
             .override(imageWidth, imageHeight)
             .into(thisImageView)
     }
@@ -37,7 +37,10 @@ fun ImageView.load(url: String) {
             .thumbnail(Glide.with(thisImageView).load(R.drawable.loading))
             .listener(object: RequestListener<Drawable> {
                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                    thisImageView.setImageDrawable(ContextCompat.getDrawable(thisImageView.context, R.drawable.no_image_available))
+                    thisImageView.setImageDrawable(when {
+                        defaultDrawableId == null -> null
+                        else -> ContextCompat.getDrawable(thisImageView.context, defaultDrawableId)
+                    })
                     return false
                 }
 

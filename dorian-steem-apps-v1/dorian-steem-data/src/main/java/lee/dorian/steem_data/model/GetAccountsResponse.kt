@@ -89,15 +89,15 @@ data class SteemitAccountDTO(
         val folowerCount = followCountResponseDTO.result.follower_count
 
         val jsonMetadata = when {
-            (null == this.posting_json_metadata) -> this.posting_json_metadata?.toJsonObject() ?: JsonObject()
+            (null != this.posting_json_metadata) -> this.posting_json_metadata?.toJsonObject() ?: JsonObject()
             else -> json_metadata?.toJsonObject() ?: JsonObject()
         }
         val jsonProfile = jsonMetadata.getAsJsonObject("profile")
-        val name = jsonProfile.get("name")?.asString ?: ""
-        val about = jsonProfile.get("about")?.asString ?: ""
-        val location = jsonProfile.get("location")?.asString ?: ""
-        val website = jsonProfile.get("website")?.asString ?: ""
-        val coverImageURL = jsonProfile.get("cover_image")?.asString ?: ""
+        val name = jsonProfile?.get("name")?.asString ?: ""
+        val about = jsonProfile?.get("about")?.asString ?: ""
+        val location = jsonProfile?.get("location")?.asString ?: ""
+        val website = jsonProfile?.get("website")?.asString ?: ""
+        val coverImageURL = jsonProfile?.get("cover_image")?.asString ?: ""
 
         return SteemitProfile(
             account,

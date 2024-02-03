@@ -6,9 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import lee.dorian.steem_domain.model.SteemitProfile
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentProfileBinding
+import lee.dorian.steem_ui.ext.load
+import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseFragment
 
 class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R.layout.fragment_profile) {
@@ -36,10 +43,73 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
 
         activityViewModel.currentAccount.removeObservers(viewLifecycleOwner)
         activityViewModel.currentAccount.observe(viewLifecycleOwner, currentAccountObserver)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.profileState.collect(profileStateCollector)
+        }
     }
 
     private val currentAccountObserver = Observer<String> {
-        if (it.length > 0) {
+        when {
+            it.isEmpty() -> showEmpty()
+            else -> viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.readSteemitProfile(it)
+            }
+        }
+    }
+
+    private val profileStateCollector = FlowCollector<State<SteemitProfile>> { newState ->
+        when (newState) {
+            is State.Empty -> showEmpty()
+            is State.Loading -> showLoading()
+            is State.Success -> showProfile(newState.data)
+            is State.Error, is State.Failure -> showLoadingError()
+        }
+    }
+
+    private fun showEmpty() {
+        binding.includeInputAccount.layoutInputAccount.visibility = View.VISIBLE
+        binding.includeLoading.layoutLoading.visibility = View.GONE
+        binding.includeLoadingError.layoutLoadingError.visibility = View.GONE
+        binding.scrollProfile.visibility = View.GONE
+    }
+
+    private fun showLoading() {
+        binding.includeInputAccount.layoutInputAccount.visibility = View.GONE
+        binding.includeLoading.layoutLoading.visibility = View.VISIBLE
+        binding.includeLoadingError.layoutLoadingError.visibility = View.GONE
+        binding.scrollProfile.visibility = View.GONE
+    }
+
+    private fun showLoadingError() {
+        binding.includeInputAccount.layoutInputAccount.visibility = View.GONE
+        binding.includeLoading.layoutLoading.visibility = View.GONE
+        binding.includeLoadingError.layoutLoadingError.visibility = View.VISIBLE
+        binding.scrollProfile.visibility = View.GONE
+    }
+
+    private fun showProfile(profile: SteemitProfile) {
+        binding.includeInputAccount.layoutInputAccount.visibility = View.GONE
+        binding.includeLoading.layoutLoading.visibility = View.GONE
+        binding.includeLoadingError.layoutLoadingError.visibility = View.GONE
+        binding.scrollProfile.visibility = View.VISIBLE
+
+        binding.includeProfile.run {
+            imageProfileBackground.load(profile.coverImageURL, null)
+            imageProfile.load("https://steemitimages.com/u/${profile.account}/avatar/small")
+            textAccount.text = "@${profile.account}"
+            textName.text = profile.name
+            textFollowers.text = "${profile.followerCount} Followers"
+            textFollowing.text = "${profile.followingCount} Following"
+            textAbout.text = profile.about
+            textLocation.text = when {
+                profile.location.isEmpty() -> "📍 (No location)"
+                else -> "📍 ${profile.location}"
+            }
+            textWebLink.text = when {
+                profile.website.isEmpty() -> "📍 (No web site)"
+                else -> "🔗 ${profile.website}"
+            }
         }
     }
 
