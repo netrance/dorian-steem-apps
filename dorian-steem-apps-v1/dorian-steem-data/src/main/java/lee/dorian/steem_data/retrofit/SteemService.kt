@@ -7,10 +7,7 @@ import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesResponseDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountResponseDTO
-import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
-import lee.dorian.steem_data.model.post.GetDiscussionResponseDTO
-import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
-import lee.dorian.steem_data.model.post.GetRankedPostsResponseDTO
+import lee.dorian.steem_data.model.post.*
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -33,6 +30,11 @@ interface SteemService {
     suspend fun getFollowCount(
         @Body followingParams: GetFollowCountParamsDTO
     ): Response<GetFollowCountResponseDTO>
+
+    @POST(".")
+    suspend fun getAccountPosts(
+        @Body params: GetAccountPostParamsDTO
+    ): Response<GetAccountPostsResponseDTO>
 
     // Runs bridge.get_ranked_posts API.
     @POST(".")

@@ -5,8 +5,10 @@ import lee.dorian.steem_test.TestData
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
+import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
 import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
+import lee.dorian.steem_data.model.post.PostItemDTO
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -146,6 +148,78 @@ class SteemServiceTest {
     }
 
     @Test
+    fun getAccountPosts_case1() = runTest {
+        val params = GetAccountPostParamsDTO(
+            params = GetAccountPostParamsDTO.InnerParams(
+                account = TestData.singleAccount,
+                sort = GetAccountPostParamsDTO.InnerParams.SORT_POSTS,
+                limit = 30
+            ),
+            id = 1
+        )
+
+        val response = SteemClient.apiService.getAccountPosts(params)
+        assertTrue(response.isSuccessful)
+        response.body()?.let {
+            val postItemDTOList = it.result ?: listOf()
+
+            assertEquals("2.0", it.jsonrpc ?: "")
+            assertNotNull(it.result)
+            assertTrue(postItemDTOList.size == 30)
+            for (postItemDTO in postItemDTOList) {
+                assertNotNull(postItemDTO.author)
+                assertEquals(TestData.singleAccount, (postItemDTO.author ?: ""))
+                assertNotNull(postItemDTO.title)
+                assertTrue((postItemDTO.title ?: "").isNotEmpty())
+            }
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    @Test
+    fun getAccountPosts_case2() = runTest {
+        val params = GetAccountPostParamsDTO(
+            params = GetAccountPostParamsDTO.InnerParams(
+                account = TestData.singleAccount,
+                sort = GetAccountPostParamsDTO.InnerParams.SORT_POSTS,
+                limit = 20
+            ),
+            id = 1
+        )
+
+        val response = SteemClient.apiService.getAccountPosts(params)
+        assertTrue(response.isSuccessful)
+        assertTrue(response.body() != null)
+        val postList: MutableList<PostItemDTO> = response.body()?.result?.toMutableList() ?: mutableListOf()
+
+        val params2 = GetAccountPostParamsDTO(
+            params = GetAccountPostParamsDTO.InnerParams(
+                account = TestData.singleAccount,
+                sort = GetAccountPostParamsDTO.InnerParams.SORT_POSTS,
+                start_author = postList.last().author ?: "",
+                start_permlink = postList.last().permlink ?: "",
+                limit = 20
+            ),
+            id = 1
+        )
+
+        val response2 = SteemClient.apiService.getAccountPosts(params2)
+        assertTrue(response2.isSuccessful)
+        assertTrue(response2.body() != null)
+
+        postList.addAll(response2.body()?.result ?: listOf())
+        assertEquals(40, postList.size)
+        for (postItemDTO in postList) {
+            assertNotNull(postItemDTO.author)
+            assertEquals(TestData.singleAccount, (postItemDTO.author ?: ""))
+            assertNotNull(postItemDTO.title)
+            assertTrue((postItemDTO.title ?: "").isNotEmpty())
+        }
+    }
+
+    @Test
     fun getRankedPost() = runTest {
         val params = GetRankedPostParamsDTO(
             params = GetRankedPostParamsDTO.InnerParams(
@@ -174,6 +248,47 @@ class SteemServiceTest {
         }
 
         fail("The body of response is empty!")
+    }
+
+    @Test
+    fun getRankedPost_case2() = runTest {
+        val params = GetRankedPostParamsDTO(
+            params = GetRankedPostParamsDTO.InnerParams(
+                sort = GetRankedPostParamsDTO.InnerParams.SORT_TRENDING,
+                tag = "kr",
+                limit = 30
+            ),
+            id = 1
+        )
+
+        val response = SteemClient.apiService.getRankedPosts(params)
+        assertTrue(response.isSuccessful)
+        assertTrue(response.body() != null)
+        val postList: MutableList<PostItemDTO> = response.body()?.result?.toMutableList() ?: mutableListOf()
+
+        val params2 = GetRankedPostParamsDTO(
+            params = GetRankedPostParamsDTO.InnerParams(
+                sort = GetRankedPostParamsDTO.InnerParams.SORT_TRENDING,
+                tag = "kr",
+                start_author = postList.last().author ?: "",
+                start_permlink = postList.last().permlink ?: "",
+                limit = 30
+            ),
+            id = 1
+        )
+
+        val response2 = SteemClient.apiService.getRankedPosts(params2)
+        assertTrue(response2.isSuccessful)
+        assertTrue(response2.body() != null)
+
+        postList.addAll(response2.body()?.result ?: listOf())
+        assertEquals(60, postList.size)
+        for (postItemDTO in postList) {
+            assertNotNull(postItemDTO.author)
+            assertTrue((postItemDTO.author ?: "").isNotEmpty())
+            assertNotNull(postItemDTO.title)
+            assertTrue((postItemDTO.title ?: "").isNotEmpty())
+        }
     }
 
     @Test
