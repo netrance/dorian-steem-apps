@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
+import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
 import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_data.retrofit.SteemClient
@@ -90,6 +91,46 @@ class SteemRepositoryImpl(
         }
         catch (e: java.lang.Exception) {
             e.printStackTrace()
+            ApiResult.Error(e)
+        }
+    }
+
+    override suspend fun readPosts(
+        account: String,
+        sort: String,
+        observer: String,
+        limit: Int,
+        existingList: List<PostItem>
+    ): ApiResult<List<PostItem>> = withContext(dispatcher) {
+        val lastPostAuthor = account
+        val lastPostPermLink = when {
+            (existingList.isEmpty()) -> ""
+            else -> existingList.last().permlink
+        }
+        val innerParams = GetAccountPostParamsDTO.InnerParams(
+            account,
+            sort,
+            observer,
+            limit,
+            lastPostAuthor,
+            lastPostPermLink
+        )
+        val getAccountPostsParams = GetAccountPostParamsDTO(params = innerParams, id = 1)
+
+        try {
+            val response = SteemClient.apiService.getAccountPosts(getAccountPostsParams)
+            if (!response.isSuccessful) {
+                ApiResult.Failure(response.errorBody()?.string() ?: "")
+            }
+            else {
+                val postItems = (response.body()?.result ?: listOf()).map { postItemDTO ->
+                    postItemDTO.toPostItem()
+                }
+
+                ApiResult.Success(postItems)
+            }
+        }
+        catch (e: java.lang.Exception) {
             ApiResult.Error(e)
         }
     }

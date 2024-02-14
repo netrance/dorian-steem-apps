@@ -12,6 +12,14 @@ interface SteemRepository {
         account: String
     ): ApiResult<Array<SteemitWallet>>
 
+    suspend fun readPosts(
+        account: String,
+        sort: String,
+        observer: String,
+        limit: Int,
+        existingList: List<PostItem>
+    ): ApiResult<List<PostItem>>
+
     suspend fun readRankedPosts(
         sort: String,
         tag: String,

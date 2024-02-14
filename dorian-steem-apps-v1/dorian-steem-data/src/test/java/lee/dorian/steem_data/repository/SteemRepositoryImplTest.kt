@@ -59,6 +59,26 @@ class SteemRepositoryImplTest {
     }
 
     @Test
+    fun readPosts() = runTest {
+        val apiResult = steemRepository.readPosts(
+            TestData.singleAccount,
+            "posts",
+            "",
+            30,
+            listOf()
+        )
+
+        assertTrue(apiResult is ApiResult.Success)
+        val postItemList = (apiResult as ApiResult.Success).data
+        for (postItem in postItemList) {
+            assertTrue(postItem.account == TestData.singleAccount)
+            assertTrue(postItem.permlink.isNotEmpty())
+            assertTrue(postItem.title.isNotEmpty())
+            assertTrue(postItem.content.isNotEmpty())
+        }
+    }
+
+    @Test
     fun readRankedPosts() = runTest {
         val apiResult = steemRepository.readRankedPosts(
             "trending",
