@@ -18,7 +18,7 @@ interface SteemRepository {
         observer: String,
         limit: Int,
         existingList: List<PostItem>
-    ): ApiResult<List<PostItem>>
+    ): ApiResult<MutableList<PostItem>>
 
     suspend fun readRankedPosts(
         sort: String,

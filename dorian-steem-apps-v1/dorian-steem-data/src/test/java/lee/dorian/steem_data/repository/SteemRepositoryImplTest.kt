@@ -65,7 +65,7 @@ class SteemRepositoryImplTest {
             "posts",
             "",
             30,
-            listOf()
+            mutableListOf()
         )
 
         assertTrue(apiResult is ApiResult.Success)

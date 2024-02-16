@@ -101,17 +101,21 @@ class SteemRepositoryImpl(
         observer: String,
         limit: Int,
         existingList: List<PostItem>
-    ): ApiResult<List<PostItem>> = withContext(dispatcher) {
+    ): ApiResult<MutableList<PostItem>> = withContext(dispatcher) {
         val lastPostAuthor = account
         val lastPostPermLink = when {
             (existingList.isEmpty()) -> ""
             else -> existingList.last().permlink
         }
+        val realLimit = when {
+            (existingList.isEmpty()) -> limit
+            else -> limit + 1
+        }
         val innerParams = GetAccountPostParamsDTO.InnerParams(
             account,
             sort,
             observer,
-            limit,
+            realLimit,
             lastPostAuthor,
             lastPostPermLink
         )
@@ -123,8 +127,12 @@ class SteemRepositoryImpl(
                 ApiResult.Failure(response.errorBody()?.string() ?: "")
             }
             else {
-                val postItems = (response.body()?.result ?: listOf()).map { postItemDTO ->
+                val postItems: MutableList<PostItem> = mutableListOf()
+                (response.body()?.result ?: mutableListOf()).mapTo(postItems) { postItemDTO ->
                     postItemDTO.toPostItem()
+                }
+                if (existingList.isNotEmpty()) {
+                    postItems.removeFirst()
                 }
 
                 ApiResult.Success(postItems)
