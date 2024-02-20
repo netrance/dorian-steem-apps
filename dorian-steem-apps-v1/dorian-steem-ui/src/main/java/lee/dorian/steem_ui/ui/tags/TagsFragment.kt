@@ -155,7 +155,7 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
     private val postItemViewClickListener = object: PostItemListAdapter.OnPostItemViewClickListener {
         override fun onClick(author: String, permlink: String) {
             val navController = findNavController()
-            val action = TagsFragmentDirections.actionNavigationTagsToNavigationPost(
+            val action = TagsFragmentDirections.actionNavigationTagsToNavigationPostContent(
                 author = author,
                 permlink = permlink
             )

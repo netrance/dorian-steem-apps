@@ -11,7 +11,7 @@
         android:label="@string/title_tags"
         tools:layout="@layout/fragment_tags" >
         <action
-            android:id="@+id/action_navigation_tags_to_navigation_post"
+            android:id="@+id/action_navigation_tags_to_navigation_post_content"
             app:destination="@id/navigation_post" />
     </fragment>
 
@@ -29,7 +29,7 @@
 
     <fragment
         android:id="@+id/navigation_post"
-        android:name="lee.dorian.steem_ui.ui.post.content.PostFragment"
+        android:name="lee.dorian.steem_ui.ui.post.content.PostContentFragment"
         android:label="Post"
         tools:layout="@layout/fragment_post">
         <argument

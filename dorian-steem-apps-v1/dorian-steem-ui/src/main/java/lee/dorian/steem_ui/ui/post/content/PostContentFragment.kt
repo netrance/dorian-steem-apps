@@ -23,12 +23,12 @@ import lee.dorian.steem_ui.databinding.FragmentPostBinding
 import lee.dorian.steem_ui.ext.*
 import lee.dorian.steem_ui.ui.base.BaseFragment
 
-class PostFragment : BaseFragment<FragmentPostBinding, PostViewModel>(R.layout.fragment_post) {
+class PostContentFragment : BaseFragment<FragmentPostBinding, PostContentViewModel>(R.layout.fragment_post) {
 
-    val args: PostFragmentArgs by navArgs()
+    val args: PostContentFragmentArgs by navArgs()
 
     override val viewModel by lazy {
-        ViewModelProvider(this).get(PostViewModel::class.java)
+        ViewModelProvider(this).get(PostContentViewModel::class.java)
     }
 
     val activityViewModel by lazy {
@@ -66,7 +66,7 @@ class PostFragment : BaseFragment<FragmentPostBinding, PostViewModel>(R.layout.f
         binding.textDownvotes.setOnClickListener(textDownvotesClickListener)
 
         lifecycleScope.launch {
-            viewModel.flowPostState.collect(postStateCollector)
+            viewModel.flowPostState.collect(postContentStateCollector)
         }
 
         val author = args.author
@@ -76,25 +76,25 @@ class PostFragment : BaseFragment<FragmentPostBinding, PostViewModel>(R.layout.f
 
     private val textUpvotesClickListener = View.OnClickListener {
         val postState = viewModel.flowPostState.value
-        if (postState is PostState.Success) {
+        if (postState is PostContentState.Success) {
             startUpvoteListActivity(postState.post.activeVotes)
         }
     }
 
     private val textDownvotesClickListener = View.OnClickListener {
         val postState = viewModel.flowPostState.value
-        if (postState is PostState.Success) {
+        if (postState is PostContentState.Success) {
             startDownvoteListActivity(postState.post.activeVotes)
         }
     }
 
-    private val postStateCollector = FlowCollector<PostState> { state ->
+    private val postContentStateCollector = FlowCollector<PostContentState> { state ->
         when (state) {
-            is PostState.Loading -> {
+            is PostContentState.Loading -> {
                 binding.includeLoading.layoutLoading.visibility = View.VISIBLE
                 binding.includeLoading.imageLoading.loadGif(lee.dorian.dorian_android_ktx.R.drawable.loading)
             }
-            is PostState.Success -> {
+            is PostContentState.Success -> {
                 binding.includeLoading.layoutLoading.visibility = View.GONE
                 binding.includeLoading.imageLoading.unload()
 
