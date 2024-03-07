@@ -2,5 +2,5 @@ package lee.dorian.steem_domain.model
 
 data class Blog(
     val author: String,
-    val posts: MutableList<PostItem>
+    val posts: List<PostItem>
 )

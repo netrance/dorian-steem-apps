@@ -1,6 +1,5 @@
 package lee.dorian.steem_ui.ui.profile
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -8,7 +7,6 @@ import kotlinx.coroutines.launch
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.SteemitProfile
-import lee.dorian.steem_domain.usecase.ReadPostAndRepliesUseCase
 import lee.dorian.steem_domain.usecase.ReadSteemitProfileUseCase
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseViewModel

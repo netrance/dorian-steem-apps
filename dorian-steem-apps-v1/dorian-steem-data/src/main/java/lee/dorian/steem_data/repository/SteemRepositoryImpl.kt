@@ -101,8 +101,11 @@ class SteemRepositoryImpl(
         observer: String,
         limit: Int,
         existingList: List<PostItem>
-    ): ApiResult<MutableList<PostItem>> = withContext(dispatcher) {
-        val lastPostAuthor = account
+    ): ApiResult<List<PostItem>> = withContext(dispatcher) {
+        val lastPostAuthor = when {
+            (existingList.isEmpty()) -> ""
+            else -> existingList.last().account
+        }
         val lastPostPermLink = when {
             (existingList.isEmpty()) -> ""
             else -> existingList.last().permlink

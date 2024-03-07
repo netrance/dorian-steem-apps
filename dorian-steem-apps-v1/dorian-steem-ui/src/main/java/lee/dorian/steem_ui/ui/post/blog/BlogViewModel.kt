@@ -22,7 +22,7 @@ class BlogViewModel(
     private val _flowState: MutableStateFlow<State<Blog>> = MutableStateFlow(State.Empty)
     val flowState = _flowState.asStateFlow()
 
-    suspend fun readPosts(author: String) = viewModelScope.launch {
+    fun readPosts(author: String) = viewModelScope.launch {
         _flowState.emit(State.Loading)
         val apiResult = readPostsUseCase(author, "blog", "")
         val newState = when (apiResult) {
@@ -55,8 +55,11 @@ class BlogViewModel(
             is ApiResult.Failure -> State.Failure(apiResult.content)
             is ApiResult.Error -> State.Error(apiResult.throwable)
             is ApiResult.Success -> {
-                existingPosts.addAll(apiResult.data)
-                recentState
+                val newPostList = mutableListOf<PostItem>().apply {
+                    addAll(existingPosts)
+                    addAll(apiResult.data)
+                }
+                State.Success<Blog>(Blog(author, newPostList))
             }
         }
         _flowState.emit(newState)

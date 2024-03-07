@@ -19,7 +19,11 @@
         android:id="@+id/navigation_profile"
         android:name="lee.dorian.steem_ui.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_blog"
+            app:destination="@id/navigation_blog" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_wallet"
@@ -38,6 +42,19 @@
         <argument
             android:name="permlink"
             app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_blog"
+        android:name="lee.dorian.steem_ui.ui.post.blog.BlogFragment"
+        android:label="Blog"
+        tools:layout="@layout/fragment_blog">
+        <argument
+            android:name="author"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_navigation_blog_to_navigation_post"
+            app:destination="@id/navigation_post" />
     </fragment>
 
 </navigation>

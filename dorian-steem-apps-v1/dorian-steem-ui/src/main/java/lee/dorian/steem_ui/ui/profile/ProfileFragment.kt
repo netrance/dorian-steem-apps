@@ -3,18 +3,20 @@ package lee.dorian.steem_ui.ui.profile
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import lee.dorian.steem_domain.model.SteemitProfile
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentProfileBinding
 import lee.dorian.steem_ui.ext.load
+import lee.dorian.steem_ui.ext.setActivityActionBarTitle
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseFragment
 
@@ -44,9 +46,20 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
         activityViewModel.currentAccount.removeObservers(viewLifecycleOwner)
         activityViewModel.currentAccount.observe(viewLifecycleOwner, currentAccountObserver)
 
+        binding.includeProfileMenu.includeMenuItem2.layoutMenuItem.setOnClickListener(menuItem2ClickListener)
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.profileState.collect(profileStateCollector)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val state = viewModel.profileState.value
+        setActivityActionBarTitle(when (state) {
+            is State.Success -> "Profile of @${getAuthor()}"
+            else -> "Profile"
+        })
     }
 
     private val currentAccountObserver = Observer<String> {
@@ -64,6 +77,22 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
             is State.Loading -> showLoading()
             is State.Success -> showProfile(newState.data)
             is State.Error, is State.Failure -> showLoadingError()
+        }
+    }
+
+    private val menuItem2ClickListener = OnClickListener { v ->
+        val author = getAuthor()
+
+        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationBlog(author)
+        findNavController().navigate(action)
+        setActivityActionBarTitle("Blog of @${author}")
+    }
+
+    private fun getAuthor(): String {
+        val state = viewModel.profileState.value
+        return when  {
+            (state is State.Success<SteemitProfile>) -> state.data.account
+            else -> ""
         }
     }
 
@@ -111,6 +140,12 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
                 else -> "🔗 ${profile.website}"
             }
         }
+
+        val state = viewModel.profileState.value
+        setActivityActionBarTitle(when (state) {
+            is State.Success -> "Profile of @${getAuthor()}"
+            else -> "Profile"
+        })
     }
 
 }

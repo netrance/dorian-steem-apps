@@ -17,8 +17,8 @@ class ReadPostsUseCase(
         sort: String,
         observer: String = "",
         limit: Int = 20,
-        existingList: MutableList<PostItem> = mutableListOf()
-    ): ApiResult<MutableList<PostItem>> = withContext(dispatcher) {
+        existingList: List<PostItem> = mutableListOf()
+    ): ApiResult<List<PostItem>> = withContext(dispatcher) {
         val apiResult = try {
             steemRepository.readPosts(
                 account,
