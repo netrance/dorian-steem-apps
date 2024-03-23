@@ -47,6 +47,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
         activityViewModel.currentAccount.observe(viewLifecycleOwner, currentAccountObserver)
 
         binding.includeProfileMenu.includeMenuItem2.layoutMenuItem.setOnClickListener(menuItem2ClickListener)
+        binding.includeProfileMenu.includeMenuItem3.layoutMenuItem.setOnClickListener(menuItem3ClickListener)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.profileState.collect(profileStateCollector)
@@ -83,9 +84,17 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
     private val menuItem2ClickListener = OnClickListener { v ->
         val author = getAuthor()
 
-        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationBlog(author)
+        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationBlog(author, "blog")
         findNavController().navigate(action)
         setActivityActionBarTitle("Blog of @${author}")
+    }
+
+    private val menuItem3ClickListener = OnClickListener { v ->
+        val author = getAuthor()
+
+        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationBlog(author, "posts")
+        findNavController().navigate(action)
+        setActivityActionBarTitle("Posts of @${author}")
     }
 
     private fun getAuthor(): String {

@@ -46,11 +46,14 @@
 
     <fragment
         android:id="@+id/navigation_blog"
-        android:name="lee.dorian.steem_ui.ui.post.blog.BlogFragment"
+        android:name="lee.dorian.steem_ui.ui.post.list.PostListFragment"
         android:label="Blog"
         tools:layout="@layout/fragment_blog">
         <argument
             android:name="author"
+            app:argType="string" />
+        <argument
+            android:name="sort"
             app:argType="string" />
         <action
             android:id="@+id/action_navigation_blog_to_navigation_post"

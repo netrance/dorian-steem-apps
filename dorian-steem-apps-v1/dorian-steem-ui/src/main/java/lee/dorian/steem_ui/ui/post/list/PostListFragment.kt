@@ -1,4 +1,4 @@
-package lee.dorian.steem_ui.ui.post.blog
+package lee.dorian.steem_ui.ui.post.list
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
-import lee.dorian.steem_domain.model.Blog
+import lee.dorian.steem_domain.model.PostListInfo
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
@@ -24,12 +24,12 @@ import lee.dorian.steem_ui.ui.base.BaseFragment
 import lee.dorian.steem_ui.ui.post.PostImagePagerActivity
 import lee.dorian.steem_ui.ui.tags.PostItemListAdapter
 
-class BlogFragment : BaseFragment<FragmentBlogBinding, BlogViewModel>(R.layout.fragment_blog) {
+class PostListFragment : BaseFragment<FragmentBlogBinding, PostListViewModel>(R.layout.fragment_blog) {
 
-    private val args: BlogFragmentArgs by navArgs()
+    private val args: PostListFragmentArgs by navArgs()
 
     override val viewModel by lazy {
-        ViewModelProvider(this).get(BlogViewModel::class.java)
+        ViewModelProvider(this).get(PostListViewModel::class.java)
     }
 
     val activityViewModel by lazy {
@@ -67,7 +67,7 @@ class BlogFragment : BaseFragment<FragmentBlogBinding, BlogViewModel>(R.layout.f
         }
     }
 
-    private val stateCollector = FlowCollector<State<Blog>> { newState ->
+    private val stateCollector = FlowCollector<State<PostListInfo>> { newState ->
         binding.swipeRefreshBlog.isRefreshing = false
         when (newState) {
             is State.Error, is State.Failure -> {
@@ -90,13 +90,13 @@ class BlogFragment : BaseFragment<FragmentBlogBinding, BlogViewModel>(R.layout.f
 
     private val upvoteViewClickListener = object: PostItemListAdapter.OnVoteCountViewClickListener {
         override fun onClick(postItem: PostItem) {
-            this@BlogFragment.startUpvoteListActivity(postItem.activeVotes)
+            this@PostListFragment.startUpvoteListActivity(postItem.activeVotes)
         }
     }
 
     private val downvoteViewClickListener = object: PostItemListAdapter.OnVoteCountViewClickListener {
         override fun onClick(postItem: PostItem) {
-            this@BlogFragment.startDownvoteListActivity(postItem.activeVotes)
+            this@PostListFragment.startDownvoteListActivity(postItem.activeVotes)
         }
     }
 
@@ -120,7 +120,7 @@ class BlogFragment : BaseFragment<FragmentBlogBinding, BlogViewModel>(R.layout.f
     private val postItemViewClickListener = object: PostItemListAdapter.OnPostItemViewClickListener {
         override fun onClick(author: String, permlink: String) {
             val navController = findNavController()
-            val action = BlogFragmentDirections.actionNavigationBlogToNavigationPost(
+            val action = PostListFragmentDirections.actionNavigationBlogToNavigationPost(
                 author = author,
                 permlink = permlink
             )
@@ -153,7 +153,7 @@ class BlogFragment : BaseFragment<FragmentBlogBinding, BlogViewModel>(R.layout.f
 
     private fun readPosts() = viewLifecycleOwner.lifecycleScope.launch {
         emptyList()
-        viewModel.readPosts(args.author)
+        viewModel.readPosts(args.author, args.sort)
     }
 
     companion object {

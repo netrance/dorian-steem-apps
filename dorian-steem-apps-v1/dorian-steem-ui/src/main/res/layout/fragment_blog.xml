@@ -7,7 +7,7 @@
     <data>
         <variable
             name="viewModel"
-            type="lee.dorian.steem_ui.ui.post.blog.BlogViewModel" />
+            type="lee.dorian.steem_ui.ui.post.list.PostListViewModel" />
         <variable
             name="activityViewModel"
             type="lee.dorian.steem_ui.MainViewModel" />
