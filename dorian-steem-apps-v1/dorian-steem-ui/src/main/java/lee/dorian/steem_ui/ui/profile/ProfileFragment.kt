@@ -48,6 +48,8 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
 
         binding.includeProfileMenu.includeMenuItem2.layoutMenuItem.setOnClickListener(menuItem2ClickListener)
         binding.includeProfileMenu.includeMenuItem3.layoutMenuItem.setOnClickListener(menuItem3ClickListener)
+        binding.includeProfileMenu.includeMenuItem4.layoutMenuItem.setOnClickListener(menuItem4ClickListener)
+        binding.includeProfileMenu.includeMenuItem5.layoutMenuItem.setOnClickListener(menuItem5ClickListener)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.profileState.collect(profileStateCollector)
@@ -84,7 +86,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
     private val menuItem2ClickListener = OnClickListener { v ->
         val author = getAuthor()
 
-        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationBlog(author, "blog")
+        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(author, "blog")
         findNavController().navigate(action)
         setActivityActionBarTitle("Blog of @${author}")
     }
@@ -92,9 +94,25 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
     private val menuItem3ClickListener = OnClickListener { v ->
         val author = getAuthor()
 
-        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationBlog(author, "posts")
+        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(author, "posts")
         findNavController().navigate(action)
         setActivityActionBarTitle("Posts of @${author}")
+    }
+
+    private val menuItem4ClickListener = OnClickListener { v ->
+        val author = getAuthor()
+
+        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(author, "comments")
+        findNavController().navigate(action)
+        setActivityActionBarTitle("Comments of @${author}")
+    }
+
+    private val menuItem5ClickListener = OnClickListener { v ->
+        val author = getAuthor()
+
+        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(author, "replies")
+        findNavController().navigate(action)
+        setActivityActionBarTitle("Replies of @${author}")
     }
 
     private fun getAuthor(): String {

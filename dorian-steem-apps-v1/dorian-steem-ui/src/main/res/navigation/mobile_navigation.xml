@@ -21,8 +21,8 @@
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" >
         <action
-            android:id="@+id/action_navigation_profile_to_navigation_blog"
-            app:destination="@id/navigation_blog" />
+            android:id="@+id/action_navigation_profile_to_navigation_post_list"
+            app:destination="@id/navigation_post_list" />
     </fragment>
 
     <fragment
@@ -45,7 +45,7 @@
     </fragment>
 
     <fragment
-        android:id="@+id/navigation_blog"
+        android:id="@+id/navigation_post_list"
         android:name="lee.dorian.steem_ui.ui.post.list.PostListFragment"
         android:label="Blog"
         tools:layout="@layout/fragment_blog">
@@ -56,7 +56,7 @@
             android:name="sort"
             app:argType="string" />
         <action
-            android:id="@+id/action_navigation_blog_to_navigation_post"
+            android:id="@+id/action_navigation_post_list_to_navigation_post"
             app:destination="@id/navigation_post" />
     </fragment>
 

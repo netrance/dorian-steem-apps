@@ -120,7 +120,7 @@ class PostListFragment : BaseFragment<FragmentBlogBinding, PostListViewModel>(R.
     private val postItemViewClickListener = object: PostItemListAdapter.OnPostItemViewClickListener {
         override fun onClick(author: String, permlink: String) {
             val navController = findNavController()
-            val action = PostListFragmentDirections.actionNavigationBlogToNavigationPost(
+            val action = PostListFragmentDirections.actionNavigationPostListToNavigationPost(
                 author = author,
                 permlink = permlink
             )
