@@ -7,6 +7,8 @@ import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesResponseDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountResponseDTO
+import lee.dorian.steem_data.model.history.GetAccountHistoryParamsDTO
+import lee.dorian.steem_data.model.history.GetAccountHistoryResponseDTO
 import lee.dorian.steem_data.model.post.*
 import retrofit2.Response
 import retrofit2.http.Body
@@ -47,5 +49,10 @@ interface SteemService {
     suspend fun getDiscussion(
         @Body params: GetDiscussionParamsDTO
     ): Response<GetDiscussionResponseDTO>
+
+    @POST(".")
+    suspend fun getAccountHistory(
+        @Body params: GetAccountHistoryParamsDTO
+    ): Response<GetAccountHistoryResponseDTO>
 
 }

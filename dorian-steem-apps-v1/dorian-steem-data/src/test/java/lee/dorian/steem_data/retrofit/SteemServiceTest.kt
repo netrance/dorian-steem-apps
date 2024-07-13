@@ -5,6 +5,7 @@ import lee.dorian.steem_test.TestData
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
+import lee.dorian.steem_data.model.history.GetAccountHistoryParamsDTO
 import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
 import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
@@ -309,4 +310,20 @@ class SteemServiceTest {
         val rootPost = postResult["${account}/${permlink}"]
         assertNotNull(rootPost)
     }
+
+    @Test
+    fun getAccountHistory() = runTest {
+        val account = "dorian-lee"
+        val params = GetAccountHistoryParamsDTO(
+            params = GetAccountHistoryParamsDTO.InnerParams(account, -1, 20),
+            id = 1
+        )
+
+        val response = SteemClient.apiService.getAccountHistory(params)
+        assertNotNull(response.body())
+
+        val accountHistoryResult = response.body()?.result
+        assertTrue(accountHistoryResult?.isNotEmpty() ?: false)
+    }
+
 }
