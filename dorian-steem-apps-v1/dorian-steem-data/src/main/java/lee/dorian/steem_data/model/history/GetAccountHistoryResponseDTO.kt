@@ -1,10 +1,19 @@
 package lee.dorian.steem_data.model.history
 
+import lee.dorian.steem_domain.model.HistoryItem
+
 data class GetAccountHistoryResponseDTO(
     val jsonrpc: String?,
-    val result: Array<HistoryItemDTO>?,    // Array<Any>: Index and history content
+    val result: List<HistoryItemDTO>?,    // Array<Any>: Index and history content
     val id: Int?
-)
+) {
+    fun toHistoryItemList(): List<HistoryItem> {
+        return result?.map {
+            it.toHistoryItem()
+        } ?: listOf()
+    }
+
+}
 
 // Example of one history item.
 // 831265 is index, and JSON object is history content.

@@ -34,4 +34,10 @@ interface SteemRepository {
         permlink: String
     ): ApiResult<List<Post>>
 
+    suspend fun readAccountHistory(
+        account: String,
+        limit: Int,
+        existingList: List<HistoryItem>
+    ): ApiResult<List<HistoryItem>>
+
 }

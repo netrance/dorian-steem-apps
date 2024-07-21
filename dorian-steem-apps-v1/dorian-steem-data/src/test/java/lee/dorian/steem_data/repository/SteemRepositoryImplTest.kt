@@ -111,4 +111,17 @@ class SteemRepositoryImplTest {
         assertTrue(postList[0].permlink == "1000")
     }
 
+    @Test
+    fun readAccountHistory() = runTest {
+        val apiResult = steemRepository.readAccountHistory(TestData.singleAccount2, 20, listOf())
+        assertTrue(apiResult is ApiResult.Success)
+
+        val accountHistoryList = (apiResult as ApiResult.Success).data
+        assertTrue(accountHistoryList.size == 20 + 1)
+
+        val apiResult2 = steemRepository.readAccountHistory(TestData.singleAccount2, 20, accountHistoryList)
+        val accountHistoryList2 = (apiResult2 as ApiResult.Success).data
+        assertTrue(accountHistoryList2.size == 20 + 1)
+    }
+
 }

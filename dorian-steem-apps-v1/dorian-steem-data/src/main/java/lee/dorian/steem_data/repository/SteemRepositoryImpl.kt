@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
+import lee.dorian.steem_data.model.history.GetAccountHistoryParamsDTO
 import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
 import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
@@ -210,6 +211,38 @@ class SteemRepositoryImpl(
                     it.toPost()
                 }
                 ApiResult.Success(postList)
+            }
+        }
+        catch (e: java.lang.Exception) {
+            ApiResult.Error(e)
+        }
+    }
+
+    override suspend fun readAccountHistory(
+        account: String,
+        limit: Int,
+        existingList: List<HistoryItem>
+    ): ApiResult<List<HistoryItem>> = withContext(dispatcher) {
+        val lastIndex = when {
+            (existingList.isEmpty()) -> -1
+            else -> existingList.last().index
+        }
+
+        val innerParams = GetAccountHistoryParamsDTO.InnerParams(
+            account,
+            lastIndex,
+            limit
+        )
+        val getAccountHistoryParams = GetAccountHistoryParamsDTO(params = innerParams, id = 1)
+
+        return@withContext try {
+            val response = SteemClient.apiService.getAccountHistory(getAccountHistoryParams)
+            if (!response.isSuccessful) {
+                ApiResult.Failure(response.errorBody()?.string() ?: "")
+            }
+            else {
+                val accountHistoryItems = response.body()?.toHistoryItemList() ?: listOf()
+                ApiResult.Success(accountHistoryItems.reversed())
             }
         }
         catch (e: java.lang.Exception) {

@@ -21,6 +21,10 @@ dependencies {
     // coroutines
     implementation coroutines.coroutines
 
+    // others
+    implementation retrofit.converter_gson
+
     // For unit test
     testImplementation others.junit
+
 }
