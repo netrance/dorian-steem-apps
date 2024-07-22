@@ -11,6 +11,10 @@ data class GetAccountHistoryParamsDTO(
         account,
         start,
         limit
-    )
+    ) {
+        companion object {
+            const val DEFAULT_LIMIT = 20
+        }
+    }
 
 }
