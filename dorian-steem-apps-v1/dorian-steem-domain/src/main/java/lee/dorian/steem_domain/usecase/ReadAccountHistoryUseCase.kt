@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import lee.dorian.steem_domain.model.ApiResult
-import lee.dorian.steem_domain.model.HistoryItem
+import lee.dorian.steem_domain.model.AccountHistoryItem
 import lee.dorian.steem_domain.repository.SteemRepository
 
 class ReadAccountHistoryUseCase(
@@ -19,8 +19,8 @@ class ReadAccountHistoryUseCase(
     operator suspend fun invoke(
         account: String,
         limit: Int = DEFAULT_LIMIT,
-        existingList: List<HistoryItem> = listOf()
-    ): ApiResult<List<HistoryItem>> = withContext(dispatcher) {
+        existingList: List<AccountHistoryItem> = listOf()
+    ): ApiResult<List<AccountHistoryItem>> = withContext(dispatcher) {
         val apiResult = try {
             steemRepository.readAccountHistory(
                 account,

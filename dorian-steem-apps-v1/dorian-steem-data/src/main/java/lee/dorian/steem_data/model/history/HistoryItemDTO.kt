@@ -1,8 +1,7 @@
 package lee.dorian.steem_data.model.history
 
-import com.google.gson.JsonObject
 import com.google.gson.internal.LinkedTreeMap
-import lee.dorian.steem_domain.model.HistoryItem
+import lee.dorian.steem_domain.model.AccountHistoryItem
 import lee.dorian.steem_domain.util.Converter
 
 class HistoryItemDTO : MutableList<Any> by mutableListOf() {
@@ -35,14 +34,14 @@ class HistoryItemDTO : MutableList<Any> by mutableListOf() {
         }
     }
 
-    fun toHistoryItem(): HistoryItem {
+    fun toHistoryItem(): AccountHistoryItem {
         val historyItemContent = getHistoryItemContent()
         val historyItemContent2 = this[1]
         val index = getIndex()
         val utcTime = Converter.toLocalTimeFromUTCTime(historyItemContent?.timestamp ?: "", "yyyy-MM-dd HH:mm")
         val histoyItemContent = historyItemContent?.op?.getOpContent() ?: LinkedTreeMap()
 
-        return HistoryItem(
+        return AccountHistoryItem(
             index,
             utcTime,
             histoyItemContent

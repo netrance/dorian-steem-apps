@@ -221,8 +221,8 @@ class SteemRepositoryImpl(
     override suspend fun readAccountHistory(
         account: String,
         limit: Int,
-        existingList: List<HistoryItem>
-    ): ApiResult<List<HistoryItem>> = withContext(dispatcher) {
+        existingList: List<AccountHistoryItem>
+    ): ApiResult<List<AccountHistoryItem>> = withContext(dispatcher) {
         val lastIndex = when {
             (existingList.isEmpty()) -> -1
             else -> existingList.last().index
@@ -241,8 +241,12 @@ class SteemRepositoryImpl(
                 ApiResult.Failure(response.errorBody()?.string() ?: "")
             }
             else {
-                val accountHistoryItems = response.body()?.toHistoryItemList() ?: listOf()
-                ApiResult.Success(accountHistoryItems.reversed())
+                val accountHistoryItems: MutableList<AccountHistoryItem> = response.body()?.toHistoryItemList()?.toMutableList() ?: mutableListOf()
+                ApiResult.Success(accountHistoryItems.asReversed().apply {
+                    if (existingList.isNotEmpty()) {
+                        this.removeFirst()
+                    }
+                })
             }
         }
         catch (e: java.lang.Exception) {

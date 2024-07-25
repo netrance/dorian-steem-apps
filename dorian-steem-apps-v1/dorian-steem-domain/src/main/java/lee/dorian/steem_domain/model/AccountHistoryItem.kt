@@ -1,8 +1,6 @@
 package lee.dorian.steem_domain.model
 
-import com.google.gson.JsonObject
-
-data class HistoryItem(
+data class AccountHistoryItem(
     val index: Int,
     val timestamp: String,
     val content: Map<String, Any>

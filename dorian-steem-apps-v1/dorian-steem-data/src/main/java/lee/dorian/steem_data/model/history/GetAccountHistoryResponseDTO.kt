@@ -1,13 +1,13 @@
 package lee.dorian.steem_data.model.history
 
-import lee.dorian.steem_domain.model.HistoryItem
+import lee.dorian.steem_domain.model.AccountHistoryItem
 
 data class GetAccountHistoryResponseDTO(
     val jsonrpc: String?,
     val result: List<HistoryItemDTO>?,    // Array<Any>: Index and history content
     val id: Int?
 ) {
-    fun toHistoryItemList(): List<HistoryItem> {
+    fun toHistoryItemList(): List<AccountHistoryItem> {
         return result?.map {
             it.toHistoryItem()
         } ?: listOf()

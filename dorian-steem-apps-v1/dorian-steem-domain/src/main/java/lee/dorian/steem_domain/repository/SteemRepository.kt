@@ -37,7 +37,7 @@ interface SteemRepository {
     suspend fun readAccountHistory(
         account: String,
         limit: Int,
-        existingList: List<HistoryItem>
-    ): ApiResult<List<HistoryItem>>
+        existingList: List<AccountHistoryItem>
+    ): ApiResult<List<AccountHistoryItem>>
 
 }
