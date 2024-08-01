@@ -16,7 +16,7 @@ class ReadAccountHistoryUseCaseTest {
     private fun testAccountHistoryList(historyItemList: List<AccountHistoryItem>) {
         for (accountHistoryItem in historyItemList) {
             Assert.assertTrue(accountHistoryItem.index > 0)
-            Assert.assertTrue(accountHistoryItem.timestamp.isNotEmpty())
+            Assert.assertTrue(accountHistoryItem.localTime.isNotEmpty())
             Assert.assertTrue(accountHistoryItem.content.isNotEmpty())
         }
     }

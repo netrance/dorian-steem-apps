@@ -36,14 +36,14 @@ class HistoryItemDTO : MutableList<Any> by mutableListOf() {
 
     fun toHistoryItem(): AccountHistoryItem {
         val historyItemContent = getHistoryItemContent()
-        val historyItemContent2 = this[1]
         val index = getIndex()
-        val utcTime = Converter.toLocalTimeFromUTCTime(historyItemContent?.timestamp ?: "", "yyyy-MM-dd HH:mm")
+        val localTime = Converter.toLocalTimeFromUTCTime(historyItemContent?.timestamp ?: "", "yyyy-MM-dd HH:mm")
         val histoyItemContent = historyItemContent?.op?.getOpContent() ?: LinkedTreeMap()
 
         return AccountHistoryItem(
             index,
-            utcTime,
+            localTime,
+            historyItemContent?.op?.getOpCode() ?: "",
             histoyItemContent
         )
     }

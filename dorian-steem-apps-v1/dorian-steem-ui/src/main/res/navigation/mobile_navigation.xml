@@ -23,6 +23,9 @@
         <action
             android:id="@+id/action_navigation_profile_to_navigation_post_list"
             app:destination="@id/navigation_post_list" />
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_account_history"
+            app:destination="@id/navigation_account_history" />
     </fragment>
 
     <fragment
@@ -58,6 +61,16 @@
         <action
             android:id="@+id/action_navigation_post_list_to_navigation_post"
             app:destination="@id/navigation_post" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_account_history"
+        android:name="lee.dorian.steem_ui.ui.history.AccountHistoryFragment"
+        android:label="Account History"
+        tools:layout="@layout/fragment_account_history">
+        <argument
+            android:name="author"
+            app:argType="string" />
     </fragment>
 
 </navigation>

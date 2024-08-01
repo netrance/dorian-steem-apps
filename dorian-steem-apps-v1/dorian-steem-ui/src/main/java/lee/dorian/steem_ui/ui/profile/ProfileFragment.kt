@@ -50,6 +50,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
         binding.includeProfileMenu.includeMenuItem3.layoutMenuItem.setOnClickListener(menuItem3ClickListener)
         binding.includeProfileMenu.includeMenuItem4.layoutMenuItem.setOnClickListener(menuItem4ClickListener)
         binding.includeProfileMenu.includeMenuItem5.layoutMenuItem.setOnClickListener(menuItem5ClickListener)
+        binding.includeProfileMenu.includeMenuItem6.layoutMenuItem.setOnClickListener(menuItem6ClickListener)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.profileState.collect(profileStateCollector)
@@ -113,6 +114,14 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
         val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(author, "replies")
         findNavController().navigate(action)
         setActivityActionBarTitle("Replies of @${author}")
+    }
+
+    private val menuItem6ClickListener = OnClickListener { v ->
+        val author = getAuthor()
+
+        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountHistory(author)
+        findNavController().navigate(action)
+        setActivityActionBarTitle("History of @${author}")
     }
 
     private fun getAuthor(): String {
