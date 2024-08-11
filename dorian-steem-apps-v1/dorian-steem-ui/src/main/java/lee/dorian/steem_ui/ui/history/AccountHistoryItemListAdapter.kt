@@ -50,7 +50,7 @@ class AccountHistoryItemListAdapter() : RecyclerView.Adapter<AccountHistoryItemL
         fun bind(accountHistoryItem: AccountHistoryItem, position: Int) {
             binding.apply {
                 textHistoryItemType.text = accountHistoryItem.type
-                textHistoryItemContent.text = accountHistoryItem.content.toString()
+                textHistoryItemContent.text = accountHistoryItem.getUserReadableContent()
                 textHistoryItemTime.text = accountHistoryItem.localTime
                 root.setBackgroundColor(when (position.isOdd()) {
                     true -> Color.rgb(0xEE, 0xEE, 0xEE)
