@@ -2,13 +2,16 @@ package lee.dorian.steem_ui.ui.history
 
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import lee.dorian.dorian_ktx.isOdd
 import lee.dorian.steem_domain.model.AccountHistoryItem
 import lee.dorian.steem_ui.databinding.LayoutAccountHistoryItemBinding
 
-class AccountHistoryItemListAdapter() : RecyclerView.Adapter<AccountHistoryItemListAdapter.AccountHistoryItemListViewHolder>() {
+class AccountHistoryItemListAdapter(
+    private val onAccountHistoryItemClickListener: OnAccountHistoryItemClickListener
+) : RecyclerView.Adapter<AccountHistoryItemListAdapter.AccountHistoryItemListViewHolder>() {
 
     private val accountHistoryItemList = mutableListOf<AccountHistoryItem>()
 
@@ -22,8 +25,11 @@ class AccountHistoryItemListAdapter() : RecyclerView.Adapter<AccountHistoryItemL
 
     override fun onBindViewHolder(holder: AccountHistoryItemListViewHolder, position: Int) {
         try {
-            val post = accountHistoryItemList[position]
-            holder.bind(post, position)
+            val accountHistoryItem = accountHistoryItemList[position]
+            holder.bind(accountHistoryItem, position)
+            holder.binding.root.setOnClickListener {
+                onAccountHistoryItemClickListener.onClick(holder.binding.root, accountHistoryItem)
+            }
         }
         catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
@@ -58,6 +64,10 @@ class AccountHistoryItemListAdapter() : RecyclerView.Adapter<AccountHistoryItemL
                 })
             }
         }
+    }
+
+    interface OnAccountHistoryItemClickListener {
+        fun onClick(itemView: View, accountHistoryItem: AccountHistoryItem)
     }
 
 }

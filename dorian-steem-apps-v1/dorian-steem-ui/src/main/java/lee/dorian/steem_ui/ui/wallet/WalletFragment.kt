@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 import lee.dorian.steem_domain.model.SteemitWallet
@@ -14,9 +15,12 @@ import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentWalletBinding
 import lee.dorian.steem_ui.ext.showToastShortly
+import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseFragment
 
 class WalletFragment : BaseFragment<FragmentWalletBinding, WalletViewModel>(R.layout.fragment_wallet) {
+
+    private val args: WalletFragmentArgs by navArgs()
 
     override val viewModel: WalletViewModel by lazy {
         ViewModelProvider(this).get(WalletViewModel::class.java)
@@ -40,26 +44,38 @@ class WalletFragment : BaseFragment<FragmentWalletBinding, WalletViewModel>(R.la
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        activityViewModel.currentAccount.removeObservers(viewLifecycleOwner)
-        activityViewModel.currentAccount.observe(viewLifecycleOwner, currentAccountObserver)
+        binding.includeAccountLookup.root.visibility = when {
+            (args.account.isEmpty()) -> View.VISIBLE
+            else -> View.GONE
+        }
+        binding.includeAccountLookup.buttonAccountSearch.setOnClickListener(buttonAccountSearchClickListener)
 
         lifecycleScope.launch {
             viewModel.flowWalletState.collect(walletStateCollector)
         }
-    }
 
-    private val currentAccountObserver = Observer<String> {
-        if (it.length > 2) {
-            viewModel.readSteemitWallet(it)
+        if (args.account.isNotEmpty() and (viewModel.flowWalletState.value is State.Empty)) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.readSteemitWallet(args.account)
+            }
         }
     }
 
-    private val walletStateCollector = FlowCollector<WalletState> { state ->
+    private val walletStateCollector = FlowCollector<State<SteemitWallet>> { state ->
         when (state) {
-            is WalletState.Empty -> updateWalletAsEmpty()
-            is WalletState.Loading -> updateWalletAsLoading()
-            is WalletState.Success -> updateWallet(state.wallet)
+            is State.Empty -> updateWalletAsEmpty()
+            is State.Loading -> updateWalletAsLoading()
+            is State.Success -> updateWallet(state.data)
             else -> showToastShortly(getString(R.string.error_cannot_load))
+        }
+    }
+
+    private val buttonAccountSearchClickListener = View.OnClickListener {
+        val account = binding.includeAccountLookup.editSteemitAccount.text.toString()
+        if (account.length > 2) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.readSteemitWallet(account)
+            }
         }
     }
 

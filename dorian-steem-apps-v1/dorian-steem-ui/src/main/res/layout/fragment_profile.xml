@@ -13,58 +13,69 @@
             type="lee.dorian.steem_ui.MainViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <!-- Show input a Steemit account -->
         <include
-            android:id="@+id/include_input_account"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/layout_input_account" />
+            android:id="@+id/include_account_lookup"
+            layout="@layout/layout_account_lookup" />
 
-        <!-- Loading -->
-        <include
-            android:id="@+id/include_loading"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/layout_loading" />
-
-        <!-- Loading error -->
-        <include
-            android:id="@+id/include_loading_error"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/layout_loading_error" />
-
-        <!-- content of profile -->
-        <ScrollView
-            android:id="@+id/scroll_profile"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <LinearLayout
-                android:id="@+id/layout_profile"
+            <!-- Show input a Steemit account -->
+            <include
+                android:id="@+id/include_input_account"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="match_parent"
+                layout="@layout/layout_input_account" />
 
-                <include
-                    android:id="@+id/include_profile"
+            <!-- Loading -->
+            <include
+                android:id="@+id/include_loading"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                layout="@layout/layout_loading" />
+
+            <!-- Loading error -->
+            <include
+                android:id="@+id/include_loading_error"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                layout="@layout/layout_loading_error" />
+
+            <!-- content of profile -->
+            <ScrollView
+                android:id="@+id/scroll_profile"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/layout_profile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    layout="@layout/layout_profile_content" />
+                    android:orientation="vertical">
 
-                <include
-                    android:id="@+id/include_profile_menu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    layout="@layout/layout_profile_menu" />
-            </LinearLayout>
+                    <include
+                        android:id="@+id/include_profile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        layout="@layout/layout_profile_content" />
 
-        </ScrollView>
+                    <include
+                        android:id="@+id/include_profile_menu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        layout="@layout/layout_profile_menu" />
+                </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            </ScrollView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
 
 </layout>

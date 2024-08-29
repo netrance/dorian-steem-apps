@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -16,6 +19,7 @@ import lee.dorian.steem_domain.model.AccountHistoryItem
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.databinding.FragmentAccountHistoryBinding
+import lee.dorian.steem_ui.ext.setActivityActionBarTitle
 import lee.dorian.steem_ui.ext.showToastShortly
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseFragment
@@ -44,7 +48,7 @@ class AccountHistoryFragment : BaseFragment<FragmentAccountHistoryBinding, Accou
         super.onViewCreated(view, savedInstanceState)
         binding.swipeRefreshAccountHistory.isRefreshing = false
         binding.listAccountHistory.run {
-            adapter = AccountHistoryItemListAdapter().apply {
+            adapter = AccountHistoryItemListAdapter(accountHistoryItemClickListener).apply {
                 setHasStableIds(true)
             }
             addOnScrollListener(postsScrollListener)
@@ -73,6 +77,48 @@ class AccountHistoryFragment : BaseFragment<FragmentAccountHistoryBinding, Accou
             }
             is State.Success -> {
                 updateList(newState.data.historyList)
+            }
+        }
+    }
+
+    private val accountHistoryItemClickListener = object: AccountHistoryItemListAdapter.OnAccountHistoryItemClickListener {
+        override fun onClick(itemView: View, accountHistoryItem: AccountHistoryItem) {
+            val popupMenu = PopupMenu(activity, itemView)
+            val accountHistoryItemLinks = accountHistoryItem.getLinkList()
+            accountHistoryItemLinks.forEachIndexed { index, item ->
+                popupMenu.menu.add(0, index, index, item.title)
+            }
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                val link = accountHistoryItemLinks[menuItem.itemId]
+                when (link.type) {
+                    "profile" -> {
+                        val account = link.link.replace("@", "")
+                        val action = AccountHistoryFragmentDirections.actionNavigationAccountHistoryToNavigationProfile(account)
+                        findNavController().navigate(action)
+                        setActivityActionBarTitle("Profile of @${link.link}")
+                    }
+                    "post" -> {
+                        val linkElements = link.link.split("/")
+                        val author = linkElements[0].replace("@", "")
+                        val permlink = linkElements[1]
+                        val action = AccountHistoryFragmentDirections.actionNavigationAccountHistoryToNavigationPost(
+                            author, permlink
+                        )
+                        findNavController().navigate(action)
+                        setActivityActionBarTitle("Posts of @${author}")
+                    }
+                    "wallet" -> {
+                        val account = link.link.replace("@", "")
+                        val action = AccountHistoryFragmentDirections.actionNavigationAccountHistoryToNavigationWallet(account)
+                        findNavController().navigate(action)
+                        setActivityActionBarTitle("Wallet of @${account}")
+                    }
+                }
+                true
+            }
+
+            if (accountHistoryItemLinks.isNotEmpty()) {
+                popupMenu.show()
             }
         }
     }

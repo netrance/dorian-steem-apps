@@ -40,9 +40,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
         setUpListeners()
     }
 
-    private val navDestinationChangedListener = NavController.OnDestinationChangedListener { _, dest, _ ->
+    private val navDestinationChangedListener = NavController.OnDestinationChangedListener { _, dest, args ->
         supportActionBar?.setTitle(viewModel.readTitle(dest.id))
-        setViewVisibilities(dest.id)
+        setViewVisibilities(dest.id, args ?: Bundle())
     }
 
     // Added to allow back button on tool bar of PostFragment to be clicked
@@ -52,24 +52,25 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
-    fun setViewVisibilities(destID: Int) {
+    fun setViewVisibilities(destID: Int, args: Bundle) {
         val layoutTagLookup = binding.includeTagLookup.layoutTagLookup
-        val layoutAccountLookup = binding.includeAccountLookup.layoutAccountLookup
 
         binding.navView.visibility = View.VISIBLE
         when (destID) {
             R.id.navigation_tags -> {
                 layoutTagLookup.visibility = View.VISIBLE
-                layoutAccountLookup.visibility = View.GONE
             }
             R.id.navigation_profile, R.id.navigation_wallet -> {
+                val account = args.getString("account", "")
                 layoutTagLookup.visibility = View.GONE
-                layoutAccountLookup.visibility = View.VISIBLE
+                binding.navView.visibility = when {
+                    account.isEmpty() -> View.VISIBLE
+                    else -> View.GONE
+                }
             }
             // Added R.id.navigation_post. Others will be added later. (15th Jun 2023)
             else ->  {
                 layoutTagLookup.visibility = View.GONE
-                layoutAccountLookup.visibility = View.GONE
                 binding.navView.visibility = View.GONE
             }
         }
@@ -79,7 +80,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
         binding.run {
             includeTagLookup.editSteemitTag.setOnKeyListener(editSteemitTagKeyListener)
             includeTagLookup.buttonTagSearch.setOnClickListener(buttonTagSearchClickListener)
-            includeAccountLookup.buttonAccountSearch.setOnClickListener(buttonAccountSearchClickListener)
         }
     }
 
@@ -97,13 +97,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
             viewModel.currentTag.value = binding.includeTagLookup.editSteemitTag.text.toString()
         }
         hideKeyboard(it)
-    }
-
-    private val buttonAccountSearchClickListener = View.OnClickListener {
-        val account = binding.includeAccountLookup.editSteemitAccount.text.toString()
-        if (account.length > 2) {
-            viewModel.currentAccount.value = account
-        }
     }
 
 }

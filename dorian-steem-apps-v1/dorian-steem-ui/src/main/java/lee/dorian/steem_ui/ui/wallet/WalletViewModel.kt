@@ -11,28 +11,29 @@ import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.SteemitWallet
 import lee.dorian.steem_domain.usecase.ReadSteemitWalletUseCase
+import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseViewModel
 
 class WalletViewModel(
     val readSteemitWalletUseCase: ReadSteemitWalletUseCase = ReadSteemitWalletUseCase(SteemRepositoryImpl())
 ) : BaseViewModel() {
 
-    val _flowWalletState = MutableStateFlow<WalletState>(WalletState.Empty)
+    val _flowWalletState = MutableStateFlow<State<SteemitWallet>>(State.Empty)
     val flowWalletState = _flowWalletState.asStateFlow()
 
     fun readSteemitWallet(account: String) = viewModelScope.launch {
-        _flowWalletState.emit(WalletState.Loading)
+        _flowWalletState.emit(State.Loading)
         val apiResult = readSteemitWalletUseCase(account)
         val newWalletState = when (apiResult) {
             is ApiResult.Failure -> {
-                WalletState.Failure(apiResult.content)
+                State.Failure(apiResult.content)
             }
             is ApiResult.Error -> {
-                WalletState.Error(apiResult.throwable)
+                State.Error(apiResult.throwable)
             }
             is ApiResult.Success -> {
                 val steemitWalletList = apiResult.data
-                WalletState.Success(when {
+                State.Success(when {
                     apiResult.data.isNotEmpty() -> steemitWalletList[0]
                     else -> SteemitWallet()
                 })

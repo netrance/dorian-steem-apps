@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 import lee.dorian.steem_domain.model.SteemitProfile
@@ -19,8 +21,11 @@ import lee.dorian.steem_ui.ext.load
 import lee.dorian.steem_ui.ext.setActivityActionBarTitle
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseFragment
+import lee.dorian.steem_ui.ui.history.AccountHistoryFragmentArgs
 
 class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R.layout.fragment_profile) {
+
+    private val args: ProfileFragmentArgs by navArgs()
 
     override val viewModel by lazy {
         ViewModelProvider(this).get(ProfileViewModel::class.java)
@@ -43,9 +48,11 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        activityViewModel.currentAccount.removeObservers(viewLifecycleOwner)
-        activityViewModel.currentAccount.observe(viewLifecycleOwner, currentAccountObserver)
-
+        binding.includeAccountLookup.root.visibility = when {
+            (args.account.isEmpty()) -> View.VISIBLE
+            else -> View.GONE
+        }
+        binding.includeAccountLookup.buttonAccountSearch.setOnClickListener(buttonAccountSearchClickListener)
         binding.includeProfileMenu.includeMenuItem2.layoutMenuItem.setOnClickListener(menuItem2ClickListener)
         binding.includeProfileMenu.includeMenuItem3.layoutMenuItem.setOnClickListener(menuItem3ClickListener)
         binding.includeProfileMenu.includeMenuItem4.layoutMenuItem.setOnClickListener(menuItem4ClickListener)
@@ -54,6 +61,12 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.profileState.collect(profileStateCollector)
+        }
+
+        if (args.account.isNotEmpty() and (viewModel.profileState.value is State.Empty)) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.readSteemitProfile(args.account)
+            }
         }
     }
 
@@ -66,21 +79,21 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
         })
     }
 
-    private val currentAccountObserver = Observer<String> {
-        when {
-            it.isEmpty() -> showEmpty()
-            else -> viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.readSteemitProfile(it)
-            }
-        }
-    }
-
     private val profileStateCollector = FlowCollector<State<SteemitProfile>> { newState ->
         when (newState) {
             is State.Empty -> showEmpty()
             is State.Loading -> showLoading()
             is State.Success -> showProfile(newState.data)
             is State.Error, is State.Failure -> showLoadingError()
+        }
+    }
+
+    private val buttonAccountSearchClickListener = View.OnClickListener {
+        val account = binding.includeAccountLookup.editSteemitAccount.text.toString()
+        if (account.length > 2) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.readSteemitProfile(account)
+            }
         }
     }
 

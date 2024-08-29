@@ -25,11 +25,6 @@
                 layout="@layout/layout_tag_lookup"
                 app:viewModel="@{viewModel}" />
 
-            <include
-                android:id="@+id/include_account_lookup"
-                layout="@layout/layout_account_lookup"
-                app:viewModel="@{viewModel}" />
-
         </RelativeLayout>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView

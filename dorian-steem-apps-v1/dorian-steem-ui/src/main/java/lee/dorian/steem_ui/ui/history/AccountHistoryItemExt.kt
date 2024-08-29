@@ -2,6 +2,20 @@ package lee.dorian.steem_ui.ui.history
 
 import lee.dorian.dorian_ktx.read
 import lee.dorian.steem_domain.model.AccountHistoryItem
+import lee.dorian.steem_domain.model.AccountHistoryItemLink
+
+fun AccountHistoryItem.getLinkList(): List<AccountHistoryItemLink> {
+    return when (type) {
+        "author_reward" -> getAuthorRewardLinks()
+        "comment" -> getCommentLinks()
+        "comment_benefactor_reward" -> getCommentBenefactorRewardLinks()
+        "curation_reward" -> getCurationRewardLinks()
+        "transfer" -> getTransferLinks()
+        "transfer_to_vesting" -> getTransferToVestingLinks()
+        "vote" -> getVoteLinks()
+        else -> listOf()
+    }
+}
 
 fun AccountHistoryItem.getUserReadableContent(): String {
     return when (type) {
@@ -31,6 +45,16 @@ fun AccountHistoryItem.getAuthorRewardContent(): String {
     return "${sbdPayout}, ${steemPayout}, ${vestintPayout} from @${author}/${permlink}"
 }
 
+fun AccountHistoryItem.getAuthorRewardLinks(): List<AccountHistoryItemLink> {
+    val author = content.read("author", "")
+    val permlink = content.read("permlink", "")
+
+    return listOf(
+        AccountHistoryItemLink("profile", "@${author}", "@${author}"),
+        AccountHistoryItemLink("post", "@${author}/${permlink}", "@${author}/${permlink}")
+    )
+}
+
 fun AccountHistoryItem.getCommentBenefactorRewardContent(): String {
     if (type != "comment_benefactor_reward") {
         return ""
@@ -44,6 +68,20 @@ fun AccountHistoryItem.getCommentBenefactorRewardContent(): String {
     return "${sbdPayout}, ${steemPayout}, ${vestintPayout} from @${author}/${permlink}"
 }
 
+fun AccountHistoryItem.getCommentBenefactorRewardLinks(): List<AccountHistoryItemLink> {
+    if (type != "comment_benefactor_reward") {
+        return listOf()
+    }
+
+    val author = content.read("author", "")
+    val permlink = content.read("permlink", "")
+
+    return listOf(
+        AccountHistoryItemLink("profile", "@${author}", "@${author}"),
+        AccountHistoryItemLink("post", "@${author}/${permlink}", "@${author}/${permlink}")
+    )
+}
+
 fun AccountHistoryItem.getCurationRewardContent(): String {
     if (type != "curation_reward") {
         return ""
@@ -54,6 +92,19 @@ fun AccountHistoryItem.getCurationRewardContent(): String {
     val commentAuthor = content.read("comment_author", "")
     val commentPermlink = content.read("comment_permlink", "")
     return "${reward} from @${commentAuthor}/${commentPermlink}"
+}
+
+fun AccountHistoryItem.getCurationRewardLinks(): List<AccountHistoryItemLink> {
+    if (type != "curation_reward") {
+        return listOf()
+    }
+
+    val commentAuthor = content.read("comment_author", "")
+    val commentPermlink = content.read("comment_permlink", "")
+    return listOf(
+        AccountHistoryItemLink("profile", "@${commentAuthor}", "@${commentAuthor}"),
+        AccountHistoryItemLink("post", "@${commentAuthor}/${commentPermlink}", "@${commentAuthor}/${commentPermlink}")
+    )
 }
 
 fun AccountHistoryItem.getClaimRewardBalance(): String {
@@ -88,6 +139,20 @@ fun AccountHistoryItem.getCommentContent(): String {
     }"
 }
 
+fun AccountHistoryItem.getCommentLinks(): List<AccountHistoryItemLink> {
+    if (type != "comment") {
+        return listOf()
+    }
+
+    val author = content.read("author", "")
+    val permlink = content.read("permlink", "")
+
+    return listOf(
+        AccountHistoryItemLink("profile", "@${author}", "@${author}"),
+        AccountHistoryItemLink("post", "@${author}/${permlink}", "@${author}/${permlink}")
+    )
+}
+
 fun AccountHistoryItem.getProducerRewardContent(): String {
     if (type != "producer_reward") {
         return ""
@@ -110,6 +175,20 @@ fun AccountHistoryItem.getTransferContent(): String {
     return "@${from} to @${to}: ${amount}\n\n${memo}"
 }
 
+fun AccountHistoryItem.getTransferLinks(): List<AccountHistoryItemLink> {
+    if (type != "transfer") {
+        return listOf()
+    }
+
+    val from = content.read("from", "")
+    val to = content.read("to", "")
+
+    return listOf(
+        AccountHistoryItemLink("wallet", "@${from}", "@${from}"),
+        AccountHistoryItemLink("wallet", "@${to}", "@${to}")
+    )
+}
+
 fun AccountHistoryItem.getTransferToVestingContent(): String {
     if (type != "transfer_to_vesting") {
         return ""
@@ -119,6 +198,20 @@ fun AccountHistoryItem.getTransferToVestingContent(): String {
     val to = content.read("to", "")
     val amount = content.read("amount", "0.0 SP").replace("STEEM", "SP")
     return "Powered up ${amount} from @${from} to @${to}"
+}
+
+fun AccountHistoryItem.getTransferToVestingLinks(): List<AccountHistoryItemLink> {
+    if (type != "transfer_to_vesting") {
+        return listOf()
+    }
+
+    val from = content.read("from", "")
+    val to = content.read("to", "")
+
+    return listOf(
+        AccountHistoryItemLink("wallet", "@${from}", "@${from}"),
+        AccountHistoryItemLink("wallet", "@${to}", "@${to}")
+    )
 }
 
 fun AccountHistoryItem.getVoteContent(): String {
@@ -131,4 +224,20 @@ fun AccountHistoryItem.getVoteContent(): String {
     val permlink = content.read("permlink", "")
     val weight = content.read("weight", 0.0) / 100.0
     return "@${voter} votes @${author}/${permlink}. (${weight}%)"
+}
+
+fun AccountHistoryItem.getVoteLinks(): List<AccountHistoryItemLink> {
+    if (type != "vote") {
+        return listOf()
+    }
+
+    val voter = content.read("voter", "")
+    val author = content.read("author", "")
+    val permlink = content.read("permlink", "")
+
+    return listOf(
+        AccountHistoryItemLink("profile", "@${voter}", "@${voter}"),
+        AccountHistoryItemLink("profile", "@${author}", "@${author}"),
+        AccountHistoryItemLink("post", "@${author}/${permlink}", "@${author}/${permlink}")
+    )
 }
