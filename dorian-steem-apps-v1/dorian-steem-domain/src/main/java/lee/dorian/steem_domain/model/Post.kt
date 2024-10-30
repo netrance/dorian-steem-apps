@@ -10,6 +10,7 @@ data class Post(
     val communityTitle: String,
     val content: String,
     val time: String,
+    val depth: Int,
     val rewards: Float,
     val authorRewards: Float,
     val curationRewards: Float,

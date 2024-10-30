@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="10dp">
+
+        <RelativeLayout
+            android:id="@+id/layout_reply_account_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/image_post_author_profile"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentLeft="true"
+                tools:src="@mipmap/ic_launcher_round" />
+
+            <TextView
+                android:id="@+id/text_post_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/image_post_author_profile"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="dorian-mobileapp (00)" />
+
+            <TextView
+                android:id="@+id/text_created_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:maxLines="1"
+                android:text=""
+                android:textSize="16sp"
+                tools:text="1 days ago" />
+
+        </RelativeLayout>
+
+        <WebView
+            android:id="@+id/web_reply_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@id/layout_reply_account_time"
+            tools:ignore="WebViewLayout" />
+
+        <RelativeLayout
+            android:id="@+id/layout_reply_rewards_votes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintTop_toBottomOf="@id/web_reply_content">
+
+            <TextView
+                android:id="@+id/text_rewards"
+                android:layout_width="wrap_content"
+                android:layout_height="18sp"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                tools:text="$987.654" />
+
+            <TextView
+                android:id="@+id/text_upvotes"
+                android:layout_width="wrap_content"
+                android:layout_height="18sp"
+                android:layout_toRightOf="@id/text_rewards"
+                android:layout_marginLeft="6dp"
+                android:maxLines="1"
+                android:text=''
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                tools:text="\uD83D\uDD3A 123" />
+
+            <TextView
+                android:id="@+id/text_downvotes"
+                android:layout_width="wrap_content"
+                android:layout_height="18sp"
+                android:layout_marginLeft="6dp"
+                android:layout_toRightOf="@id/text_upvotes"
+                android:maxLines="1"
+                android:text=''
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                tools:text="\uD83D\uDD3B 0" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/layout_reply_rewards_votes"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -52,3 +52,7 @@ fun ImageView.load(url: String, defaultDrawableId: Int? = R.drawable.no_image_av
             .into(thisImageView)
     }
 }
+
+fun ImageView.loadSmallSteemitProfileImage(account: String) {
+    load("https://steemitimages.com/u/${account}/avatar/small")
+}

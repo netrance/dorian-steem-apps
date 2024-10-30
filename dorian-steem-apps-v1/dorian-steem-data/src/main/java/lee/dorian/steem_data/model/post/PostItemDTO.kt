@@ -103,6 +103,7 @@ data class PostItemDTO(
             communityTitle,
             body ?: "",
             Converter.toLocalTimeFromUTCTime(created ?: "", "yyyy-MM-dd HH:mm"),
+            depth ?: 0,
             payout ?: 0f,
             authorRewards,
             curationRewards,

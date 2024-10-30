@@ -27,8 +27,9 @@ class PostContentFragment : BaseFragment<FragmentPostBinding, PostContentViewMod
 
     val args: PostContentFragmentArgs by navArgs()
 
-    override val viewModel by lazy {
-        ViewModelProvider(this).get(PostContentViewModel::class.java)
+    override val viewModel: PostContentViewModel by lazy {
+        // Set owner parameter to requireActivity() to share this view model with bottom sheet
+        ViewModelProvider(requireActivity()).get(PostContentViewModel::class.java)
     }
 
     val activityViewModel by lazy {
@@ -64,6 +65,7 @@ class PostContentFragment : BaseFragment<FragmentPostBinding, PostContentViewMod
         // Sets listeners.
         binding.textUpvotes.setOnClickListener(textUpvotesClickListener)
         binding.textDownvotes.setOnClickListener(textDownvotesClickListener)
+        binding.textReplyCount.setOnClickListener(textReplyCountClickListener)
 
         lifecycleScope.launch {
             viewModel.flowPostState.collect(postContentStateCollector)
@@ -86,6 +88,21 @@ class PostContentFragment : BaseFragment<FragmentPostBinding, PostContentViewMod
         if (postState is PostContentState.Success) {
             startDownvoteListActivity(postState.post.activeVotes)
         }
+    }
+
+    private val textReplyCountClickListener = View.OnClickListener {
+        val postState = viewModel.flowPostState.value
+        if (postState !is PostContentState.Success) {
+            return@OnClickListener
+        }
+
+        if (postState.replies.isEmpty()) {
+            showToastShortly("No reply of this post.")
+            return@OnClickListener
+        }
+
+        val replyBottomSheet = ReplyListDialogFragment()
+        replyBottomSheet.show(requireActivity().supportFragmentManager, replyBottomSheet.tag)
     }
 
     private val postContentStateCollector = FlowCollector<PostContentState> { state ->

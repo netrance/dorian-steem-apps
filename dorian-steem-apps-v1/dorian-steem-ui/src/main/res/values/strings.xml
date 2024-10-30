@@ -16,4 +16,7 @@
     <!-- Strings for VoteListActivity -->
     <string name="title_vote_list">Vote List</string>
 
+    <!-- Strings for ReplyListDialogFragment -->
+    <string name="title_reply">Reply</string>
+
 </resources>
