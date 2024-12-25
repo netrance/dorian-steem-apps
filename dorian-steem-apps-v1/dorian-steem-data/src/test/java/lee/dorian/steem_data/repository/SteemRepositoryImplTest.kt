@@ -12,6 +12,24 @@ class SteemRepositoryImplTest {
 
     val steemRepository = SteemRepositoryImpl()
 
+    @Test
+    fun readAccountDetails_case1() = runTest {
+        val apiResult = steemRepository.readAccountDetails(TestData.singleAccount)
+        assertTrue(apiResult is ApiResult.Success)
+
+        val accountDetails = (apiResult as ApiResult.Success).data
+        assertEquals(TestData.singleAccount, accountDetails.name)
+    }
+
+    @Test
+    fun readAccountDetails_case2() = runTest {
+        val apiResult = steemRepository.readAccountDetails(TestData.invalidSingleAccount)
+        assertTrue(apiResult is ApiResult.Success)
+
+        val accountDetails = (apiResult as ApiResult.Success).data
+        assertEquals("", accountDetails.name)
+    }
+
     // Test case 1: Trying to get the profile of a valid account.
     @Test
     fun readSteemitProfile_case1() = runTest {

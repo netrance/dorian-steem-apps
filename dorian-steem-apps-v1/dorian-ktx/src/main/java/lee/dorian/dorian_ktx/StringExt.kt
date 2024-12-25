@@ -9,10 +9,13 @@ import org.commonmark.renderer.html.HtmlRenderer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.UnsupportedEncodingException
+import java.lang.Math.abs
 import java.net.URLEncoder
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.log10
+import kotlin.math.round
 
 fun String.removeSubstring(substring: String): String = replace(substring, "")
 
@@ -86,6 +89,18 @@ fun String.convertMarkdownToHtmlDocument(): Document {
     }
 
     return document
+}
+
+fun String.convertToUserReadableReputation(): String {
+    val rawReputation = this.toLongOrNull() ?: return ""
+    val absoluteReputation = abs(rawReputation)
+    val logReputation = log10(absoluteReputation.toDouble())
+    var readableReputation = (logReputation - 9) * 9 + 25
+    if (rawReputation < 0) {
+        readableReputation = 50 - readableReputation
+    }
+
+    return String.format("%.2f", round(readableReputation * 100) / 100)
 }
 
 fun String.toJsonObject(defaultValue: JsonObject = JsonObject()): JsonObject {

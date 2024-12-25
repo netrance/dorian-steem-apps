@@ -8,12 +8,13 @@ plugins {
 apply from: '../build.dependencies.gradle'
 
 android {
-    compileSdk 33
+    compileSdk 34
+    namespace "lee.dorian.steem_ui"
 
     defaultConfig {
         applicationId "lee.dorian.steem_ui"
         minSdk 24
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -27,14 +28,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.5.3'
     }
     kotlinOptions {
-        freeCompilerArgs = ['-Xjvm-default=enable']
-        jvmTarget = '1.8'
+        freeCompilerArgs = ['-Xjvm-default=all']
+        jvmTarget = '17'
     }
     buildFeatures {
+        compose true
         dataBinding true
         viewBinding true
     }
@@ -65,6 +70,17 @@ dependencies {
     implementation androidx.navigation_ui_ktx
     implementation androidx.swiperefreshlayout
 
+    // jetpack compose
+    def composeBom = platform(androidx_compose.bom)
+    implementation composeBom
+    implementation androidx_compose.activity_compose
+    implementation androidx_compose.lifecycle_viewmodel_compose
+    implementation androidx_compose.material3
+    implementation androidx_compose.runtime_livedata
+    implementation androidx_compose.ui
+    implementation androidx_compose.ui_tooling
+    implementation androidx_compose.ui_tooling_preview
+
     // glide
     implementation glide.glide
     annotationProcessor glide.compiler
@@ -81,7 +97,7 @@ dependencies {
     implementation coroutines.coroutines
 
     // other libraries
-    // ...
+    implementation others.coil_compose
 
     // for unit test
     testImplementation project(':dorian-steem-data')
@@ -92,4 +108,6 @@ dependencies {
     // for UI test
     androidTestImplementation androidx.junit
     androidTestImplementation androidx.espresso_core
+    //androidTestImplementation androidx_compose.ui_test_junit4
+
 }

@@ -2,12 +2,15 @@ package lee.dorian.steem_data.model
 
 import com.google.gson.JsonObject
 import lee.dorian.steem_data.model.follow.GetFollowCountResponseDTO
+import lee.dorian.steem_domain.ext.convertToUserReadableReputation
 import lee.dorian.steem_domain.ext.removeSubstring
 import lee.dorian.steem_domain.ext.toJsonObject
+import lee.dorian.steem_domain.model.AccountDetails
 import lee.dorian.steem_domain.model.SteemitProfile
 import lee.dorian.steem_domain.model.SteemitWallet
 import lee.dorian.steem_domain.util.Converter
 import java.lang.NumberFormatException
+import java.text.DecimalFormat
 
 data class GetAccountsResponseDTO(
     val jsonrpc: String?,
@@ -73,14 +76,14 @@ data class SteemitAccountDTO(
     val pending_claimed_accounts: Int?,
     val vesting_balance: String?,
     val reputation: String?,
-    val transfer_history: Array<Any>?,
-    val market_history: Array<Any>?,
-    val post_history: Array<Any>?,
-    val vote_history: Array<Any>?,
-    val other_history: Array<Any>?,
-    val witness_votes: Array<Any>?,
-    val tags_usage: Array<Any>?,
-    val guest_bloggers: Array<Any>?
+    val transfer_history: List<Any>?,
+    val market_history: List<Any>?,
+    val post_history: List<Any>?,
+    val vote_history: List<Any>?,
+    val other_history: List<Any>?,
+    val witness_votes: List<String>?,
+    val tags_usage: List<Any>?,
+    val guest_bloggers: List<Any>?
 ) {
 
     fun toSteemitProfile(followCountResponseDTO: GetFollowCountResponseDTO): SteemitProfile {
@@ -108,6 +111,74 @@ data class SteemitAccountDTO(
             location,
             website,
             coverImageURL
+        )
+    }
+
+    fun toSteemitAccountDetails(getDynamicGlobalPropertiesDTO: GetDynamicGlobalPropertiesDTO?): AccountDetails {
+        val floatVestingShare = vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatDelegatedVestingShare = delegated_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatReceivedVestingShare = received_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatRewardVestingBalance = reward_vesting_balance?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatTotalVestingShare = getDynamicGlobalPropertiesDTO?.total_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
+        val floatTotalVestingFundSteem = getDynamicGlobalPropertiesDTO?.total_vesting_fund_steem?.removeSubstring(" STEEM")?.toFloat() ?: 0f
+
+        val steemPower = Converter.toSteemPowerFromVest(
+            floatVestingShare,
+            floatTotalVestingShare,
+            floatTotalVestingFundSteem
+        )
+        val delegatedSteemPower = Converter.toSteemPowerFromVest(
+            floatDelegatedVestingShare,
+            floatTotalVestingShare,
+            floatTotalVestingFundSteem
+        )
+        val receivedSteemPower = Converter.toSteemPowerFromVest(
+            floatReceivedVestingShare,
+            floatTotalVestingShare,
+            floatTotalVestingFundSteem
+        )
+        val pendingSPBalance = Converter.toSteemPowerFromVest(
+            floatRewardVestingBalance,
+            floatTotalVestingShare,
+            floatTotalVestingFundSteem
+        )
+
+        val floatEffectiveVestingShare = floatVestingShare + floatReceivedVestingShare - floatDelegatedVestingShare
+        val currentUpvoteMana = voting_manabar?.current_mana?.toLongOrNull() ?: 0
+        val currentDownvoteMana = downvote_manabar?.current_mana?.toLongOrNull() ?: 0
+        val maxUpvoteMana = floatEffectiveVestingShare * 1000000
+        val maxDownvoteMana = maxUpvoteMana / 4f
+        val upvoteManaRate = (currentUpvoteMana / maxUpvoteMana) * 100f
+        val downvoteManaRate = (currentDownvoteMana / maxDownvoteMana) * 100f
+
+        return AccountDetails(
+            id ?: "",
+            name ?: "",
+            recovery_account ?: "",
+            last_account_recovery ?: "",
+            Converter.toLocalTimeFromUTCTime(last_owner_update ?: "", "yyyy-MM-dd HH:mm:ss"),
+            Converter.toLocalTimeFromUTCTime(last_account_update ?: "", "yyyy-MM-dd HH:mm:ss"),
+            // asset info
+            balance ?: "0.000 STEEM",
+            sbd_balance ?: "0.000 SBD",
+            String.format("%.3f SP", steemPower),
+            String.format("%.3f SP", delegatedSteemPower),
+            String.format("%.3f SP", receivedSteemPower),
+            reward_sbd_balance ?: "0.000 SBD",
+            reward_steem_balance ?: "0.000 STEEM",
+            String.format("%.3f SP", pendingSPBalance),
+            // activity info
+            post_count ?: 0,
+            Converter.toLocalTimeFromUTCTime(last_post ?: "", "yyyy-MM-dd HH:mm:ss") ?: "",
+            Converter.toLocalTimeFromUTCTime(last_root_post ?: "", "yyyy-MM-dd HH:mm:ss") ?: "",
+            can_vote ?: true,
+            Converter.toLocalTimeFromUTCTime(last_vote_time ?: "", "yyyy-MM-dd HH:mm:ss") ?: "",
+            (voting_power?.toFloat() ?: 0f) / 100.0f,
+            DecimalFormat("#.##").format(upvoteManaRate).toFloat(),
+            DecimalFormat("#.##").format(downvoteManaRate).toFloat(),
+            witness_votes ?: listOf(),
+            proxy ?: "",
+            reputation?.convertToUserReadableReputation() ?: "",
         )
     }
 

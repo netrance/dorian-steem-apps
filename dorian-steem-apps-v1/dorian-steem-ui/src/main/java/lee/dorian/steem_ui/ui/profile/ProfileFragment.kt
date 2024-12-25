@@ -53,6 +53,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
             else -> View.GONE
         }
         binding.includeAccountLookup.buttonAccountSearch.setOnClickListener(buttonAccountSearchClickListener)
+        binding.includeProfileMenu.includeMenuItem1.layoutMenuItem.setOnClickListener(menuItem1ClickListener)
         binding.includeProfileMenu.includeMenuItem2.layoutMenuItem.setOnClickListener(menuItem2ClickListener)
         binding.includeProfileMenu.includeMenuItem3.layoutMenuItem.setOnClickListener(menuItem3ClickListener)
         binding.includeProfileMenu.includeMenuItem4.layoutMenuItem.setOnClickListener(menuItem4ClickListener)
@@ -95,6 +96,14 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
                 viewModel.readSteemitProfile(account)
             }
         }
+    }
+
+    private val menuItem1ClickListener = OnClickListener { v ->
+        val author = getAuthor()
+
+        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountDetails(author)
+        findNavController().navigate(action)
+        setActivityActionBarTitle("Details of @${author}")
     }
 
     private val menuItem2ClickListener = OnClickListener { v ->

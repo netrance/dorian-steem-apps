@@ -16,6 +16,47 @@ class SteemRepositoryImpl(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ): SteemRepository {
 
+    override suspend fun readAccountDetails(account: String): ApiResult<AccountDetails> = withContext(dispatcher) {
+        val getDynamicGlobalPropertiesParams = GetDynamicGlobalPropertiesParamsDTO(id = 1)
+        val getAccountParams = GetAccountsParamsDTO(
+            params = arrayOf(arrayOf(account)),
+            id = 1
+        )
+
+        try {
+            val responseDGPAsync = async {
+                SteemClient.apiService.getDynamicGlobalProperties(getDynamicGlobalPropertiesParams)
+            }
+            val responseAccountsAsync = async {
+                SteemClient.apiService.getAccounts(getAccountParams)
+            }
+            val responseDGP = responseDGPAsync.await()
+            val responseAccounts = responseAccountsAsync.await()
+
+            if (!responseDGP.isSuccessful) {
+                ApiResult.Failure(responseDGP.errorBody()?.string() ?: "")
+            }
+            if (!responseAccounts.isSuccessful) {
+                ApiResult.Failure(responseAccounts.errorBody()?.string() ?: "")
+            }
+
+            val dgp = responseDGP.body()?.result
+                ?: return@withContext ApiResult.Failure("Failed to read dynamic global properties" ?: "")
+            responseAccounts.body()?.result?.let {
+                val account = when (it.size) {
+                    1 -> it[0].toSteemitAccountDetails(dgp)
+                    else -> AccountDetails()
+                }
+
+                ApiResult.Success(account)
+            } ?: ApiResult.Failure("Failed to read accounts" ?: "")
+        }
+        catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            ApiResult.Error(e)
+        }
+    }
+
     override suspend fun readSteemitProfile(account: String): ApiResult<SteemitProfile> = withContext(dispatcher) {
         val getFollowCountParams = GetFollowCountParamsDTO(
             params = arrayOf(account),

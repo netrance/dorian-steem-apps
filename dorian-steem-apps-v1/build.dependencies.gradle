@@ -3,16 +3,28 @@ ext {
         appcompat: 'androidx.appcompat:appcompat:1.4.2',
         constraintlayout: 'androidx.constraintlayout:constraintlayout:2.1.4',
         core: 'androidx.core:core-ktx:1.7.0',
-        lifecycle_livedata_ktx: 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1',
-        lifecycle_viewmodel_ktx: 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1',
-        navigation_fragment_ktx: 'androidx.navigation:navigation-fragment-ktx:2.5.3',
-        navigation_ui_ktx: 'androidx.navigation:navigation-ui-ktx:2.5.3',
+        lifecycle_livedata_ktx: 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.7',
+        lifecycle_viewmodel_ktx: 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7',
+        navigation_fragment_ktx: 'androidx.navigation:navigation-fragment-ktx:2.8.4',
+        navigation_ui_ktx: 'androidx.navigation:navigation-ui-ktx:2.8.4',
         swiperefreshlayout: 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0',
 
         // for test
         core_testing: 'androidx.arch.core:core-testing:2.2.0',
         espresso_core: 'androidx.test.espresso:espresso-core:3.5.1',
         junit: 'androidx.test.ext:junit:1.1.5'
+    ]
+
+    androidx_compose = [
+        bom: 'androidx.compose:compose-bom:2024.10.01',
+        activity_compose: 'androidx.activity:activity-compose:1.9.2',
+        lifecycle_viewmodel_compose: 'androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7',
+        material3: 'androidx.compose.material3:material3',
+        runtime_livedata: 'androidx.compose.runtime:runtime-livedata',
+        ui: 'androidx.compose.ui:ui',
+        ui_tooling: 'androidx.compose.ui:ui-tooling',
+        ui_tooling_preview: 'androidx.compose.ui:ui-tooling-preview',
+        ui_test_junit4: 'androidx.compose.ui:ui-test-junit4'
     ]
 
     glide = [
@@ -43,6 +55,7 @@ ext {
     ]
 
     others = [
+        coil_compose: 'io.coil-kt:coil-compose:2.7.0',
         commonmark: 'org.commonmark:commonmark:0.20.0',
         commonmark_ext_gfm_tables: 'org.commonmark:commonmark-ext-gfm-tables:0.20.0',
         jsoup: 'org.jsoup:jsoup:1.16.1',

@@ -4,6 +4,10 @@ import lee.dorian.steem_domain.model.*
 
 interface SteemRepository {
 
+    suspend fun readAccountDetails(
+        account: String
+    ): ApiResult<AccountDetails>
+
     suspend fun readSteemitProfile(
         account: String
     ): ApiResult<SteemitProfile>

@@ -25,6 +25,9 @@
             app:argType="string"
             android:defaultValue="" />
         <action
+            android:id="@+id/action_navigation_profile_to_navigation_account_details"
+            app:destination="@id/navigation_account_details" />
+        <action
             android:id="@+id/action_navigation_profile_to_navigation_post_list"
             app:destination="@id/navigation_post_list" />
         <action
@@ -41,6 +44,15 @@
             android:name="account"
             app:argType="string"
             android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_account_details"
+        android:name="lee.dorian.steem_ui.ui.account_details.AccountDetailsFragment"
+        android:label="Account Details">
+        <argument
+            android:name="account"
+            app:argType="string" />
     </fragment>
 
     <fragment

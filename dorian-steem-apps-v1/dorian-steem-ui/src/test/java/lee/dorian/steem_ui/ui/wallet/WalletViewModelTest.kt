@@ -1,8 +1,10 @@
 package lee.dorian.steem_ui.ui.wallet
 
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
+import lee.dorian.steem_domain.model.SteemitWallet
 import lee.dorian.steem_domain.usecase.ReadSteemitWalletUseCase
 import lee.dorian.steem_test.CommonPartOfViewModelTest
+import lee.dorian.steem_ui.model.State
 import org.junit.*
 
 import org.junit.Assert.*
@@ -19,8 +21,8 @@ class WalletViewModelTest : CommonPartOfViewModelTest() {
         Thread.sleep(3000)
 
         val walletState = walletViewModel.flowWalletState.value
-        assertTrue(walletState is WalletState.Success)
-        val wallet = (walletState as WalletState.Success).wallet
+        assertTrue(walletState is State.Success<SteemitWallet>)
+        val wallet = (walletState as State.Success<SteemitWallet>).data
         assertEquals("dorian-mobileapp", wallet.account)
     }
 
@@ -30,8 +32,8 @@ class WalletViewModelTest : CommonPartOfViewModelTest() {
         walletViewModel.readSteemitWallet("invalid10293845")
         Thread.sleep(3000)
         val walletState = walletViewModel.flowWalletState.value
-        assertTrue(walletState is WalletState.Success)
-        val wallet = (walletState as WalletState.Success).wallet
+        assertTrue(walletState is State.Success<SteemitWallet>)
+        val wallet = (walletState as State.Success<SteemitWallet>).data
         assertEquals("", wallet.account)
     }
 
