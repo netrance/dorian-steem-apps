@@ -33,6 +33,12 @@ android {
         freeCompilerArgs = ['-Xjvm-default=all']
         jvmTarget = '17'
     }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.5.3'
+    }
 }
 
 dependencies {

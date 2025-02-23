@@ -17,9 +17,13 @@ class AccountHistoryViewModel(
     private val _flowState: MutableStateFlow<State<AccountHistory>> = MutableStateFlow(State.Empty)
     val flowState = _flowState.asStateFlow()
 
+    private val _flowIsRefreshing = MutableStateFlow(false)
+    val flowIsRefreshing = _flowIsRefreshing.asStateFlow()
+
     fun readAccountHistory(account: String) = viewModelScope.launch {
         _flowState.emit(State.Loading)
         val apiResult = readAccountHistoryUseCase(account)
+        _flowIsRefreshing.value = false
         val newState = when (apiResult) {
             is ApiResult.Failure -> State.Failure(apiResult.content)
             is ApiResult.Error -> State.Error(apiResult.throwable)
@@ -57,4 +61,13 @@ class AccountHistoryViewModel(
         _flowState.emit(newState)
     }
 
+    fun refreshAccountHistory() {
+        if (flowState.value !is State.Success<AccountHistory>) {
+            return
+        }
+
+        _flowIsRefreshing.value = true
+        val accountHistory = (flowState.value as State.Success<AccountHistory>).data
+        readAccountHistory(accountHistory.account)
+    }
 }

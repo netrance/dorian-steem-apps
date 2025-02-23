@@ -174,7 +174,7 @@ fun ReplyItem(reply: Post, backgroundColor: Color, scrollState: ScrollState) {
             AsyncImage(
                 model = "https://steemitimages.com/u/${reply.account}/avatar/small",
                 contentDescription = "The profile image of this user",
-                error = painterResource(R.mipmap.ic_launcher),
+                //error = painterResource(R.mipmap.ic_launcher),
                 modifier = Modifier.width(30.dp).height(30.dp)
             )
             Text(

@@ -58,8 +58,7 @@
     <fragment
         android:id="@+id/navigation_post"
         android:name="lee.dorian.steem_ui.ui.post.content.PostContentFragment"
-        android:label="Post"
-        tools:layout="@layout/fragment_post">
+        android:label="Post">
         <argument
             android:name="author"
             app:argType="string" />
@@ -87,8 +86,7 @@
     <fragment
         android:id="@+id/navigation_account_history"
         android:name="lee.dorian.steem_ui.ui.history.AccountHistoryFragment"
-        android:label="Account History"
-        tools:layout="@layout/fragment_account_history">
+        android:label="Account History">
         <argument
             android:name="author"
             app:argType="string" />

@@ -222,7 +222,7 @@ fun AccountHistoryItem.getVoteContent(): String {
     val voter = content.read("voter", "")
     val author = content.read("author", "")
     val permlink = content.read("permlink", "")
-    val weight = content.read("weight", 0.0) / 100.0
+    val weight = content.read("weight", 0.0) / 100.0f
     return "@${voter} votes @${author}/${permlink}. (${weight}%)"
 }
 
