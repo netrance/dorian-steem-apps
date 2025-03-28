@@ -12,13 +12,14 @@ import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseViewModel
 
 class ProfileViewModel(
+    initialState: State<SteemitProfile> = State.Empty,
     private val readSteemitProfileUseCase: ReadSteemitProfileUseCase = ReadSteemitProfileUseCase(SteemRepositoryImpl())
 ) : BaseViewModel() {
 
-    private val _profileState: MutableStateFlow<State<SteemitProfile>> = MutableStateFlow(State.Empty)
+    private val _profileState: MutableStateFlow<State<SteemitProfile>> = MutableStateFlow(initialState)
     val profileState = _profileState.asStateFlow()
 
-    suspend fun readSteemitProfile(account: String) = viewModelScope.launch {
+    fun readSteemitProfile(account: String) = viewModelScope.launch {
         _profileState.emit(State.Loading)
         val apiResult = readSteemitProfileUseCase(account)
         val newState = when (apiResult) {

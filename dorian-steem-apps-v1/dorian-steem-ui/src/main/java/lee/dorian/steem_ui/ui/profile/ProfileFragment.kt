@@ -3,31 +3,78 @@ package lee.dorian.steem_ui.ui.profile
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.lifecycle.Observer
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import kotlinx.coroutines.flow.FlowCollector
+import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import lee.dorian.steem_domain.model.SteemitProfile
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
-import lee.dorian.steem_ui.databinding.FragmentProfileBinding
-import lee.dorian.steem_ui.ext.load
 import lee.dorian.steem_ui.ext.setActivityActionBarTitle
 import lee.dorian.steem_ui.model.State
-import lee.dorian.steem_ui.ui.base.BaseFragment
-import lee.dorian.steem_ui.ui.history.AccountHistoryFragmentArgs
+import lee.dorian.steem_ui.ui.compose.AccountInputForm
+import lee.dorian.steem_ui.ui.compose.CustomTextField
+import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
+import lee.dorian.steem_ui.ui.compose.GetCurrentFragment
+import lee.dorian.steem_ui.ui.compose.Loading
 
-class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R.layout.fragment_profile) {
+class ProfileFragment : Fragment() {
 
     private val args: ProfileFragmentArgs by navArgs()
 
-    override val viewModel by lazy {
+    val viewModel by lazy {
         ViewModelProvider(this).get(ProfileViewModel::class.java)
     }
 
@@ -39,171 +86,325 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(R
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return super.onCreateView(inflater, container, savedInstanceState).apply {
-            binding.viewModel = viewModel
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setContent {
+                ProfileScreen(viewModel)
+            }
+
+            if (args.account.isNotEmpty() and (viewModel.profileState.value is State.Empty)) {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    viewModel.readSteemitProfile(args.account)
+                }
+            }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.includeAccountLookup.root.visibility = when {
-            (args.account.isEmpty()) -> View.VISIBLE
-            else -> View.GONE
-        }
-        binding.includeAccountLookup.buttonAccountSearch.setOnClickListener(buttonAccountSearchClickListener)
-        binding.includeProfileMenu.includeMenuItem1.layoutMenuItem.setOnClickListener(menuItem1ClickListener)
-        binding.includeProfileMenu.includeMenuItem2.layoutMenuItem.setOnClickListener(menuItem2ClickListener)
-        binding.includeProfileMenu.includeMenuItem3.layoutMenuItem.setOnClickListener(menuItem3ClickListener)
-        binding.includeProfileMenu.includeMenuItem4.layoutMenuItem.setOnClickListener(menuItem4ClickListener)
-        binding.includeProfileMenu.includeMenuItem5.layoutMenuItem.setOnClickListener(menuItem5ClickListener)
-        binding.includeProfileMenu.includeMenuItem6.layoutMenuItem.setOnClickListener(menuItem6ClickListener)
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.profileState.collect(profileStateCollector)
-        }
-
-        if (args.account.isNotEmpty() and (viewModel.profileState.value is State.Empty)) {
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.readSteemitProfile(args.account)
-            }
-        }
     }
 
     override fun onResume() {
         super.onResume()
         val state = viewModel.profileState.value
         setActivityActionBarTitle(when (state) {
-            is State.Success -> "Profile of @${getAuthor()}"
+            is State.Success -> "Profile of @${state.data.account}"
             else -> "Profile"
         })
     }
 
-    private val profileStateCollector = FlowCollector<State<SteemitProfile>> { newState ->
-        when (newState) {
-            is State.Empty -> showEmpty()
-            is State.Loading -> showLoading()
-            is State.Success -> showProfile(newState.data)
-            is State.Error, is State.Failure -> showLoadingError()
-        }
-    }
+}
 
-    private val buttonAccountSearchClickListener = View.OnClickListener {
-        val account = binding.includeAccountLookup.editSteemitAccount.text.toString()
-        if (account.length > 2) {
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.readSteemitProfile(account)
+@Composable
+fun ProfileScreen(viewModel: ProfileViewModel) {
+    val state by viewModel.profileState.collectAsStateWithLifecycle()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Gray)
+            .verticalScroll(rememberScrollState())
+    ) {
+        AccountInputForm("Input a Steemit account.") { account ->
+            if (account.length > 2)
+            viewModel.readSteemitProfile(account)
+        }
+
+        val commonModifier = Modifier.fillMaxWidth().weight(1f).background(Color.White)
+        when (state) {
+            is State.Empty -> ProfileEmpty(modifier = commonModifier)
+            is State.Loading -> Loading(modifier = commonModifier)
+            !is State.Success -> ErrorOrFailure()
+            else -> {
+                val profile = (state as State.Success<SteemitProfile>).data
+                ProfileContent(profile)
+                ProfileMenu(profile)
             }
         }
     }
+}
 
-    private val menuItem1ClickListener = OnClickListener { v ->
-        val author = getAuthor()
+@Composable
+@Preview
+fun ProfileScreenPreview() {
+    val viewModel = ProfileViewModel(State.Success(sampleSteemitProfile))
+    ProfileScreen(viewModel)
+}
 
-        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountDetails(author)
-        findNavController().navigate(action)
-        setActivityActionBarTitle("Details of @${author}")
+private val profileContentTextStyle = TextStyle(
+    color = Color.White,
+    fontSize = 20.sp
+)
+
+@Composable
+fun ProfileEmpty(modifier: Modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+    ) {
+        Text(
+            text = "Input a Steemit account.",
+            style = TextStyle(
+                color = Color.Black,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+        )
     }
+}
 
-    private val menuItem2ClickListener = OnClickListener { v ->
-        val author = getAuthor()
+@Composable
+@Preview
+fun ProfileEmptyPreview() {
+    ProfileEmpty(modifier = Modifier.fillMaxSize().background(Color.White))
+}
 
-        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(author, "blog")
-        findNavController().navigate(action)
-        setActivityActionBarTitle("Blog of @${author}")
+@Composable
+fun ProfileContent(profile: SteemitProfile) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        ProfileContentBackground(profile.coverImageURL, Modifier.matchParentSize())
+        ProfileContentText(profile)
     }
+}
 
-    private val menuItem3ClickListener = OnClickListener { v ->
-        val author = getAuthor()
+@Composable
+fun ProfileContentBackground(imageURL: String, modifier: Modifier) {
+    AsyncImage(
+        model = imageURL,
+        contentDescription = "",
+        contentScale = ContentScale.FillHeight,
+        modifier = modifier
+    )
+}
 
-        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(author, "posts")
-        findNavController().navigate(action)
-        setActivityActionBarTitle("Posts of @${author}")
-    }
-
-    private val menuItem4ClickListener = OnClickListener { v ->
-        val author = getAuthor()
-
-        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(author, "comments")
-        findNavController().navigate(action)
-        setActivityActionBarTitle("Comments of @${author}")
-    }
-
-    private val menuItem5ClickListener = OnClickListener { v ->
-        val author = getAuthor()
-
-        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(author, "replies")
-        findNavController().navigate(action)
-        setActivityActionBarTitle("Replies of @${author}")
-    }
-
-    private val menuItem6ClickListener = OnClickListener { v ->
-        val author = getAuthor()
-
-        val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountHistory(author)
-        findNavController().navigate(action)
-        setActivityActionBarTitle("History of @${author}")
-    }
-
-    private fun getAuthor(): String {
-        val state = viewModel.profileState.value
-        return when  {
-            (state is State.Success<SteemitProfile>) -> state.data.account
-            else -> ""
-        }
-    }
-
-    private fun showEmpty() {
-        binding.includeInputAccount.layoutInputAccount.visibility = View.VISIBLE
-        binding.includeLoading.layoutLoading.visibility = View.GONE
-        binding.includeLoadingError.layoutLoadingError.visibility = View.GONE
-        binding.scrollProfile.visibility = View.GONE
-    }
-
-    private fun showLoading() {
-        binding.includeInputAccount.layoutInputAccount.visibility = View.GONE
-        binding.includeLoading.layoutLoading.visibility = View.VISIBLE
-        binding.includeLoadingError.layoutLoadingError.visibility = View.GONE
-        binding.scrollProfile.visibility = View.GONE
-    }
-
-    private fun showLoadingError() {
-        binding.includeInputAccount.layoutInputAccount.visibility = View.GONE
-        binding.includeLoading.layoutLoading.visibility = View.GONE
-        binding.includeLoadingError.layoutLoadingError.visibility = View.VISIBLE
-        binding.scrollProfile.visibility = View.GONE
-    }
-
-    private fun showProfile(profile: SteemitProfile) {
-        binding.includeInputAccount.layoutInputAccount.visibility = View.GONE
-        binding.includeLoading.layoutLoading.visibility = View.GONE
-        binding.includeLoadingError.layoutLoadingError.visibility = View.GONE
-        binding.scrollProfile.visibility = View.VISIBLE
-
-        binding.includeProfile.run {
-            imageProfileBackground.load(profile.coverImageURL, null)
-            imageProfile.load("https://steemitimages.com/u/${profile.account}/avatar/small")
-            textAccount.text = "@${profile.account}"
-            textName.text = profile.name
-            textFollowers.text = "${profile.followerCount} Followers"
-            textFollowing.text = "${profile.followingCount} Following"
-            textAbout.text = profile.about
-            textLocation.text = when {
-                profile.location.isEmpty() -> "📍 (No location)"
-                else -> "📍 ${profile.location}"
-            }
-            textWebLink.text = when {
-                profile.website.isEmpty() -> "📍 (No web site)"
-                else -> "🔗 ${profile.website}"
+@Composable
+fun ProfileContentText(profile: SteemitProfile) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 30.dp)
+    ) {
+        // Profile image, account and name
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            AsyncImage(
+                model = "https://steemitimages.com/u/${profile.account}/avatar/small",
+                contentDescription = "",
+                modifier = Modifier.width(80.dp).height(80.dp).clip(CircleShape)
+            )
+            Column(
+                modifier = Modifier.height(80.dp).padding(start = 20.dp).wrapContentHeight()
+            ) {
+                Text(
+                    text = "@${profile.account}",
+                    style = TextStyle(
+                        color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold
+                    )
+                )
+                if (profile.name.isNotEmpty()) {
+                    Text(
+                        text = "${profile.name}",
+                        style = TextStyle(color = Color.White, fontSize = 18.sp),
+                        modifier = Modifier.padding(top = 5.dp)
+                    )
+                }
             }
         }
 
-        val state = viewModel.profileState.value
-        setActivityActionBarTitle(when (state) {
-            is State.Success -> "Profile of @${getAuthor()}"
-            else -> "Profile"
-        })
+        // Following and Followers
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth().padding(top = 24.dp)
+        ) {
+            Text(
+                text = "${profile.followerCount} Following",
+                style = profileContentTextStyle
+            )
+            Text(
+                text = "${profile.followerCount} Followers",
+                style = profileContentTextStyle,
+                modifier = Modifier.padding(start = 30.dp)
+            )
+        }
+
+        // About
+        Text(
+            text = "${profile.about}",
+            textAlign = TextAlign.Center,
+            style = profileContentTextStyle,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+
+        // Location
+        Text(
+            text = getLocationText(profile.location),
+            textAlign = TextAlign.Center,
+            style = profileContentTextStyle,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+
+        // Web site
+        BasicText(
+            text = getWebsiteText(profile.website),
+            //textAlign = TextAlign.Center,
+            style = profileContentTextStyle,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+    }
+}
+
+private fun getLocationText(about: String) = when {
+    about.isEmpty() -> ""
+    else -> "\uD83D\uDCCD ${about}"
+}
+
+private fun getWebsiteText(website: String): AnnotatedString = buildAnnotatedString {
+    when {
+        website.isEmpty() -> append("")
+        else -> {
+            append("\uD83D\uDD17 ")
+            withLink(
+                LinkAnnotation.Url(
+                    website,
+                    TextLinkStyles(style = SpanStyle(color = Color.Blue))
+                )
+            ) {
+                append(website)
+            }
+        }
+    }
+}
+
+@Composable
+@Preview
+fun ProfileContentPreview() {
+    ProfileContent(sampleSteemitProfile)
+}
+
+@Composable
+fun ProfileMenu(profile: SteemitProfile) {
+    val fragment = GetCurrentFragment(R.id.nav_host_fragment_activity_main)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ProfileMenuRow(
+            ProfileMenuItem("Details", Color.Black, 18, Color.White) {
+                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountDetails(profile.account)
+                fragment?.findNavController()?.navigate(action)
+                fragment?.setActivityActionBarTitle("Details of @${profile.account}")
+            },
+            ProfileMenuItem("Blog", Color.White, 18, Color.Black) {
+                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(profile.account, "blog")
+                fragment?.findNavController()?.navigate(action)
+                fragment?.setActivityActionBarTitle("Blog of @${profile.account}")
+            },
+            ProfileMenuItem("Posts", Color.Black, 18, Color.White) {
+                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(profile.account, "posts")
+                fragment?.findNavController()?.navigate(action)
+                fragment?.setActivityActionBarTitle("Posts of @${profile.account}")
+            }
+        )
+        ProfileMenuRow(
+            ProfileMenuItem("Comments", Color.White, 18, Color.Black) {
+                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(profile.account, "comments")
+                fragment?.findNavController()?.navigate(action)
+                fragment?.setActivityActionBarTitle("Comments of @${profile.account}")
+            },
+            ProfileMenuItem("Replies", Color.Black, 18, Color.White) {
+                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(profile.account, "replies")
+                fragment?.findNavController()?.navigate(action)
+                fragment?.setActivityActionBarTitle("Replies of @${profile.account}")
+            },
+            ProfileMenuItem("History", Color.White, 18, Color.Black) {
+                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountHistory(profile.account)
+                fragment?.findNavController()?.navigate(action)
+                fragment?.setActivityActionBarTitle("History of @${profile.account}")
+            }
+        )
+    }
+}
+
+@Composable
+@Preview
+fun ProfileMenuPreview() {
+    ProfileMenu(sampleSteemitProfile)
+}
+
+@Composable
+fun ProfileMenuRow(
+    menuItem1: ProfileMenuItem,
+    menuItem2: ProfileMenuItem,
+    menuItem3: ProfileMenuItem
+) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        ProfileMenuCell(menuItem1, this)
+        ProfileMenuCell(menuItem2, this)
+        ProfileMenuCell(menuItem3, this)
+    }
+}
+
+@Composable
+fun ProfileMenuCell(
+    menuItem: ProfileMenuItem,
+    rowScope: RowScope,
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = rowScope.getMenuCellModifier(menuItem.backgroundColor).clickable {
+            menuItem.onClick()
+        }
+    ) {
+        Text(
+            text = menuItem.name,
+            style = getMenuTextStyle(menuItem.textColor, menuItem.fontSize),
+            textAlign = TextAlign.Center
+        )
     }
 
+}
+
+private fun getMenuTextStyle(textColor: Color, fontSize: Int): TextStyle {
+    return TextStyle(
+        color = textColor,
+        fontSize = fontSize.sp,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+private fun RowScope.getMenuCellModifier(backgroundColor: Color): Modifier {
+    return Modifier
+        .weight(1f)
+        .size(width = Dp.Unspecified, 100.dp)
+        .background(backgroundColor)
+}
+
+private val sampleSteemitProfile by lazy {
+    SteemitProfile(
+        account = "dorian-mobileapp",
+        name = "Dorian as Mobile App Developer",
+        about = "...",
+        followingCount = 100,
+        followerCount = 100,
+        location = "Seoul, Korea",
+        website = "www.steemit.com",
+        coverImageURL = "https://cdn.steemitimages.com/DQmUtGtQZGWnosZZrGsC2Dm9Xv8rc7AzomX2ajBKjKwEGcz/photo_2020-07-26%2019.13.27.jpeg"
+    )
 }
