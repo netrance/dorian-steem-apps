@@ -4,6 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.util.TypedValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 
 fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
@@ -17,4 +20,10 @@ fun Context.toPixelFromDP(dp: Float): Float {
 
 fun Context.toDPFromDimension(dimenID: Int): Float {
     return resources.getDimension(dimenID) / resources.displayMetrics.density
+}
+
+fun Context.getCurrentFragment(id: Int): Fragment? {
+    val activity = this as? FragmentActivity
+    val navHostFragment = activity?.supportFragmentManager?.findFragmentById(id)
+    return navHostFragment?.childFragmentManager?.fragments?.lastOrNull()
 }

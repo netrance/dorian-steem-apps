@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
+import lee.dorian.steem_domain.model.AccountHistory
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.PostListInfo
 import lee.dorian.steem_domain.model.PostItem
@@ -22,6 +23,9 @@ class PostListViewModel(
     private val _flowState: MutableStateFlow<State<PostListInfo>> = MutableStateFlow(State.Empty)
     val flowState = _flowState.asStateFlow()
 
+    private val _flowIsRefreshing = MutableStateFlow(false)
+    val flowIsRefreshing = _flowIsRefreshing.asStateFlow()
+
     fun readPosts(author: String, sort: String) = viewModelScope.launch {
         _flowState.emit(State.Loading)
         val apiResult = readPostsUseCase(author, sort, "")
@@ -32,7 +36,7 @@ class PostListViewModel(
                 val postList = mutableListOf<PostItem>().apply {
                     addAll(apiResult.data)
                 }
-                State.Success<PostListInfo>(PostListInfo(author, sort, postList))
+                State.Success(PostListInfo(author, sort, postList))
             }
         }
         _flowState.emit(newState)
@@ -60,7 +64,7 @@ class PostListViewModel(
                     addAll(existingPosts)
                     addAll(apiResult.data)
                 }
-                State.Success<PostListInfo>(PostListInfo(author, sort, newPostList))
+                State.Success(PostListInfo(author, sort, newPostList))
             }
         }
         _flowState.emit(newState)
