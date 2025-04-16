@@ -38,8 +38,7 @@
     <fragment
         android:id="@+id/navigation_wallet"
         android:name="lee.dorian.steem_ui.ui.wallet.WalletFragment"
-        android:label="@string/title_wallet"
-        tools:layout="@layout/fragment_wallet">
+        android:label="@string/title_wallet">
         <argument
             android:name="account"
             app:argType="string"
