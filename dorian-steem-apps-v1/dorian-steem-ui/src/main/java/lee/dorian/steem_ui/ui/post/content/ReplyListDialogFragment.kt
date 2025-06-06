@@ -43,8 +43,10 @@ import coil.compose.AsyncImage
 import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.model.Post
 import lee.dorian.steem_ui.R
-import lee.dorian.steem_ui.ext.findActivity
+import lee.dorian.dorian_android_ktx.android.context.findActivity
 import lee.dorian.steem_ui.ext.loadMarkdown
+import lee.dorian.steem_ui.ui.preview.postForTest
+import lee.dorian.steem_ui.ui.preview.replyListForTest
 
 class ReplyListDialogFragment : BottomSheetDialogFragment() {
 

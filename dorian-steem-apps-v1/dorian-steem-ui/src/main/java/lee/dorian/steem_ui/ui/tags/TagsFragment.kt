@@ -1,28 +1,47 @@
 package lee.dorian.steem_ui.ui.tags
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
-import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import lee.dorian.dorian_android_ktx.androidx.compose.foundation.lazy.AppendableLazyColumn
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.MainViewModel
-import lee.dorian.steem_ui.R
-import lee.dorian.steem_ui.databinding.FragmentTagsBinding
-import lee.dorian.steem_ui.ext.showToastShortly
-import lee.dorian.steem_ui.ui.base.BaseFragment
-import lee.dorian.steem_ui.ui.post.PostImagePagerActivity
+import lee.dorian.steem_ui.model.State
+import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
+import lee.dorian.steem_ui.ui.compose.Loading
+import lee.dorian.steem_ui.ui.compose.TagInputForm
+import lee.dorian.steem_ui.ui.post.PostListItem
+import lee.dorian.steem_ui.ui.post.onDownvoteClick
+import lee.dorian.steem_ui.ui.post.onPostListItemImageClick
+import lee.dorian.steem_ui.ui.post.onPostListItemClick
+import lee.dorian.steem_ui.ui.post.onUpvoteClick
+import lee.dorian.steem_ui.ui.preview.samplePostItem
 
-class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.fragment_tags) {
+class TagsFragment : Fragment() {
 
-    override val viewModel by lazy {
+    val viewModel by lazy {
         ViewModelProvider(this).get(TagsViewModel::class.java)
     }
 
@@ -34,153 +53,147 @@ class TagsFragment : BaseFragment<FragmentTagsBinding, TagsViewModel>(R.layout.f
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return super.onCreateView(inflater, container, savedInstanceState).apply {
-            //binding.viewModel = viewModel
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setContent {
+                TagsScreen(viewModel)
+            }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+    }
 
-        binding.swipeRefreshPostList.isRefreshing = false
-        binding.listRankedPostItem.apply {
-            adapter = PostItemListAdapter(
-                postItemViewClickListener,
-                upvoteViewClickListener,
-                downvoteViewClickListener,
-                postImageViewClickListener
-            ).apply {
-                setHasStableIds(true)
-            }
-            addOnScrollListener(rankedPostsScrollListener)
+}
+
+private val tagInfoList = listOf(
+    TagScreenSortTabInfo("Trending", "trending"),
+    TagScreenSortTabInfo("Created", "created"),
+    TagScreenSortTabInfo("Payout", "payout")
+)
+
+@Composable
+fun TagsScreen(
+    viewModel: TagsViewModel
+) {
+    var tag by rememberSaveable { mutableStateOf("") }
+    var sort by rememberSaveable { mutableStateOf(tagInfoList[0].sort) }
+    var isFirstStart by rememberSaveable { mutableStateOf(true) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        TagInputForm(placeholder = "Input a tag.") { newTag ->
+            tag = newTag
+            viewModel.readRankedPosts(tag, sort)
         }
-
-        binding.apply {
-            radiobtnTrending.setOnClickListener(radiobtnTrendingClickListener)
-            radiobtnCreated.setOnClickListener(radiobtnCreatedClickListener)
-            radiobtnPayout.setOnClickListener(radiobtnPayoutClickListener)
-            swipeRefreshPostList.setOnRefreshListener(swipeRefreshPostListRefreshListener)
+        TagsSortTabRow { tagTabInfo ->
+            sort = tagTabInfo.sort
+            viewModel.readRankedPosts(tag, sort)
         }
-
-        activityViewModel.currentTag.apply {
-            removeObservers(viewLifecycleOwner)
-            observe(viewLifecycleOwner, currentTagObserver)
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.flowTagsState.collect(tagsStateCollector)
-        }
+        TagsContent(
+            viewModel,
+            onAppend = {
+                viewModel.appendRankedPosts(tag, sort)
+            },
+            Modifier.fillMaxWidth().weight(1f)
+        )
     }
 
-    private val currentTagObserver = Observer<String> { newTag ->
-        val tagState: TagsState = viewModel.flowTagsState.value
-        if (tagState is TagsState.Success) {
-            if (newTag == viewModel.tag) {
-                updateRankedList(tagState.tagList)
-                return@Observer
-            }
-        }
+    if (isFirstStart or viewModel.isContentEmpty()) {
+        viewModel.readRankedPosts(tag, sort)
+        isFirstStart = false
+    }
+}
 
-        viewModel.tag = newTag
-        readRankedPosts()
+@Composable
+@Preview
+fun TagsScreenPreview() {
+    TagsScreen(TagsViewModel())
+}
+
+@Composable
+fun TagsContent(viewModel: TagsViewModel, onAppend: () -> Unit, modifier: Modifier) {
+    val state by viewModel.flowTagsState.collectAsStateWithLifecycle()
+
+    if (state is State.Loading) {
+        Loading()
+        return
+    }
+    else if (state !is State.Success) {
+        ErrorOrFailure()
+        return
     }
 
-    private val tagsStateCollector = FlowCollector<TagsState> { newState ->
-        when (newState) {
-            is TagsState.Error, is TagsState.Failure -> {
-                showToastShortly(getString(R.string.error_cannot_load))
-            }
-            is TagsState.Success -> {
-                binding.swipeRefreshPostList.isRefreshing = false
-                updateRankedList(newState.tagList)
-            }
-            else -> {}
-        }
-    }
+    val tagPostList = (state as State.Success).data
+    TagsPostList(
+        tagPostList,
+        viewModel,
+        onAppend = onAppend
+    )
+}
 
-    private val radiobtnTrendingClickListener = OnClickListener {
-        updateSort(R.id.radiobtn_trending)
-    }
+@Composable
+@Preview
+fun TagsContentPreview() {
+    TagsContent(TagsViewModel(), {}, Modifier.fillMaxWidth())
+}
 
-    private val radiobtnCreatedClickListener = OnClickListener {
-        updateSort(R.id.radiobtn_created)
-    }
+@Composable
+fun TagsSortTabRow(
+    onTabSelected: (TagScreenSortTabInfo) -> Unit,
+) {
+    var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
 
-    private val radiobtnPayoutClickListener = OnClickListener {
-        updateSort(R.id.radiobtn_payout)
-    }
-
-    private val rankedPostsScrollListener: RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
-
-            if (!binding.listRankedPostItem.canScrollVertically(1)) {
-                viewModel.appendRankedPosts()
-            }
-        }
-    }
-
-    private val swipeRefreshPostListRefreshListener = OnRefreshListener {
-        readRankedPosts()
-    }
-
-    private val upvoteViewClickListener = object: PostItemListAdapter.OnVoteCountViewClickListener {
-        override fun onClick(postItem: PostItem) {
-            this@TagsFragment.startUpvoteListActivity(postItem.activeVotes)
-        }
-    }
-
-    private val downvoteViewClickListener = object: PostItemListAdapter.OnVoteCountViewClickListener {
-        override fun onClick(postItem: PostItem) {
-            this@TagsFragment.startDownvoteListActivity(postItem.activeVotes)
-        }
-    }
-
-    private val postImageViewClickListener = object: PostItemListAdapter.OnPostImageViewClickListener {
-        override fun onClick(imageURLs: List<String>) {
-            Intent(requireActivity(), PostImagePagerActivity::class.java).also {
-                if (imageURLs.isEmpty()) {
-                    showToastShortly(getString(R.string.error_no_post_image))
-                    return
-                }
-
-                val imageURLArrayList = ArrayList(imageURLs)
-                it.putExtra(PostImagePagerActivity.INTENT_BUNDLE_IMAGE_URL_LIST, imageURLArrayList)
-                startActivity(it)
-            }
-        }
-    }
-
-    private val postItemViewClickListener = object: PostItemListAdapter.OnPostItemViewClickListener {
-        override fun onClick(author: String, permlink: String) {
-            val navController = findNavController()
-            val action = TagsFragmentDirections.actionNavigationTagsToNavigationPostContent(
-                author = author,
-                permlink = permlink
+    TabRow(
+        selectedTabIndex = selectedTabIndex,
+        containerColor = Color.White,
+        contentColor = Color.Black,
+        indicator = { tabPositions ->
+            TabRowDefaults.SecondaryIndicator(
+                Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                color = Color.Black
             )
-            navController.navigate(action)
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        tagInfoList.forEachIndexed { index, tagInfo ->
+            Tab(
+                selected = (selectedTabIndex == index),
+                onClick = {
+                    selectedTabIndex = index
+                    onTabSelected(tagInfoList[index])
+                },
+                text = { Text(text = tagInfo.title) }
+            )
         }
     }
+}
 
-    private fun updateRankedList(postItemList: List<PostItem>) {
-        binding.swipeRefreshPostList.isRefreshing = false
-        (binding?.listRankedPostItem?.adapter as PostItemListAdapter).setList(postItemList)
+@Composable
+@Preview
+fun TagsSortTabRowPreview() {
+    TagsSortTabRow {}
+}
+
+@Composable
+fun TagsPostList(postList: List<PostItem>, viewModel: TagsViewModel, onAppend: () -> Unit) {
+    AppendableLazyColumn(
+        onAppend = onAppend
+    ) {
+        items(postList.size) { index ->
+            PostListItem(postList[index], ::onPostListItemClick, ::onPostListItemImageClick, ::onUpvoteClick, ::onDownvoteClick)
+        }
     }
+}
 
-    private fun emptyRankedList() {
-        (binding?.listRankedPostItem?.adapter as PostItemListAdapter).setList(listOf())
-    }
-
-    private fun readRankedPosts() {
-        emptyRankedList()
-        viewModel.readRankedPosts()
-        binding.swipeRefreshPostList.isRefreshing = true
-    }
-
-    private fun updateSort(checkedRadioButtonId: Int) {
-        viewModel.updateSort(checkedRadioButtonId)
-        readRankedPosts()
-    }
-
+@Composable
+@Preview
+fun TagsPostListPreview() {
+    TagsPostList(
+        listOf(samplePostItem, samplePostItem, samplePostItem),
+        TagsViewModel(),
+        {}
+    )
 }

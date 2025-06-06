@@ -24,6 +24,50 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
+fun TagInputForm(placeholder: String, onSearchClick: (tag: String) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(5.dp)
+    ) {
+        val tagText = rememberSaveable { mutableStateOf("") }
+
+        Text(
+            text = "#",
+            style = TextStyle(color = Color.Black, fontSize = 16.sp)
+        )
+        Spacer(modifier = Modifier.width(5.dp))
+        CustomTextField(
+            tagText,
+            TextStyle(color = Color.Black, fontSize = 15.sp),
+            placeholder,
+            Modifier
+                .weight(1f)
+                .background(
+                    color = Color.LightGray,
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .padding(10.dp)
+        )
+        Icon(
+            imageVector = Icons.Filled.Search,
+            contentDescription = "Search button of tag input form",
+            modifier = Modifier
+                .clickable { onSearchClick(tagText.value) }
+                .padding(start = 8.dp)
+        )
+    }
+}
+
+@Composable
+@Preview
+fun TagInputFormPreview() {
+    TagInputForm("Input a tag.") {}
+}
+
+@Composable
 fun AccountInputForm(placeholder: String, onSearchClick: (account: String) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

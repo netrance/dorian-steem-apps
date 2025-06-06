@@ -14,19 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <RelativeLayout
-            android:id="@+id/layout_search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <include
-                android:id="@+id/include_tag_lookup"
-                layout="@layout/layout_tag_lookup"
-                app:viewModel="@{viewModel}" />
-
-        </RelativeLayout>
-
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/nav_view"
             android:layout_width="0dp"
@@ -46,7 +33,7 @@
             android:layout_height="0dp"
             app:defaultNavHost="true"
             app:layout_constraintBottom_toTopOf="@id/nav_view"
-            app:layout_constraintTop_toBottomOf="@id/layout_search"
+            app:layout_constraintTop_toTopOf="parent"
             app:navGraph="@navigation/mobile_navigation" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

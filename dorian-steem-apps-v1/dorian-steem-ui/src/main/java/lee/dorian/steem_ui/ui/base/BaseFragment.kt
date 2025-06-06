@@ -53,38 +53,4 @@ abstract class BaseFragment<VDB: ViewDataBinding, VM: BaseViewModel>(
         }
     }
 
-    // open new activity to show upvoting list
-    fun startUpvoteListActivity(activeVotes: List<ActiveVote>) {
-        val upvotes = activeVotes.filter { vote ->
-            vote.isUpvote()
-        }.sortedByDescending { it.value }
-
-        if (upvotes.isEmpty()) {
-            return
-        }
-
-        val upvoteArrayList = ArrayList(upvotes)
-        Intent(requireActivity(), VoteListActivity::class.java).apply {
-            this.putExtra(VoteListActivity.INTENT_BUNDLE_VOTER_LIST, upvoteArrayList)
-            startActivity(this)
-        }
-    }
-
-    // open new activity to show downvoting list
-    fun startDownvoteListActivity(activeVotes: List<ActiveVote>) {
-        val downvotes = activeVotes.filter { vote ->
-            vote.isDownvote()
-        }.sortedByDescending { it.value }
-
-        if (downvotes.isEmpty()) {
-            return
-        }
-
-        val downvoteArrayList = ArrayList(downvotes)
-        Intent(requireActivity(), VoteListActivity::class.java).apply {
-            this.putExtra(VoteListActivity.INTENT_BUNDLE_VOTER_LIST, downvoteArrayList)
-            startActivity(this)
-        }
-    }
-
 }

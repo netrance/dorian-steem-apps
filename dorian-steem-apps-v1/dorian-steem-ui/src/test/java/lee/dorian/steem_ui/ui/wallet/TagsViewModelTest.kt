@@ -7,6 +7,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 import lee.dorian.steem_ui.R
+import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.tags.TagsState
 import org.junit.Assert.assertTrue
 
@@ -17,37 +18,33 @@ class TagsViewModelTest : CommonPartOfViewModelTest() {
     @Test
     fun readRankedPosts() = runTest {
         tagViewModel.apply {
-            tag = "kr"
-            sort = "trending"
-            readRankedPosts()
+            readRankedPosts("kr", "trending")
         }
         Thread.sleep(3000)
 
         val tagsState = tagViewModel.flowTagsState.value
-        assertTrue(tagsState is TagsState.Success)
-        val tags = (tagsState as TagsState.Success).tagList
+        assertTrue(tagsState is State.Success)
+        val tags = (tagsState as State.Success).data
         assertEquals(tags.size, tagViewModel.limit)
     }
 
     @Test
     fun appendRankedPosts() = runTest {
         tagViewModel.apply {
-            tag = "kr"
-            sort = "trending"
-            readRankedPosts()
+            readRankedPosts("kr", "trending")
         }
         Thread.sleep(3000)
         tagViewModel.flowTagsState.value.also { newState ->
-            assertTrue(newState is TagsState.Success)
-            val tags = (newState as TagsState.Success).tagList
+            assertTrue(newState is State.Success)
+            val tags = (newState as State.Success).data
             assertEquals(tags.size, tagViewModel.limit)
         }
 
-        tagViewModel.appendRankedPosts()
+        tagViewModel.appendRankedPosts("kr", "trending")
         Thread.sleep(3000)
         tagViewModel.flowTagsState.value.also { newState ->
-            assertTrue(newState is TagsState.Success)
-            val tags = (newState as TagsState.Success).tagList
+            assertTrue(newState is State.Success)
+            val tags = (newState as State.Success).data
             assertEquals(tags.size, 2 * tagViewModel.limit)
         }
     }
