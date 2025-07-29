@@ -1,27 +1,34 @@
 package lee.dorian.steem_ui.ui.post
 
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.viewpager.widget.ViewPager.OnPageChangeListener
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.launch
-import lee.dorian.steem_ui.BaseActivity
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import lee.dorian.steem_ui.R
-import lee.dorian.steem_ui.databinding.ActivityPostImagePagerBinding
+import lee.dorian.steem_ui.model.State
 
-class PostImagePagerActivity : BaseActivity<
-    ActivityPostImagePagerBinding,
-    PostImagePagerViewModel
->(
-    R.layout.activity_post_image_pager
-) {
+class PostImagePagerActivity : AppCompatActivity() {
 
     companion object {
         const val INTENT_BUNDLE_IMAGE_URL_LIST = "image_url_list"
     }
 
-    override val viewModel: PostImagePagerViewModel by lazy {
+    val viewModel: PostImagePagerViewModel by lazy {
         ViewModelProvider(this).get(PostImagePagerViewModel::class.java)
     }
 
@@ -29,56 +36,50 @@ class PostImagePagerActivity : BaseActivity<
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize binding object.
-        binding.apply {
-            lifecycleOwner = this@PostImagePagerActivity
-            viewpagerPostImages.addOnPageChangeListener(pageChangeListener)
-        }
+        setContentView(
+            ComposeView(this).apply {
+                setContent {
+                    val imageURLs = intent.getSerializableExtra(INTENT_BUNDLE_IMAGE_URL_LIST) as ArrayList<String>
+                    viewModel.updateImageURLs(imageURLs)
 
-        // Prepares to collect data.
-        lifecycleScope.launch {
-            viewModel.flowImageURLs.collect(postImagePagerStateCollector)
-        }
-
-        // Loads data.
-        val imageURLs = intent.getSerializableExtra(INTENT_BUNDLE_IMAGE_URL_LIST) as ArrayList<String>
-        viewModel.updateImageURLs(imageURLs)
-    }
-
-    private val postImagePagerStateCollector = FlowCollector<PostImagePagerState> {
-        when (it) {
-            is PostImagePagerState.Loading -> {}
-            is PostImagePagerState.Success -> {
-                updateViewPager(it.imageURLList)
+                    PostImagePagerScreen(viewModel)
+                }
             }
-            else -> {}
+        )
+    }
+}
+
+@Composable
+fun PostImagePagerScreen(viewModel: PostImagePagerViewModel) {
+    val flowImageURLs by viewModel.flowImageURLs.collectAsStateWithLifecycle()
+
+    if (flowImageURLs is State.Success) {
+        val context = LocalContext.current
+        val imageURLs = (flowImageURLs as State.Success).data
+        val pageCount = imageURLs.size
+        val pagerState = rememberPagerState { imageURLs.size }
+        val imageLoader = remember { ImageLoader(context) }
+
+        HorizontalPager(
+            state = pagerState,
+            pageSpacing = 16.dp
+        ) { page ->
+            AsyncImage(
+                model = if (imageURLs.isEmpty()) "" else imageURLs[page],
+                contentDescription = "Images of this post",
+                error = painterResource(R.drawable.no_image_available),
+                imageLoader = imageLoader,
+                placeholder = rememberAsyncImagePainter(R.drawable.loading),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+
+        LaunchedEffect(pagerState.currentPage, pageCount) {
+            if (context is AppCompatActivity) {
+                context.supportActionBar?.title = "Post Image (${pagerState.currentPage + 1} / ${pageCount})"
+            }
         }
     }
 
-    private fun updateViewPager(imageURLs: ArrayList<String>) {
-        val newAdapter = PostImagePagerAdapter(this, imageURLs)
-        binding.viewpagerPostImages.adapter = newAdapter
-        updateTitle(0)
-    }
-
-    private fun updateTitle(pagePosition: Int) {
-        supportActionBar?.title = "Post Images (${pagePosition + 1} / ${binding.viewpagerPostImages.adapter?.count})"
-    }
-
-    private val pageChangeListener = object: OnPageChangeListener {
-        override fun onPageScrolled(
-            position: Int,
-            positionOffset: Float,
-            positionOffsetPixels: Int
-        ) {
-        }
-
-        override fun onPageSelected(position: Int) {
-            updateTitle(position)
-        }
-
-        override fun onPageScrollStateChanged(state: Int) {
-        }
-
-    }
 }
