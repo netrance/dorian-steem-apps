@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
@@ -77,6 +78,8 @@ private val tagInfoList = listOf(
 fun TagsScreen(
     viewModel: TagsViewModel
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     var tag by rememberSaveable { mutableStateOf("") }
     var sort by rememberSaveable { mutableStateOf(tagInfoList[0].sort) }
     var isFirstStart by rememberSaveable { mutableStateOf(true) }
@@ -87,6 +90,7 @@ fun TagsScreen(
         TagInputForm(placeholder = "Input a tag.") { newTag ->
             tag = newTag
             viewModel.readRankedPosts(tag, sort)
+            keyboardController?.hide()
         }
         TagsSortTabRow { tagTabInfo ->
             sort = tagTabInfo.sort

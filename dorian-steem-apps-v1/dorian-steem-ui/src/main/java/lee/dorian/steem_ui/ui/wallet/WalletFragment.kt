@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -72,6 +73,7 @@ fun SteemitWalletScreen(
     viewModel: WalletViewModel,
     initialAccount: String
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     val state by viewModel.flowWalletState.collectAsStateWithLifecycle()
 
     Column(
@@ -81,7 +83,10 @@ fun SteemitWalletScreen(
     ) {
         if (initialAccount.isEmpty()) {
             AccountInputForm("Input a Steemit account.") { account ->
-                viewModel.readSteemitWallet(account)
+                if (account.length > 2) {
+                    viewModel.readSteemitWallet(account)
+                    keyboardController?.hide()
+                }
             }
         }
 
