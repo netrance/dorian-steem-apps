@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -118,6 +119,7 @@ class ProfileFragment : Fragment() {
 @Composable
 fun ProfileScreen(viewModel: ProfileViewModel) {
     val state by viewModel.profileState.collectAsStateWithLifecycle()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = Modifier
@@ -126,8 +128,10 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             .verticalScroll(rememberScrollState())
     ) {
         AccountInputForm("Input a Steemit account.") { account ->
-            if (account.length > 2)
-            viewModel.readSteemitProfile(account)
+            if (account.length > 2) {
+                viewModel.readSteemitProfile(account)
+                keyboardController?.hide()
+            }
         }
 
         val commonModifier = Modifier.fillMaxWidth().weight(1f).background(Color.White)
@@ -237,7 +241,7 @@ fun ProfileContentText(profile: SteemitProfile) {
             modifier = Modifier.fillMaxWidth().padding(top = 24.dp)
         ) {
             Text(
-                text = "${profile.followerCount} Following",
+                text = "${profile.followingCount} Following",
                 style = profileContentTextStyle
             )
             Text(
