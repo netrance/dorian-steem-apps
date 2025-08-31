@@ -67,6 +67,7 @@ data class PostItemDTO(
             payout ?: 0f,
             upvoteCount,
             downvoteCount,
+            children ?: 0,
             activeVotes,
             author ?: "",
             author_reputation?.toInt() ?: 0,

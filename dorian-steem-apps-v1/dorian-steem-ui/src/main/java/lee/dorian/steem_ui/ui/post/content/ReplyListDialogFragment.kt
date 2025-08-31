@@ -1,10 +1,5 @@
 package lee.dorian.steem_ui.ui.post.content
 
-import android.os.Bundle
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -22,12 +17,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
@@ -37,60 +30,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.model.Post
 import lee.dorian.steem_ui.R
 import lee.dorian.dorian_android_ktx.android.context.findActivity
 import lee.dorian.steem_ui.ext.loadMarkdown
+import lee.dorian.steem_ui.ui.post.onDownvoteClick
+import lee.dorian.steem_ui.ui.post.onUpvoteClick
 import lee.dorian.steem_ui.ui.preview.postForTest
 import lee.dorian.steem_ui.ui.preview.replyListForTest
 
-class ReplyListDialogFragment : BottomSheetDialogFragment() {
-
-    private val viewModel: PostContentViewModel by lazy {
-        // Set owner parameter to requireActivity() to access the view model PostContentFragment object created
-        ViewModelProvider(requireActivity()).get(PostContentViewModel::class.java)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                ReplyListScreen(viewModel) {
-                    dismiss()
-                }
-            }
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
-}
-
 @Composable
-fun ReplyListScreen(viewModel: PostContentViewModel, onDismiss: () -> Unit) {
-    val state by viewModel.flowPostState.collectAsStateWithLifecycle()
-
-    if (state is PostContentState.Success) {
-        ReplyListScreen((state as PostContentState.Success).replies, onDismiss)
-    }
-    else {
-        onDismiss()
-    }
-}
-
-@Composable
-fun ReplyListScreen(replyList: List<Post>, onDismiss: () -> Unit) {
+fun ReplyBottomSheet(replyList: List<Post>, onDismiss: () -> Unit) {
     val scrollState = rememberScrollState()
 
     Column(
@@ -103,8 +55,8 @@ fun ReplyListScreen(replyList: List<Post>, onDismiss: () -> Unit) {
 
 @Composable
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
-fun ReplyListScreenPreview() {
-    ReplyListScreen(replyListForTest, {})
+fun ReplyBottomSheetPreview() {
+    ReplyBottomSheet(replyListForTest, {})
 }
 
 @Composable
@@ -216,7 +168,16 @@ fun ReplyItem(reply: Post, backgroundColor: Color, scrollState: ScrollState) {
         }
 
         // Rewards and voting
-        ReplyRewardsAndVotingCounts(reply, {}, {})
+        val context = LocalContext.current
+        ReplyRewardsAndVotingCounts(
+            reply,
+            { activeVotes ->
+                onUpvoteClick(context, activeVotes)
+            },
+            { activeVotes ->
+                onDownvoteClick(context, activeVotes)
+            }
+        )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp))
     }

@@ -187,7 +187,13 @@ fun TagsPostList(postList: List<PostItem>, viewModel: TagsViewModel, onAppend: (
         onAppend = onAppend
     ) {
         items(postList.size) { index ->
-            PostListItem(postList[index], ::onPostListItemClick, ::onPostListItemImageClick, ::onUpvoteClick, ::onDownvoteClick)
+            PostListItem(
+                postList[index],
+                ::onPostListItemClick,
+                ::onPostListItemImageClick,
+                ::onUpvoteClick,
+                ::onDownvoteClick
+            )
         }
     }
 }

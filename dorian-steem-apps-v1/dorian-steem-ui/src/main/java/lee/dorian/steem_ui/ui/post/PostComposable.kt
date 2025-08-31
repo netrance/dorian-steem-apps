@@ -2,6 +2,7 @@ package lee.dorian.steem_ui.ui.post
 
 import android.content.Context
 import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -28,20 +29,20 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import lee.dorian.dorian_android_ktx.androidx.compose.foundation.lazy.AppendableLazyColumn
 import lee.dorian.dorian_android_ktx.androidx.compose.ui.borderBottom
-import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.R
 import lee.dorian.dorian_android_ktx.android.context.getCurrentFragment
+import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_ui.ext.showToastShortly
 import lee.dorian.steem_ui.ext.startDownvoteListActivity
 import lee.dorian.steem_ui.ext.startUpvoteListActivity
+import lee.dorian.steem_ui.ui.post.content.PostContentFragment
 import lee.dorian.steem_ui.ui.post.list.PostListFragment
 import lee.dorian.steem_ui.ui.post.list.PostListFragmentDirections
 import lee.dorian.steem_ui.ui.post.list.PostListViewModel
 import lee.dorian.steem_ui.ui.preview.samplePostItem
 import lee.dorian.steem_ui.ui.tags.TagsFragment
 import lee.dorian.steem_ui.ui.tags.TagsFragmentDirections
-import lee.dorian.steem_ui.ui.voter.VoteListActivity
 
 @Composable
 fun PostList(postList: List<PostItem>, viewModel: PostListViewModel) {
@@ -51,7 +52,13 @@ fun PostList(postList: List<PostItem>, viewModel: PostListViewModel) {
         }
     ) {
         items(postList.size) { index ->
-            PostListItem(postList[index], ::onPostListItemClick, ::onPostListItemImageClick, ::onUpvoteClick, ::onDownvoteClick)
+            PostListItem(
+                postList[index],
+                ::onPostListItemClick,
+                ::onPostListItemImageClick,
+                ::onUpvoteClick,
+                ::onDownvoteClick
+            )
         }
     }
 }
@@ -73,8 +80,8 @@ fun PostListItem(
     postItem: PostItem,
     onItemClick: (Context, PostItem) -> Unit,
     onImageClick: (Context, PostItem) -> Unit,
-    onUpvoteClick: (Context, PostItem) -> Unit,
-    onDownvoteClick: (Context, PostItem) -> Unit
+    onUpvoteClick: (Context, List<ActiveVote>) -> Unit,
+    onDownvoteClick: (Context, List<ActiveVote>) -> Unit
 ) {
     val context = LocalContext.current
     Column(
@@ -154,12 +161,18 @@ fun PostListItem(
             Text(
                 text = "\uD83D\uDD3A ${postItem.upvoteCount} ",
                 style = textStyle,
-                modifier = Modifier.clickable { onUpvoteClick(context, postItem) }
+                modifier = Modifier.clickable { onUpvoteClick(context, postItem.activeVotes) }
             )
             Text(
                 text = "\uD83D\uDD3B ${postItem.downvoteCount} ",
                 style = textStyle,
-                modifier = Modifier.clickable { onDownvoteClick(context, postItem) }
+                modifier = Modifier.clickable { onDownvoteClick(context, postItem.activeVotes) }
+            )
+            Text(
+                text = " \uD83D\uDCAC ${postItem.replyCount}",
+                textAlign = TextAlign.End,
+                style = textStyle,
+                modifier = Modifier
             )
             Text(
                 text = "${postItem.account} (${postItem.reputation})",
@@ -174,7 +187,13 @@ fun PostListItem(
 @Composable
 @Preview
 fun PostListItemPreview() {
-    PostListItem(samplePostItem, ::onPostListItemClick, ::onPostListItemImageClick, ::onUpvoteClick, ::onDownvoteClick)
+    PostListItem(
+        samplePostItem,
+        ::onPostListItemClick,
+        ::onPostListItemImageClick,
+        ::onUpvoteClick,
+        ::onDownvoteClick
+    )
 }
 
 fun onPostListItemClick(context: Context, postItem: PostItem) {
@@ -213,16 +232,10 @@ fun onPostListItemImageClick(context: Context, postItem: PostItem) {
     }
 }
 
-fun onUpvoteClick(context: Context, postItem: PostItem) {
-    val fragment = context.getCurrentFragment(R.id.nav_host_fragment_activity_main)
-    if ((fragment is PostListFragment) or (fragment is TagsFragment)) {
-        context.startUpvoteListActivity(postItem.activeVotes)
-    }
+fun onUpvoteClick(context: Context, activeVotes: List<ActiveVote>) {
+    context.startUpvoteListActivity(activeVotes)
 }
 
-fun onDownvoteClick(context: Context, postItem: PostItem) {
-    val fragment = context.getCurrentFragment(R.id.nav_host_fragment_activity_main)
-    if ((fragment is PostListFragment) or (fragment is TagsFragment)) {
-        context.startDownvoteListActivity(postItem.activeVotes)
-    }
+fun onDownvoteClick(context: Context, activeVotes: List<ActiveVote>) {
+    context.startDownvoteListActivity(activeVotes)
 }

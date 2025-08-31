@@ -22,11 +22,16 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -72,18 +77,35 @@ class PostContentFragment : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
+                var showSheet by remember { mutableStateOf(false) }
+
                 PostScreen(
                     viewModel,
                     onUpvoteClick = { activeVotes -> onUpvoteClicked(activeVotes) },
                     onDownvoteClick = { activeVotes -> onDownvoteClicked(activeVotes) },
-                    onReplyCountClick = { replyCount -> onReplyCountClicked(replyCount) }
+                    onReplyCountClick = { replyCount ->
+                        if (replyCount > 0) {
+                            showSheet = true
+                        }
+                    }
                 )
+
+                if (showSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showSheet = false }
+                    ) {
+                        val state by viewModel.flowPostState.collectAsStateWithLifecycle()
+                        val replies = (state as PostContentState.Success).replies
+                        ReplyBottomSheet(replies) { showSheet = false }
+                    }
+                }
             }
 
             viewLifecycleOwner.lifecycleScope.launch {
@@ -104,16 +126,6 @@ class PostContentFragment : Fragment() {
 
     private fun onDownvoteClicked(activeVotes: List<ActiveVote>) {
         requireActivity().startDownvoteListActivity(activeVotes)
-    }
-
-    private fun onReplyCountClicked(replyCount: Int) {
-        if (replyCount == 0) {
-            showToastShortly("No reply of this post.")
-            return
-        }
-
-        val replyBottomSheet = ReplyListDialogFragment()
-        replyBottomSheet.show(requireActivity().supportFragmentManager, replyBottomSheet.tag)
     }
 
 }
