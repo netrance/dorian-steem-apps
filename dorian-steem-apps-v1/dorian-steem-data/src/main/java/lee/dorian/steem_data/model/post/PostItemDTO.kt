@@ -1,5 +1,8 @@
 package lee.dorian.steem_data.model.post
 
+import lee.dorian.steem_domain.ext.convertMarkdownToHtml
+import lee.dorian.steem_domain.ext.convertMarkdownToHtmlDocument
+import lee.dorian.steem_domain.ext.extractTextIfThisIsHtml
 import lee.dorian.steem_domain.model.Post
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_domain.util.Converter
@@ -42,13 +45,13 @@ data class PostItemDTO(
     fun toPostItem(): PostItem {
         val thumbnailURL = json_metadata?.getThumbnailURL() ?: ""
         val imageURLs = json_metadata?.image ?: listOf()
+        val textContent = body?.convertMarkdownToHtml()?.extractTextIfThisIsHtml() ?: "(No text content)"
         val tag = category ?: ""
         val communityTitle = community_title ?: ""
         val tagOrCommunity = when {
             (communityTitle.isEmpty()) -> tag
             else -> communityTitle
         }
-        val voteCount = active_votes?.size ?: 0
         val upvotes = active_votes?.filter { activeVote -> activeVote.isUpvote() }
         val upvoteCount = upvotes?.size ?: 0
         val downvotes = active_votes?.filter { activeVote -> activeVote.isDownvote() }
@@ -58,20 +61,20 @@ data class PostItemDTO(
         } ?: listOf()
 
         return PostItem(
-            title ?: "",
-            thumbnailURL,
-            imageURLs,
-            body ?: "",
-            tagOrCommunity,
-            Converter.toLocalTimeFromUTCTime(created ?: "", "yyyy-MM-dd HH:mm"),
-            payout ?: 0f,
-            upvoteCount,
-            downvoteCount,
-            children ?: 0,
-            activeVotes,
-            author ?: "",
-            author_reputation?.toInt() ?: 0,
-            permlink ?: ""
+            title = title ?: "",
+            thumbnailURL = thumbnailURL,
+            imageURLs = imageURLs,
+            content = textContent,
+            tagOrCommunity = tagOrCommunity,
+            time = Converter.toLocalTimeFromUTCTime(created ?: "", "yyyy-MM-dd HH:mm"),
+            rewards = payout ?: 0f,
+            upvoteCount = upvoteCount,
+            downvoteCount = downvoteCount,
+            replyCount = children ?: 0,
+            activeVotes = activeVotes,
+            account = author ?: "",
+            reputation = author_reputation?.toInt() ?: 0,
+            permlink = permlink ?: ""
         )
     }
 

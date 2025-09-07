@@ -91,6 +91,11 @@ fun String.convertMarkdownToHtmlDocument(): Document {
     return document
 }
 
+fun String.extractTextIfThisIsHtml(): String {
+    val document = Jsoup.parse(this)
+    return document.text()
+}
+
 fun String.convertToUserReadableReputation(): String {
     val rawReputation = this.toLongOrNull() ?: return ""
     val absoluteReputation = abs(rawReputation)
