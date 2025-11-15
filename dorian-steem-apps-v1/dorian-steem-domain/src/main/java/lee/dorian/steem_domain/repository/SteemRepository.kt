@@ -4,6 +4,8 @@ import lee.dorian.steem_domain.model.*
 
 interface SteemRepository {
 
+    suspend fun readDynamicGlobalProperties(): ApiResult<DynamicGlobalProperties>
+
     suspend fun readAccountDetails(
         account: String
     ): ApiResult<AccountDetails>

@@ -16,6 +16,27 @@ class SteemRepositoryImpl(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ): SteemRepository {
 
+    override suspend fun readDynamicGlobalProperties(): ApiResult<DynamicGlobalProperties> = withContext(dispatcher) {
+        val getDynamicGlobalPropertiesParams = GetDynamicGlobalPropertiesParamsDTO(id = 1)
+
+        try {
+            val responseDGP = SteemClient.apiService.getDynamicGlobalProperties(
+                getDynamicGlobalPropertiesParams
+            )
+            if (!responseDGP.isSuccessful) {
+                return@withContext ApiResult.Failure(responseDGP.errorBody()?.string() ?: "")
+            }
+
+            return@withContext responseDGP.body()?.result?.let { dgp ->
+                ApiResult.Success(dgp.toDynamicGlobalProperties())
+            } ?: ApiResult.Failure("Failed to read dynamic global properties")
+        }
+        catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            return@withContext ApiResult.Error(e)
+        }
+    }
+
     override suspend fun readAccountDetails(account: String): ApiResult<AccountDetails> = withContext(dispatcher) {
         val getDynamicGlobalPropertiesParams = GetDynamicGlobalPropertiesParamsDTO(id = 1)
         val getAccountParams = GetAccountsParamsDTO(

@@ -3,6 +3,8 @@ package lee.dorian.steem_ui.ui.history
 import lee.dorian.dorian_ktx.read
 import lee.dorian.steem_domain.model.AccountHistoryItem
 import lee.dorian.steem_domain.model.AccountHistoryItemLink
+import lee.dorian.steem_domain.model.DynamicGlobalProperties
+import lee.dorian.steem_domain.util.Converter
 
 fun AccountHistoryItem.getLinkList(): List<AccountHistoryItemLink> {
     return when (type) {
@@ -17,13 +19,13 @@ fun AccountHistoryItem.getLinkList(): List<AccountHistoryItemLink> {
     }
 }
 
-fun AccountHistoryItem.getUserReadableContent(): String {
+fun AccountHistoryItem.getUserReadableContent(dynamicGlobalProperties: DynamicGlobalProperties? = null): String {
     return when (type) {
-        "author_reward" -> getAuthorRewardContent()
-        "claim_reward_balance" -> getClaimRewardBalance()
+        "author_reward" -> getAuthorRewardContent(dynamicGlobalProperties)
+        "claim_reward_balance" -> getClaimRewardBalance(dynamicGlobalProperties)
         "comment" -> getCommentContent()
-        "comment_benefactor_reward" -> getCommentBenefactorRewardContent()
-        "curation_reward" -> getCurationRewardContent()
+        "comment_benefactor_reward" -> getCommentBenefactorRewardContent(dynamicGlobalProperties)
+        "curation_reward" -> getCurationRewardContent(dynamicGlobalProperties)
         "producer_reward" -> getProducerRewardContent()
         "transfer" -> getTransferContent()
         "transfer_to_vesting" -> getTransferToVestingContent()
@@ -32,7 +34,7 @@ fun AccountHistoryItem.getUserReadableContent(): String {
     }
 }
 
-fun AccountHistoryItem.getAuthorRewardContent(): String {
+fun AccountHistoryItem.getAuthorRewardContent(dynamicGlobalProperties: DynamicGlobalProperties? = null): String {
     if (type != "author_reward") {
         return ""
     }
@@ -40,9 +42,13 @@ fun AccountHistoryItem.getAuthorRewardContent(): String {
     val author = content.read("author", "")
     val sbdPayout = content.read("sbd_payout", "0 SBD")
     val steemPayout = content.read("steem_payout", "0 STEEM")
-    val vestintPayout = content.read("vesting_payout", "0 VEST")
+    val vestingPayout = content.read("vesting_payout", "0 VEST")
+    val spPayout = dynamicGlobalProperties?.let {
+        val spReward = Converter.toSteemPowerFromVest(vestingPayout.replace(" VESTS", "").toFloat(), it)
+        String.format("%.3f SP", spReward)
+    } ?: vestingPayout
     val permlink = content.read("permlink", "")
-    return "${sbdPayout}, ${steemPayout}, ${vestintPayout} from @${author}/${permlink}"
+    return "${sbdPayout}, ${steemPayout}, ${spPayout} from @${author}/${permlink}"
 }
 
 fun AccountHistoryItem.getAuthorRewardLinks(): List<AccountHistoryItemLink> {
@@ -55,7 +61,7 @@ fun AccountHistoryItem.getAuthorRewardLinks(): List<AccountHistoryItemLink> {
     )
 }
 
-fun AccountHistoryItem.getCommentBenefactorRewardContent(): String {
+fun AccountHistoryItem.getCommentBenefactorRewardContent(dynamicGlobalProperties: DynamicGlobalProperties? = null): String {
     if (type != "comment_benefactor_reward") {
         return ""
     }
@@ -63,9 +69,13 @@ fun AccountHistoryItem.getCommentBenefactorRewardContent(): String {
     val author = content.read("author", "")
     val sbdPayout = content.read("sbd_payout", "0 SBD")
     val steemPayout = content.read("steem_payout", "0 STEEM")
-    val vestintPayout = content.read("vesting_payout", "0 VEST")
+    val vestingPayout = content.read("vesting_payout", "0 VEST")
+    val spPayout = dynamicGlobalProperties?.let {
+        val spReward = Converter.toSteemPowerFromVest(vestingPayout.replace(" VESTS", "").toFloat(), it)
+        String.format("%.3f SP", spReward)
+    } ?: vestingPayout
     val permlink = content.read("permlink", "")
-    return "${sbdPayout}, ${steemPayout}, ${vestintPayout} from @${author}/${permlink}"
+    return "${sbdPayout}, ${steemPayout}, ${spPayout} from @${author}/${permlink}"
 }
 
 fun AccountHistoryItem.getCommentBenefactorRewardLinks(): List<AccountHistoryItemLink> {
@@ -82,15 +92,20 @@ fun AccountHistoryItem.getCommentBenefactorRewardLinks(): List<AccountHistoryIte
     )
 }
 
-fun AccountHistoryItem.getCurationRewardContent(): String {
+fun AccountHistoryItem.getCurationRewardContent(dynamicGlobalProperties: DynamicGlobalProperties? = null): String {
     if (type != "curation_reward") {
         return ""
     }
 
     val curator = content.read("curator", "")
-    val reward = content.read("reward", "")
     val commentAuthor = content.read("comment_author", "")
     val commentPermlink = content.read("comment_permlink", "")
+    val vestReward = content.read("reward", "")
+    val reward = dynamicGlobalProperties?.let {
+        val spReward = Converter.toSteemPowerFromVest(vestReward.replace(" VESTS", "").toFloat(), it)
+        String.format("%.3f SP", spReward)
+    } ?: vestReward
+
     return "${reward} from @${commentAuthor}/${commentPermlink}"
 }
 
@@ -107,7 +122,7 @@ fun AccountHistoryItem.getCurationRewardLinks(): List<AccountHistoryItemLink> {
     )
 }
 
-fun AccountHistoryItem.getClaimRewardBalance(): String {
+fun AccountHistoryItem.getClaimRewardBalance(dynamicGlobalProperties: DynamicGlobalProperties? = null): String {
     if (type != "claim_reward_balance") {
         return ""
     }
@@ -116,7 +131,11 @@ fun AccountHistoryItem.getClaimRewardBalance(): String {
     val rewardSteem = content.read("reward_steem", "")
     val rewardSbd = content.read("reward_sbd", "")
     val rewardVests = content.read("reward_vests", "")
-    return "Claimed ${rewardSteem}, ${rewardSbd}, ${rewardVests}"
+    val rewardSP = dynamicGlobalProperties?.let {
+        val spReward = Converter.toSteemPowerFromVest(rewardVests.replace(" VESTS", "").toFloat(), it)
+        String.format("%.3f SP", spReward)
+    } ?: rewardVests
+    return "Claimed ${rewardSteem}, ${rewardSbd}, ${rewardSP}"
 }
 
 fun AccountHistoryItem.getCommentContent(): String {

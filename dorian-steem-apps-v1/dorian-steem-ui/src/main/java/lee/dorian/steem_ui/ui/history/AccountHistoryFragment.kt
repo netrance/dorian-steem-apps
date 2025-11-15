@@ -42,6 +42,7 @@ import lee.dorian.dorian_android_ktx.androidx.compose.foundation.lazy.Appendable
 import lee.dorian.steem_domain.model.AccountHistory
 import lee.dorian.steem_domain.model.AccountHistoryItem
 import lee.dorian.steem_domain.model.AccountHistoryItemLink
+import lee.dorian.steem_domain.model.DynamicGlobalProperties
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.ext.setActivityActionBarTitle
 import lee.dorian.steem_ui.model.State
@@ -112,18 +113,20 @@ fun AccountHistoryScreen(
     account: String,
     onMenuItemClick: (AccountHistoryItemLink) -> Unit
 ) {
-    val state by viewModel.flowState.collectAsStateWithLifecycle()
+    val accountHistoryState by viewModel.flowAccountHistoryState.collectAsStateWithLifecycle()
+    val dgpState by viewModel.flowDGPState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.flowIsRefreshing.collectAsStateWithLifecycle()
 
-    if (state is State.Empty) {
+    if (accountHistoryState is State.Empty) {
         viewModel.readAccountHistory(account)
+        viewModel.readDynamicGlobalProperties()
         return
     }
-    else if (state is State.Loading) {
+    else if ((accountHistoryState is State.Loading) or (dgpState is State.Loading)) {
         Loading()
         return
     }
-    else if (state !is State.Success<AccountHistory>) {
+    else if ((accountHistoryState !is State.Success) or (dgpState !is State.Success)) {
         ErrorOrFailure()
         return
     }
@@ -137,7 +140,7 @@ fun AccountHistoryScreen(
             viewModel.refreshAccountHistory()
         }
     ) {
-        val accountHistory = (state as State.Success<AccountHistory>).data
+        val accountHistory = (accountHistoryState as State.Success<AccountHistory>).data
         AccountHistoryItemList(accountHistory, viewModel, onMenuItemClick)
     }
 }
@@ -148,15 +151,21 @@ fun AccountHistoryItemList(
     viewModel: AccountHistoryViewModel,
     onMenuItemClick: (AccountHistoryItemLink) -> Unit
 ) {
+    val dgpState by viewModel.flowDGPState.collectAsStateWithLifecycle()
+
     AppendableLazyColumn(
         onAppend = { viewModel.appendAccountHistory() },
         modifier = Modifier.fillMaxSize()
     ) {
         items(accountHistory.historyList.size) { index ->
             AccountHistoryItem(
-                accountHistory.historyList[index],
-                if ((index % 2) == 0) Color.White else Color.LightGray,
-                onMenuItemClick
+                item = accountHistory.historyList[index],
+                dynamicGlobalProperties = when {
+                    dgpState is State.Success -> (dgpState as State.Success<DynamicGlobalProperties>).data
+                    else -> null
+                },
+                backgroundColor = if ((index % 2) == 0) Color.White else Color.LightGray,
+                onMenuItemClick = onMenuItemClick
             )
         }
     }
@@ -182,10 +191,12 @@ fun AccountHistoryItemListPreview() {
 @Composable
 fun AccountHistoryItem(
     item: AccountHistoryItem,
+    dynamicGlobalProperties: DynamicGlobalProperties? = null,
     backgroundColor: Color = Color.White,
     onMenuItemClick: (AccountHistoryItemLink) -> Unit
 ) {
     var isDropdownMenuOpen by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -205,7 +216,7 @@ fun AccountHistoryItem(
             modifier = Modifier.fillMaxWidth()
         )
         Text(
-            text = item.getUserReadableContent(),
+            text = item.getUserReadableContent(dynamicGlobalProperties),
             style = TextStyle(
                 color = Color.Black,
                 fontSize = 14.sp

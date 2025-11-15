@@ -1,5 +1,7 @@
 package lee.dorian.steem_data.model
 
+import lee.dorian.steem_domain.model.DynamicGlobalProperties
+
 data class GetDynamicGlobalPropertiesResponseDTO(
     val jsonrpc: String?,
     val result: GetDynamicGlobalPropertiesDTO?,
@@ -46,4 +48,17 @@ data class GetDynamicGlobalPropertiesDTO(
     val sps_fund_percent: Int?,
     val sps_interval_ledger: String?,
     val downvote_pool_percent: Int?
-)
+) {
+
+    fun toDynamicGlobalProperties(): DynamicGlobalProperties {
+        return DynamicGlobalProperties(
+            total_vesting_fund_steem ?: "",
+            total_vesting_shares ?: "",
+            total_reward_fund_steem ?: "",
+            total_reward_shares2 ?: "",
+            pending_rewarded_vesting_shares ?: "",
+            pending_rewarded_vesting_steem ?: ""
+        )
+    }
+
+}

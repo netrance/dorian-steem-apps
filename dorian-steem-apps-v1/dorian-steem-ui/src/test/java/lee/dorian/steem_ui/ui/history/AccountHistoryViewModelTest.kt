@@ -4,6 +4,7 @@ import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.AccountHistory
 import lee.dorian.steem_domain.usecase.ReadAccountHistoryUseCase
+import lee.dorian.steem_domain.usecase.ReadDynamicGlobalPropertiesUseCase
 import lee.dorian.steem_test.CommonPartOfViewModelTest
 import lee.dorian.steem_test.TestData
 import lee.dorian.steem_ui.model.State
@@ -14,14 +15,25 @@ import org.junit.Assert.*
 
 class AccountHistoryViewModelTest : CommonPartOfViewModelTest() {
 
-    private val accountHistoryViewModel = AccountHistoryViewModel(ReadAccountHistoryUseCase(SteemRepositoryImpl(), dispatcher))
+    private val steemRepository = SteemRepositoryImpl()
+    private val accountHistoryViewModel = AccountHistoryViewModel(
+        steemRepository,
+        ReadAccountHistoryUseCase(
+            steemRepository,
+            dispatcher
+        ),
+        ReadDynamicGlobalPropertiesUseCase(
+            steemRepository,
+            dispatcher
+        )
+    )
 
     @Test
     fun readAccountHistory() = runTest {
         accountHistoryViewModel.readAccountHistory(TestData.singleAccount2)
         Thread.sleep(WAITING_TIME_MSEC)
 
-        val state: State<AccountHistory> = accountHistoryViewModel.flowState.value
+        val state: State<AccountHistory> = accountHistoryViewModel.flowAccountHistoryState.value
         if (state !is State.Success<AccountHistory>) {
             Assert.fail()
         }
@@ -38,7 +50,7 @@ class AccountHistoryViewModelTest : CommonPartOfViewModelTest() {
         accountHistoryViewModel.appendAccountHistory()
         Thread.sleep(WAITING_TIME_MSEC)
 
-        val state: State<AccountHistory> = accountHistoryViewModel.flowState.value
+        val state: State<AccountHistory> = accountHistoryViewModel.flowAccountHistoryState.value
         if (state !is State.Success<AccountHistory>) {
             Assert.fail()
         }

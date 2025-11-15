@@ -1,5 +1,6 @@
 package lee.dorian.steem_domain.util
 
+import lee.dorian.steem_domain.model.DynamicGlobalProperties
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -12,6 +13,15 @@ object Converter {
         totalVestingFundSteem: Float
     ): Float {
         return (totalVestingFundSteem * vestingAmount) / totalVestingShare
+    }
+
+    fun toSteemPowerFromVest(
+        vestingAmount: Float,
+        dynamicGlobalProperties: DynamicGlobalProperties
+    ): Float {
+        val totalVestingFundSteem = dynamicGlobalProperties.total_vesting_fund_steem.replace(" STEEM", "").toFloat()
+        val totalVestingShares = dynamicGlobalProperties.total_vesting_shares.replace(" VESTS", "").toFloat()
+        return (totalVestingFundSteem * vestingAmount) / totalVestingShares
     }
 
     fun toLocalTimeFromUTCTime(utcTime: String, timeFormat: String): String {
