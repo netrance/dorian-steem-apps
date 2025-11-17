@@ -1,11 +1,9 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     id 'kotlin-kapt'
-    id 'androidx.navigation.safeargs.kotlin'
+    alias(libs.plugins.navigation.safeargs)
 }
-
-apply from: '../build.dependencies.gradle'
 
 android {
     compileSdk 34
@@ -59,55 +57,54 @@ dependencies {
     implementation project(':dorian-steem-data')
     implementation project(":dorian-steem-test")
 
-    // ext block is located in build.dependencies.gradle file.
-    // androidx map is located in ext block.
-    implementation androidx.core
-    implementation androidx.appcompat
-    implementation androidx.constraintlayout
-    implementation androidx.lifecycle_livedata_ktx
-    implementation androidx.lifecycle_viewmodel_ktx
-    implementation androidx.navigation_fragment_ktx
-    implementation androidx.navigation_ui_ktx
-    implementation androidx.swiperefreshlayout
+    // androidx
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.lifecycle.livedata.ktx
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    implementation libs.androidx.navigation.fragment.ktx
+    implementation libs.androidx.navigation.ui.ktx
+    implementation libs.androidx.swiperefreshlayout
 
     // jetpack compose
-    def composeBom = platform(androidx_compose.bom)
+    def composeBom = platform(libs.androidx.compose.bom)
     implementation composeBom
-    implementation androidx_compose.activity_compose
-    implementation androidx_compose.lifecycle_viewmodel_compose
-    implementation androidx_compose.material3
-    implementation androidx_compose.runtime_livedata
-    implementation androidx_compose.ui
-    implementation androidx_compose.ui_tooling
-    implementation androidx_compose.ui_tooling_preview
+    implementation libs.androidx.activity.compose
+    implementation libs.androidx.lifecycle.viewmodel.compose
+    implementation libs.androidx.compose.material3
+    implementation libs.androidx.compose.runtime.livedata
+    implementation libs.androidx.compose.ui
+    implementation libs.androidx.compose.ui.tooling
+    implementation libs.androidx.compose.ui.tooling.preview
 
     // glide
-    implementation glide.glide
-    annotationProcessor glide.compiler
+    implementation libs.glide
+    kapt libs.glide.compiler
 
     // google
-    implementation google.flexbox
-    implementation google.material
+    implementation libs.google.flexbox
+    implementation libs.google.material
 
     // rx
-    implementation rxjava.rxjava
-    implementation rxjava.rxandroid
+    implementation libs.rxjava
+    implementation libs.rxandroid
 
     // coroutines
-    implementation coroutines.coroutines
+    implementation libs.coroutines
 
     // other libraries
-    implementation others.coil_compose
+    implementation libs.coil.compose
 
     // for unit test
     testImplementation project(':dorian-steem-data')
-    testImplementation others.junit
-    testImplementation androidx.core_testing
-    testImplementation coroutines.coroutines_test
+    testImplementation libs.junit
+    testImplementation libs.androidx.core.testing
+    testImplementation libs.coroutines.test
 
     // for UI test
-    androidTestImplementation androidx.junit
-    androidTestImplementation androidx.espresso_core
+    androidTestImplementation libs.androidx.test.junit
+    androidTestImplementation libs.androidx.espresso.core
     //androidTestImplementation androidx_compose.ui_test_junit4
 
 }

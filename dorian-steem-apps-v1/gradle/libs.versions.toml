@@ -1,0 +1,104 @@
+[versions]
+# Plugins
+androidGradlePlugin = "8.7.2"
+kotlin = "1.7.10"
+kotlinJvm = "1.9.10"
+navigationSafeArgs = "2.5.3"
+
+# Dependencies
+androidxAppcompat = "1.4.2"
+androidxConstraintlayout = "2.1.4"
+androidxCore = "1.7.0"
+androidxLifecycle = "2.8.7"
+androidxNavigation = "2.8.4"
+androidxSwiperefreshlayout = "1.1.0"
+androidxCoreTesting = "2.2.0"
+androidxEspresso = "3.5.1"
+androidxJunit = "1.1.5"
+androidxComposeBom = "2024.10.01"
+androidxActivityCompose = "1.9.2"
+glide = "4.11.0"
+googleFlexbox = "3.0.0"
+googleMaterial = "1.9.0"
+retrofit = "2.9.0"
+retrofitAdapterJava = "2.3.0"
+rxjava = "2.2.20"
+rxandroid = "2.0.1"
+coroutines = "1.6.4"
+coilCompose = "2.7.0"
+commonmark = "0.20.0"
+jsoup = "1.16.1"
+junit = "4.13.2"
+unbescape = "1.1.6.RELEASE"
+
+[libraries]
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidxAppcompat" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidxConstraintlayout" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidxCore" }
+androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "androidxLifecycle" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
+androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "androidxNavigation" }
+androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "androidxNavigation" }
+androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "androidxSwiperefreshlayout" }
+
+# for test
+androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "androidxCoreTesting" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidxEspresso" }
+androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidxJunit" }
+
+# androidx_compose
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidxComposeBom" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata" }
+androidx-compose-ui = { module = "androidx.compose.ui:ui" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+
+# glide
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
+
+# google
+google-flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "googleFlexbox" }
+google-material = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
+
+# retrofit
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-adapter-java = { module = "com.squareup.retrofit2:adapter-rxjava2", version.ref = "retrofitAdapterJava" }
+retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+
+# rxjava
+rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
+rxandroid = { module = "io.reactivex.rxjava2:rxandroid", version.ref = "rxandroid" }
+
+# coroutines
+coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+
+# others
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
+commonmark-ext-gfm-tables = { module = "org.commonmark:commonmark-ext-gfm-tables", version.ref = "commonmark" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+junit = { module = "junit:junit", version.ref = "junit" }
+unbescape = { module = "org.unbescape:unbescape", version.ref = "unbescape" }
+
+[bundles]
+androidx = ["androidx-appcompat", "androidx-constraintlayout", "androidx-core-ktx", "androidx-lifecycle-livedata-ktx", "androidx-lifecycle-viewmodel-ktx", "androidx-navigation-fragment-ktx", "androidx-navigation-ui-ktx", "androidx-swiperefreshlayout"]
+androidx-compose = ["androidx-activity-compose", "androidx-lifecycle-viewmodel-compose", "androidx-compose-material3", "androidx-compose-runtime-livedata", "androidx-compose-ui", "androidx-compose-ui-tooling", "androidx-compose-ui-tooling-preview"]
+glide = ["glide", "glide-compiler"]
+retrofit = ["retrofit", "retrofit-adapter-java", "retrofit-converter-gson"]
+rxjava = ["rxjava", "rxandroid"]
+coroutines = ["coroutines", "coroutines-test"]
+commonmark = ["commonmark", "commonmark-ext-gfm-tables"]
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+java-library = { id = "java-library" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinJvm" }
+navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigationSafeArgs" }

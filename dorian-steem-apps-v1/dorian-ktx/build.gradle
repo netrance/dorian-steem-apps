@@ -1,9 +1,7 @@
 plugins {
-    id 'java-library'
-    id 'org.jetbrains.kotlin.jvm'
+    alias(libs.plugins.java.library)
+    alias(libs.plugins.kotlin.jvm)
 }
-
-apply from: '../build.dependencies.gradle'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -11,12 +9,12 @@ java {
 }
 
 dependencies {
-    implementation others.commonmark
-    implementation others.commonmark_ext_gfm_tables
-    implementation others.jsoup
-    implementation retrofit.converter_gson
-    implementation others.unbescape
+    implementation libs.commonmark
+    implementation libs.commonmark.ext.gfm.tables
+    implementation libs.jsoup
+    implementation libs.retrofit.converter.gson
+    implementation libs.unbescape
 
     // For unit test
-    testImplementation others.junit
+    testImplementation libs.junit
 }

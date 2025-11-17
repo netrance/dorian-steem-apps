@@ -1,11 +1,9 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
     id 'kotlin-kapt'
-    id 'androidx.navigation.safeargs.kotlin'
+    alias(libs.plugins.navigation.safeargs)
 }
-
-apply from: '../build.dependencies.gradle'
 
 android {
     namespace 'lee.dorian.dorian_android_ktx'
@@ -45,37 +43,37 @@ dependencies {
     // To refer to other modules
     implementation project(':dorian-ktx')
 
-    implementation androidx.core
-    implementation androidx.appcompat
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
 
     // glide
-    implementation glide.glide
-    annotationProcessor glide.compiler
+    implementation libs.glide
+    kapt libs.glide.compiler
 
     // google
-    implementation google.material
+    implementation libs.google.material
 
     // jetpack compose
-    def composeBom = platform(androidx_compose.bom)
+    def composeBom = platform(libs.androidx.compose.bom)
     implementation composeBom
-    implementation androidx_compose.activity_compose
-    implementation androidx_compose.lifecycle_viewmodel_compose
-    implementation androidx_compose.material3
-    implementation androidx_compose.runtime_livedata
-    implementation androidx_compose.ui
-    implementation androidx_compose.ui_tooling
-    implementation androidx_compose.ui_tooling_preview
+    implementation libs.androidx.activity.compose
+    implementation libs.androidx.lifecycle.viewmodel.compose
+    implementation libs.androidx.compose.material3
+    implementation libs.androidx.compose.runtime.livedata
+    implementation libs.androidx.compose.ui
+    implementation libs.androidx.compose.ui.tooling
+    implementation libs.androidx.compose.ui.tooling.preview
 
     // other libraries
-    implementation others.commonmark
-    implementation others.commonmark_ext_gfm_tables
-    implementation others.jsoup
-    implementation others.unbescape
+    implementation libs.commonmark
+    implementation libs.commonmark.ext.gfm.tables
+    implementation libs.jsoup
+    implementation libs.unbescape
 
     // for unit test
-    testImplementation others.junit
+    testImplementation libs.junit
 
     // for UI test
-    androidTestImplementation androidx.junit
-    androidTestImplementation androidx.espresso_core
+    androidTestImplementation libs.androidx.test.junit
+    androidTestImplementation libs.androidx.espresso.core
 }

@@ -1,9 +1,7 @@
 plugins {
-    id 'java-library'
-    id 'org.jetbrains.kotlin.jvm'
+    alias(libs.plugins.java.library)
+    alias(libs.plugins.kotlin.jvm)
 }
-
-apply from: '../build.dependencies.gradle'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -12,9 +10,9 @@ java {
 
 dependencies {
     // coroutines
-    implementation coroutines.coroutines
-    implementation coroutines.coroutines_test
+    implementation libs.coroutines
+    implementation libs.coroutines.test
 
     // For unit test
-    implementation others.junit
+    implementation libs.junit
 }

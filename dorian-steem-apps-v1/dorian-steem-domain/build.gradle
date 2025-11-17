@@ -1,9 +1,7 @@
 plugins {
-    id 'java-library'
-    id 'org.jetbrains.kotlin.jvm'
+    alias(libs.plugins.java.library)
+    alias(libs.plugins.kotlin.jvm)
 }
-
-apply from: '../build.dependencies.gradle'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -16,15 +14,15 @@ dependencies {
     implementation project(":dorian-steem-test")
 
     // rx
-    implementation rxjava.rxjava
+    implementation libs.rxjava
 
     // coroutines
-    implementation coroutines.coroutines
+    implementation libs.coroutines
 
     // others
-    implementation retrofit.converter_gson
+    implementation libs.retrofit.converter.gson
 
     // For unit test
-    testImplementation others.junit
+    testImplementation libs.junit
 
 }
