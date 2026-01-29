@@ -7,10 +7,11 @@ import kotlinx.coroutines.withContext
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.SteemitWallet
 import lee.dorian.steem_domain.repository.SteemRepository
+import javax.inject.Inject
 
-class ReadSteemitWalletUseCase(
+class ReadSteemitWalletUseCase @Inject constructor(
     private val steemRepository: SteemRepository,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher
 ) {
 
     operator suspend fun invoke(

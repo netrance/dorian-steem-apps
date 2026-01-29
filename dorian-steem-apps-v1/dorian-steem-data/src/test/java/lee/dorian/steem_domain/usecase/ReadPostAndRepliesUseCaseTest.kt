@@ -1,17 +1,23 @@
 package lee.dorian.steem_domain.usecase
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ApiResult
+import lee.dorian.steem_test.CommonPartOfViewModelTest
 import org.junit.Assert
 import org.junit.Test
 
-class ReadPostAndRepliesUseCaseTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class ReadPostAndRepliesUseCaseTest : CommonPartOfViewModelTest() {
 
     val author = "dorian-lee"
     val authorInvalid = "dorian-invalid"
     val permlink = "1000"
-    val readPostAndRepliesUseCase = ReadPostAndRepliesUseCase(SteemRepositoryImpl())
+    val readPostAndRepliesUseCase = ReadPostAndRepliesUseCase(
+        SteemRepositoryImpl(dispatcher),
+        dispatcher
+    )
 
     // Test case 1: Read a post of @dorian-lee account.
     @Test

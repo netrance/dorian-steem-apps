@@ -12,7 +12,7 @@ import org.junit.Assert.*
 // To test WalletViewModel class
 class WalletViewModelTest : CommonPartOfViewModelTest() {
 
-    var walletViewModel = WalletViewModel(ReadSteemitWalletUseCase(SteemRepositoryImpl(), dispatcher))
+    var walletViewModel = WalletViewModel(ReadSteemitWalletUseCase(SteemRepositoryImpl(dispatcher), dispatcher))
 
     // Test case 1: Trying to get the wallet of a valid account.
     @Test

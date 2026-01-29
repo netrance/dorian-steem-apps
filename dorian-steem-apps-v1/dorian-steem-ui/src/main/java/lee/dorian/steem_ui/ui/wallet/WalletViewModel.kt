@@ -1,6 +1,8 @@
 package lee.dorian.steem_ui.ui.wallet
 
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -10,9 +12,11 @@ import lee.dorian.steem_domain.model.SteemitWallet
 import lee.dorian.steem_domain.usecase.ReadSteemitWalletUseCase
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseViewModel
+import javax.inject.Inject
 
-class WalletViewModel(
-    val readSteemitWalletUseCase: ReadSteemitWalletUseCase = ReadSteemitWalletUseCase(SteemRepositoryImpl())
+@HiltViewModel
+class WalletViewModel @Inject constructor(
+    val readSteemitWalletUseCase: ReadSteemitWalletUseCase
 ) : BaseViewModel() {
 
     val _flowWalletState = MutableStateFlow<State<SteemitWallet>>(State.Empty)

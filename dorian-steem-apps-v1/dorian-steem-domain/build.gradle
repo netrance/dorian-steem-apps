@@ -13,6 +13,9 @@ dependencies {
     implementation project(":dorian-ktx")
     implementation project(":dorian-steem-test")
 
+    // JSR-330 for @Inject annotation
+    implementation libs.javax.inject
+
     // rx
     implementation libs.rxjava
 

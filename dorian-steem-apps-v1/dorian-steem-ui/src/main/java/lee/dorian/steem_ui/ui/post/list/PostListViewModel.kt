@@ -1,6 +1,8 @@
 package lee.dorian.steem_ui.ui.post.list
 
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -13,9 +15,11 @@ import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_domain.usecase.ReadPostsUseCase
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseViewModel
+import javax.inject.Inject
 
-class PostListViewModel(
-    private val readPostsUseCase: ReadPostsUseCase = ReadPostsUseCase(SteemRepositoryImpl())
+@HiltViewModel
+class PostListViewModel @Inject constructor(
+    private val readPostsUseCase: ReadPostsUseCase
 ) : BaseViewModel() {
 
     val limit = GetAccountPostParamsDTO.InnerParams.DEFAULT_LIMIT

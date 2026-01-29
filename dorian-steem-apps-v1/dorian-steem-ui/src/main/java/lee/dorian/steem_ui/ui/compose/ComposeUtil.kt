@@ -63,11 +63,3 @@ fun ErrorOrFailure(@DrawableRes id: Int = R.drawable.img_loading_error) {
 fun PreviewErrorOrFailure() {
     ErrorOrFailure()
 }
-
-@Composable
-fun GetCurrentFragment(id: Int): Fragment? {
-    val context = LocalContext.current
-    val activity = context as? FragmentActivity
-    val navHostFragment = activity?.supportFragmentManager?.findFragmentById(id)
-    return navHostFragment?.childFragmentManager?.fragments?.lastOrNull()
-}

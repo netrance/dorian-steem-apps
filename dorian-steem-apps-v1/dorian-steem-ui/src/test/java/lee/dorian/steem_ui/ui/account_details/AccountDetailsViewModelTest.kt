@@ -12,7 +12,7 @@ import org.junit.Test
 
 class AccountDetailsViewModelTest : CommonPartOfViewModelTest() {
 
-    private val postViewModel = AccountDetailsViewModel(ReadAccountDetailsUseCase(SteemRepositoryImpl(), dispatcher))
+    private val postViewModel = AccountDetailsViewModel(ReadAccountDetailsUseCase(SteemRepositoryImpl(dispatcher), dispatcher))
 
     @Test
     fun readAccountDetails() = runTest {

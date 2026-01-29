@@ -10,9 +10,12 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.navArgs
+import dagger.hilt.android.AndroidEntryPoint
 import lee.dorian.steem_domain.model.PostListInfo
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
@@ -23,13 +26,10 @@ import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
 import lee.dorian.steem_ui.ui.post.PostList
 
-class PostListFragment : BaseFragment<FragmentBlogBinding, PostListViewModel>(R.layout.fragment_blog) {
+@AndroidEntryPoint
+class PostListFragment : Fragment() {
 
     private val args: PostListFragmentArgs by navArgs()
-
-    override val viewModel by lazy {
-        ViewModelProvider(this).get(PostListViewModel::class.java)
-    }
 
     val activityViewModel by lazy {
         ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
@@ -42,9 +42,8 @@ class PostListFragment : BaseFragment<FragmentBlogBinding, PostListViewModel>(R.
         return ComposeView(requireContext()).apply {
             setContent {
                 PostListScreen(
-                    viewModel,
-                    args.author,
-                    args.sort
+                    account = args.author,
+                    sort = args.sort
                 )
             }
         }
@@ -59,9 +58,9 @@ class PostListFragment : BaseFragment<FragmentBlogBinding, PostListViewModel>(R.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostListScreen(
-    viewModel: PostListViewModel,
     account: String,
-    sort: String
+    sort: String,
+    viewModel: PostListViewModel = hiltViewModel()
 ) {
     val state by viewModel.flowState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.flowIsRefreshing.collectAsStateWithLifecycle()

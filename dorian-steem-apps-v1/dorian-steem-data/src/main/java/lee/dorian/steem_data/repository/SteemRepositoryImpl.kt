@@ -1,5 +1,6 @@
 package lee.dorian.steem_data.repository
 
+import javax.inject.Inject
 import kotlinx.coroutines.*
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
@@ -12,8 +13,8 @@ import lee.dorian.steem_data.retrofit.SteemClient
 import lee.dorian.steem_domain.model.*
 import lee.dorian.steem_domain.repository.SteemRepository
 
-class SteemRepositoryImpl(
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+class SteemRepositoryImpl @Inject constructor(
+    private val dispatcher: CoroutineDispatcher
 ): SteemRepository {
 
     override suspend fun readDynamicGlobalProperties(): ApiResult<DynamicGlobalProperties> = withContext(dispatcher) {

@@ -1,21 +1,25 @@
 package lee.dorian.steem_domain.usecase
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
-import lee.dorian.steem_data.model.post.GetAccountPostsResponseDTO
-import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.PostItem
+import lee.dorian.steem_test.CommonPartOfViewModelTest
 import lee.dorian.steem_test.TestData
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class ReadPostsUseCaseTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class ReadPostsUseCaseTest : CommonPartOfViewModelTest() {
 
-    val readPostsUseCase = ReadPostsUseCase(SteemRepositoryImpl())
+    val readPostsUseCase = ReadPostsUseCase(
+        SteemRepositoryImpl(dispatcher),
+        dispatcher
+    )
 
     private fun testPostItemList(postItemList: List<PostItem>) {
         for (postItem in postItemList) {

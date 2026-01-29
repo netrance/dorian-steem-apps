@@ -1,6 +1,8 @@
 package lee.dorian.steem_ui.ui.tags
 
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
@@ -11,17 +13,17 @@ import lee.dorian.steem_domain.usecase.ReadRankedPostsUseCase
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseViewModel
+import javax.inject.Inject
 
-class TagsViewModel : BaseViewModel() {
+@HiltViewModel
+class TagsViewModel @Inject constructor(
+    private val readRankedPostsUseCase: ReadRankedPostsUseCase
+) : BaseViewModel() {
 
     val limit = GetRankedPostParamsDTO.InnerParams.DEFAULT_LIMIT
 
     private val _flowTagsState: MutableStateFlow<State<List<PostItem>>> = MutableStateFlow(State.Loading)
     val flowTagsState = _flowTagsState.asStateFlow()
-
-//    var tag = ""
-//    var sort = GetRankedPostParamsDTO.InnerParams.SORT_TRENDING
-    val readRankedPostsUseCase = ReadRankedPostsUseCase(SteemRepositoryImpl())
 
     fun isContentEmpty(): Boolean {
         return if (_flowTagsState.value !is State.Success) {

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.java.library)
     alias(libs.plugins.kotlin.jvm)
+    id("org.jetbrains.kotlin.kapt")
 }
 
 java {
@@ -24,6 +25,9 @@ dependencies {
 
     // coroutines
     implementation libs.coroutines
+
+    // others
+    implementation(libs.javax.inject)
 
     // For unit test
     testImplementation libs.junit

@@ -14,7 +14,7 @@ import org.junit.Assert.*
 
 class PostListViewModelTest : CommonPartOfViewModelTest() {
 
-    private val postListViewModel = PostListViewModel(ReadPostsUseCase(SteemRepositoryImpl(), dispatcher))
+    private val postListViewModel = PostListViewModel(ReadPostsUseCase(SteemRepositoryImpl(dispatcher), dispatcher))
 
     @Test
     fun readPosts() = runTest {

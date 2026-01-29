@@ -1,17 +1,23 @@
 package lee.dorian.steem_domain.usecase
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.PostItem
+import lee.dorian.steem_test.CommonPartOfViewModelTest
 import org.junit.Assert
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class ReadRankedPostsUseCaseTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class ReadRankedPostsUseCaseTest : CommonPartOfViewModelTest() {
 
-    val readRankedPostsUseCase = ReadRankedPostsUseCase(SteemRepositoryImpl())
+    val readRankedPostsUseCase = ReadRankedPostsUseCase(
+        SteemRepositoryImpl(dispatcher),
+        dispatcher
+    )
 
     private fun testPostItemList(postItemList: List<PostItem>) {
         for (postItem in postItemList) {

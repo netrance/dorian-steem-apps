@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,17 +20,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,35 +46,65 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.compose.AsyncImage
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.SteemitProfile
-import lee.dorian.steem_ui.MainViewModel
-import lee.dorian.steem_ui.R
+import lee.dorian.steem_domain.usecase.ReadSteemitProfileUseCase
 import lee.dorian.steem_ui.ext.setActivityActionBarTitle
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.AccountInputForm
-import lee.dorian.steem_ui.ui.compose.CustomTextField
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
-import lee.dorian.steem_ui.ui.compose.GetCurrentFragment
 import lee.dorian.steem_ui.ui.compose.Loading
 
+@AndroidEntryPoint
 class ProfileFragment : Fragment() {
 
     private val args: ProfileFragmentArgs by navArgs()
 
-    val viewModel by lazy {
-        ViewModelProvider(this).get(ProfileViewModel::class.java)
-    }
+    val viewModel by viewModels<ProfileViewModel>()
 
-    val activityViewModel by lazy {
-        ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
-    }
+    val profileMenuItems = listOf(
+        ProfileMenuItem("Details", Color.Black, 18, Color.White) {
+            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountDetails(viewModel.getCurrentAccount())
+            findNavController().navigate(action)
+            setActivityActionBarTitle("Details of @${viewModel.getCurrentAccount()}")
+        },
+        ProfileMenuItem("Blog", Color.White, 18, Color.Black) {
+            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "blog")
+            findNavController().navigate(action)
+            setActivityActionBarTitle("Blog of @${viewModel.getCurrentAccount()}")
+        },
+        ProfileMenuItem("Posts", Color.Black, 18, Color.White) {
+            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "posts")
+            findNavController().navigate(action)
+            setActivityActionBarTitle("Posts of @${viewModel.getCurrentAccount()}")
+        },
+        ProfileMenuItem("Comments", Color.White, 18, Color.Black) {
+            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "comments")
+            findNavController().navigate(action)
+            setActivityActionBarTitle("Comments of @${viewModel.getCurrentAccount()}")
+        },
+        ProfileMenuItem("Replies", Color.Black, 18, Color.White) {
+            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "replies")
+            findNavController().navigate(action)
+            setActivityActionBarTitle("Replies of @${viewModel.getCurrentAccount()}")
+        },
+        ProfileMenuItem("History", Color.White, 18, Color.Black) {
+            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountHistory(viewModel.getCurrentAccount())
+            findNavController().navigate(action)
+            setActivityActionBarTitle("History of @${viewModel.getCurrentAccount()}")
+        }
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -90,7 +113,7 @@ class ProfileFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                ProfileScreen(viewModel)
+                ProfileScreen(profileMenuItems, viewModel)
             }
 
             if (args.account.isNotEmpty() and (viewModel.profileState.value is State.Empty)) {
@@ -117,7 +140,10 @@ class ProfileFragment : Fragment() {
 }
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel) {
+fun ProfileScreen(
+    profileMenuItems: List<ProfileMenuItem>,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
     val state by viewModel.profileState.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -142,7 +168,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             else -> {
                 val profile = (state as State.Success<SteemitProfile>).data
                 ProfileContent(profile)
-                ProfileMenu(profile)
+                ProfileMenu(profile, profileMenuItems)
             }
         }
     }
@@ -151,8 +177,23 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
 @Composable
 @Preview
 fun ProfileScreenPreview() {
-    val viewModel = ProfileViewModel(State.Success(sampleSteemitProfile))
-    ProfileScreen(viewModel)
+    val viewModel = ProfileViewModel(
+        ReadSteemitProfileUseCase(
+            SteemRepositoryImpl(dispatcher = Dispatchers.IO),
+            dispatcher = Dispatchers.IO
+        )
+    )
+    viewModel.readSteemitProfile(sampleSteemitProfile)
+
+    val profileMenuItems = listOf(
+        ProfileMenuItem("Details", Color.Black, 18, Color.White) {},
+        ProfileMenuItem("Blog", Color.White, 18, Color.Black) {},
+        ProfileMenuItem("Posts", Color.Black, 18, Color.White) {},
+        ProfileMenuItem("Comments", Color.White, 18, Color.Black) {},
+        ProfileMenuItem("Replies", Color.Black, 18, Color.White) {},
+        ProfileMenuItem("History", Color.White, 18, Color.Black) {}
+    )
+    ProfileScreen(profileMenuItems, viewModel)
 }
 
 private val profileContentTextStyle = TextStyle(
@@ -306,42 +347,20 @@ fun ProfileContentPreview() {
 }
 
 @Composable
-fun ProfileMenu(profile: SteemitProfile) {
-    val fragment = GetCurrentFragment(R.id.nav_host_fragment_activity_main)
+fun ProfileMenu(
+    profile: SteemitProfile,
+    profileMenuItems: List<ProfileMenuItem>
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         ProfileMenuRow(
-            ProfileMenuItem("Details", Color.Black, 18, Color.White) {
-                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountDetails(profile.account)
-                fragment?.findNavController()?.navigate(action)
-                fragment?.setActivityActionBarTitle("Details of @${profile.account}")
-            },
-            ProfileMenuItem("Blog", Color.White, 18, Color.Black) {
-                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(profile.account, "blog")
-                fragment?.findNavController()?.navigate(action)
-                fragment?.setActivityActionBarTitle("Blog of @${profile.account}")
-            },
-            ProfileMenuItem("Posts", Color.Black, 18, Color.White) {
-                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(profile.account, "posts")
-                fragment?.findNavController()?.navigate(action)
-                fragment?.setActivityActionBarTitle("Posts of @${profile.account}")
-            }
+            profileMenuItems[0],
+            profileMenuItems[1],
+            profileMenuItems[2]
         )
         ProfileMenuRow(
-            ProfileMenuItem("Comments", Color.White, 18, Color.Black) {
-                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(profile.account, "comments")
-                fragment?.findNavController()?.navigate(action)
-                fragment?.setActivityActionBarTitle("Comments of @${profile.account}")
-            },
-            ProfileMenuItem("Replies", Color.Black, 18, Color.White) {
-                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(profile.account, "replies")
-                fragment?.findNavController()?.navigate(action)
-                fragment?.setActivityActionBarTitle("Replies of @${profile.account}")
-            },
-            ProfileMenuItem("History", Color.White, 18, Color.Black) {
-                val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountHistory(profile.account)
-                fragment?.findNavController()?.navigate(action)
-                fragment?.setActivityActionBarTitle("History of @${profile.account}")
-            }
+            profileMenuItems[3],
+            profileMenuItems[4],
+            profileMenuItems[5]
         )
     }
 }
@@ -349,7 +368,15 @@ fun ProfileMenu(profile: SteemitProfile) {
 @Composable
 @Preview
 fun ProfileMenuPreview() {
-    ProfileMenu(sampleSteemitProfile)
+    val profileMenuItems = listOf(
+        ProfileMenuItem("Details", Color.Black, 18, Color.White) {},
+        ProfileMenuItem("Blog", Color.White, 18, Color.Black) {},
+        ProfileMenuItem("Posts", Color.Black, 18, Color.White) {},
+        ProfileMenuItem("Comments", Color.White, 18, Color.Black) {},
+        ProfileMenuItem("Replies", Color.Black, 18, Color.White) {},
+        ProfileMenuItem("History", Color.White, 18, Color.Black) {}
+    )
+    ProfileMenu(sampleSteemitProfile, profileMenuItems)
 }
 
 @Composable

@@ -15,9 +15,8 @@ import org.junit.Assert.*
 
 class AccountHistoryViewModelTest : CommonPartOfViewModelTest() {
 
-    private val steemRepository = SteemRepositoryImpl()
+    private val steemRepository = SteemRepositoryImpl(dispatcher)
     private val accountHistoryViewModel = AccountHistoryViewModel(
-        steemRepository,
         ReadAccountHistoryUseCase(
             steemRepository,
             dispatcher

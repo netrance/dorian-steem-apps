@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,8 +23,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import lee.dorian.dorian_android_ktx.androidx.compose.ui.borderBottom
 import lee.dorian.steem_domain.model.AccountDetails
@@ -30,11 +34,10 @@ import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
 
+@AndroidEntryPoint
 class AccountDetailsFragment : Fragment() {
 
     private val args: AccountDetailsFragmentArgs by navArgs()
-
-    private val viewModel by viewModels<AccountDetailsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,11 +49,7 @@ class AccountDetailsFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                AccountDetailsContent(viewModel)
-            }
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.readAccountDetails(args.account)
+                AccountDetailsContent(args.account)
             }
         }
     }
@@ -86,9 +85,17 @@ fun PreviewAccountDetailsRow() {
 }
 
 @Composable
-fun AccountDetailsContent(viewModel: AccountDetailsViewModel) {
+fun AccountDetailsContent(
+    account: String,
+    viewModel: AccountDetailsViewModel = hiltViewModel()
+) {
     val accountDetailsState = viewModel.accontDetailsState.collectAsState()
     AccountDetailsContent(accountDetailsState.value)
+
+
+    LaunchedEffect(Unit) {
+        viewModel.readAccountDetails(account)
+    }
 }
 
 @Composable

@@ -115,12 +115,12 @@ data class SteemitAccountDTO(
     }
 
     fun toSteemitAccountDetails(getDynamicGlobalPropertiesDTO: GetDynamicGlobalPropertiesDTO?): AccountDetails {
-        val floatVestingShare = vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
-        val floatDelegatedVestingShare = delegated_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
-        val floatReceivedVestingShare = received_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
-        val floatRewardVestingBalance = reward_vesting_balance?.removeSubstring(" VESTS")?.toFloat() ?: 0f
-        val floatTotalVestingShare = getDynamicGlobalPropertiesDTO?.total_vesting_shares?.removeSubstring(" VESTS")?.toFloat() ?: 0f
-        val floatTotalVestingFundSteem = getDynamicGlobalPropertiesDTO?.total_vesting_fund_steem?.removeSubstring(" STEEM")?.toFloat() ?: 0f
+        val floatVestingShare = vesting_shares?.removeSubstring(" VESTS")?.toFloatOrNull() ?: 0f
+        val floatDelegatedVestingShare = delegated_vesting_shares?.removeSubstring(" VESTS")?.toFloatOrNull() ?: 0f
+        val floatReceivedVestingShare = received_vesting_shares?.removeSubstring(" VESTS")?.toFloatOrNull() ?: 0f
+        val floatRewardVestingBalance = reward_vesting_balance?.removeSubstring(" VESTS")?.toFloatOrNull() ?: 0f
+        val floatTotalVestingShare = getDynamicGlobalPropertiesDTO?.total_vesting_shares?.removeSubstring(" VESTS")?.toFloatOrNull() ?: 0f
+        val floatTotalVestingFundSteem = getDynamicGlobalPropertiesDTO?.total_vesting_fund_steem?.removeSubstring(" STEEM")?.toFloatOrNull() ?: 0f
 
         val steemPower = Converter.toSteemPowerFromVest(
             floatVestingShare,
@@ -174,8 +174,8 @@ data class SteemitAccountDTO(
             can_vote ?: true,
             Converter.toLocalTimeFromUTCTime(last_vote_time ?: "", "yyyy-MM-dd HH:mm:ss") ?: "",
             (voting_power?.toFloat() ?: 0f) / 100.0f,
-            DecimalFormat("#.##").format(upvoteManaRate).toFloat(),
-            DecimalFormat("#.##").format(downvoteManaRate).toFloat(),
+            DecimalFormat("#.##").format(upvoteManaRate).toFloatOrNull() ?: 0f,
+            DecimalFormat("#.##").format(downvoteManaRate).toFloatOrNull() ?: 0f,
             witness_votes ?: listOf(),
             proxy ?: "",
             reputation?.convertToUserReadableReputation() ?: "",

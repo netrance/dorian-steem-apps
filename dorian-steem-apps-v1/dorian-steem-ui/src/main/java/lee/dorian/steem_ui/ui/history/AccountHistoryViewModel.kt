@@ -1,22 +1,26 @@
 package lee.dorian.steem_ui.ui.history
 
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import lee.dorian.steem_data.repository.SteemRepositoryImpl
-import lee.dorian.steem_domain.model.*
+import lee.dorian.steem_domain.model.ApiResult
+import lee.dorian.steem_domain.model.AccountHistory
+import lee.dorian.steem_domain.model.AccountHistoryItem
+import lee.dorian.steem_domain.model.DynamicGlobalProperties
 import lee.dorian.steem_domain.usecase.ReadAccountHistoryUseCase
 import lee.dorian.steem_domain.usecase.ReadDynamicGlobalPropertiesUseCase
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.base.BaseViewModel
+import javax.inject.Inject
 
-class AccountHistoryViewModel(
-    val steemRepository: SteemRepositoryImpl = SteemRepositoryImpl(),
-    val readAccountHistoryUseCase: ReadAccountHistoryUseCase = ReadAccountHistoryUseCase(steemRepository),
-    val readDynamicGlobalPropertiesUseCase: ReadDynamicGlobalPropertiesUseCase = ReadDynamicGlobalPropertiesUseCase(steemRepository)
+@HiltViewModel
+class AccountHistoryViewModel @Inject constructor(
+    private val readAccountHistoryUseCase: ReadAccountHistoryUseCase,
+    private val readDynamicGlobalPropertiesUseCase: ReadDynamicGlobalPropertiesUseCase
 ) : BaseViewModel() {
 
     private val _flowAccountHistoryState: MutableStateFlow<State<AccountHistory>> = MutableStateFlow(State.Empty)

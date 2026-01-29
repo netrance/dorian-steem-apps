@@ -1,17 +1,23 @@
 package lee.dorian.steem_domain.usecase
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.model.history.GetAccountHistoryParamsDTO
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.AccountHistoryItem
+import lee.dorian.steem_test.CommonPartOfViewModelTest
 import lee.dorian.steem_test.TestData
 import org.junit.Assert
 import org.junit.Test
 
-class ReadAccountHistoryUseCaseTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class ReadAccountHistoryUseCaseTest : CommonPartOfViewModelTest() {
 
-    val readAccountHistoryUseCase = ReadAccountHistoryUseCase(SteemRepositoryImpl())
+    val readAccountHistoryUseCase = ReadAccountHistoryUseCase(
+        SteemRepositoryImpl(dispatcher),
+        dispatcher
+    )
 
     private fun testAccountHistoryList(historyItemList: List<AccountHistoryItem>) {
         for (accountHistoryItem in historyItemList) {

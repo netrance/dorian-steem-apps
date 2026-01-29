@@ -34,32 +34,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import lee.dorian.dorian_android_ktx.androidx.compose.foundation.lazy.AppendableLazyColumn
+import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.AccountHistory
 import lee.dorian.steem_domain.model.AccountHistoryItem
 import lee.dorian.steem_domain.model.AccountHistoryItemLink
 import lee.dorian.steem_domain.model.DynamicGlobalProperties
-import lee.dorian.steem_ui.MainViewModel
+import lee.dorian.steem_domain.usecase.ReadAccountHistoryUseCase
+import lee.dorian.steem_domain.usecase.ReadDynamicGlobalPropertiesUseCase
 import lee.dorian.steem_ui.ext.setActivityActionBarTitle
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
 
+@AndroidEntryPoint
 class AccountHistoryFragment : Fragment() {
 
     private val args: AccountHistoryFragmentArgs by navArgs()
-
-    val viewModel by lazy {
-        ViewModelProvider(this).get(AccountHistoryViewModel::class.java)
-    }
-
-    val activityViewModel by lazy {
-        ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,7 +65,7 @@ class AccountHistoryFragment : Fragment() {
     ): View? {
         return ComposeView(requireContext()).apply {
             setContent {
-                AccountHistoryScreen(viewModel, args.author) { accountHistoryItemLink ->
+                AccountHistoryScreen(account = args.author) { accountHistoryItemLink ->
                     onMenuItemClick(accountHistoryItemLink)
                 }
             }
@@ -109,8 +107,8 @@ class AccountHistoryFragment : Fragment() {
 
 @Composable
 fun AccountHistoryScreen(
-    viewModel: AccountHistoryViewModel,
     account: String,
+    viewModel: AccountHistoryViewModel = hiltViewModel(),
     onMenuItemClick: (AccountHistoryItemLink) -> Unit
 ) {
     val accountHistoryState by viewModel.flowAccountHistoryState.collectAsStateWithLifecycle()
@@ -174,6 +172,7 @@ fun AccountHistoryItemList(
 @Composable
 @Preview
 fun AccountHistoryItemListPreview() {
+    val steemRepository = SteemRepositoryImpl(Dispatchers.IO)
     AccountHistoryItemList(
         AccountHistory(
             "test-account",
@@ -183,7 +182,10 @@ fun AccountHistoryItemListPreview() {
                 sampleAccountHistoryItem
             )
         ),
-        AccountHistoryViewModel(),
+        AccountHistoryViewModel(
+            ReadAccountHistoryUseCase(steemRepository, Dispatchers.IO),
+            ReadDynamicGlobalPropertiesUseCase(steemRepository, Dispatchers.IO)
+        ),
         {}
     )
 }

@@ -45,11 +45,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import coil.compose.AsyncImage
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import lee.dorian.dorian_android_ktx.android.context.findActivity
 import lee.dorian.steem_domain.model.ActiveVote
@@ -60,14 +62,10 @@ import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
 import lee.dorian.steem_ui.ui.preview.postForTest
 
+@AndroidEntryPoint
 class PostContentFragment : Fragment() {
 
     private val args: PostContentFragmentArgs by navArgs()
-
-    val viewModel: PostContentViewModel by lazy {
-        // Set owner parameter to requireActivity() to share this view model with bottom sheet
-        ViewModelProvider(requireActivity()).get(PostContentViewModel::class.java)
-    }
 
     val activityViewModel by lazy {
         ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
@@ -84,10 +82,15 @@ class PostContentFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
+                val viewModel = hiltViewModel<PostContentViewModel>()
+                val state by viewModel.flowPostState.collectAsStateWithLifecycle()
                 var showSheet by remember { mutableStateOf(false) }
 
+                if (state is PostContentState.Empty) {
+                    viewModel.updateAutherAndPermlink(args.author, args.permlink)
+                }
+
                 PostScreen(
-                    viewModel,
                     onUpvoteClick = { activeVotes -> onUpvoteClicked(activeVotes) },
                     onDownvoteClick = { activeVotes -> onDownvoteClicked(activeVotes) },
                     onReplyCountClick = { replyCount ->
@@ -101,17 +104,11 @@ class PostContentFragment : Fragment() {
                     ModalBottomSheet(
                         onDismissRequest = { showSheet = false }
                     ) {
-                        val state by viewModel.flowPostState.collectAsStateWithLifecycle()
+
                         val replies = (state as PostContentState.Success).replies
                         ReplyBottomSheet(replies) { showSheet = false }
                     }
                 }
-            }
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                val author = args.author
-                val permlink = args.permlink
-                viewModel.initState(author, permlink)
             }
         }
     }
@@ -132,13 +129,16 @@ class PostContentFragment : Fragment() {
 
 @Composable
 fun PostScreen(
-    viewModel: PostContentViewModel,
+    viewModel: PostContentViewModel = hiltViewModel(),
     onUpvoteClick: (activeVotes: List<ActiveVote>) -> Unit,
     onDownvoteClick: (activeVotes: List<ActiveVote>) -> Unit,
     onReplyCountClick: (replyCount: Int) -> Unit
 ) {
     val state by viewModel.flowPostState.collectAsStateWithLifecycle()
 
+    if (state is PostContentState.Empty) {
+        return
+    }
     if (state is PostContentState.Loading) {
         Loading()
         return

@@ -1,30 +1,46 @@
 [versions]
 # Plugins
 androidGradlePlugin = "8.7.2"
-kotlin = "1.7.10"
-kotlinJvm = "1.9.10"
-navigationSafeArgs = "2.5.3"
+# Kotlin 버전을 1.9.22로 통일하여 최신 라이브러리 호환성 문제 해결
+kotlin = "1.9.22"
+kotlinJvm = "1.9.22"
+
+# Navigation 버전을 2.7.7로 통일 (SafeArgs 플러그인과 라이브러리 일치)
+navigation = "2.7.7"
+
+# Hilt
+hilt = "2.51.1"
+hiltNavigationCompose = "1.2.0"
+javaxInject = "1"
 
 # Dependencies
-androidxAppcompat = "1.4.2"
+androidxAppcompat = "1.7.0"
 androidxConstraintlayout = "2.1.4"
-androidxCore = "1.7.0"
-androidxLifecycle = "2.8.7"
-androidxNavigation = "2.8.4"
+androidxCore = "1.13.1"
+
+# Lifecycle 버전을 2.6.2로 낮춰서 Kotlin 버전 충돌 방지 (중요)
+androidxLifecycle = "2.6.2"
+
+# Navigation 버전 변수 사용
+androidxNavigation = "2.7.7"
 androidxSwiperefreshlayout = "1.1.0"
 androidxCoreTesting = "2.2.0"
 androidxEspresso = "3.5.1"
 androidxJunit = "1.1.5"
-androidxComposeBom = "2024.10.01"
-androidxActivityCompose = "1.9.2"
-glide = "4.11.0"
+
+# Compose BOM 최신화
+androidxComposeBom = "2024.04.00"
+androidxComposeMaterial3 = "1.3.0"
+androidxActivityCompose = "1.9.0"
+
+glide = "4.15.1" # 최신 버전 권장
 googleFlexbox = "3.0.0"
-googleMaterial = "1.9.0"
+googleMaterial = "1.12.0"
 retrofit = "2.9.0"
 retrofitAdapterJava = "2.3.0"
 rxjava = "2.2.20"
 rxandroid = "2.0.1"
-coroutines = "1.6.4"
+coroutines = "1.7.3" # Kotlin 1.9.x에 맞춰 버전 상향
 coilCompose = "2.7.0"
 commonmark = "0.20.0"
 jsoup = "1.16.1"
@@ -50,7 +66,7 @@ androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "andro
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidxComposeBom" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
-androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "androidxComposeMaterial3" }
 androidx-compose-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata" }
 androidx-compose-ui = { module = "androidx.compose.ui:ui" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
@@ -64,6 +80,12 @@ glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = 
 # google
 google-flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "googleFlexbox" }
 google-material = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
+
+# Hilt
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
 
 # retrofit
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
@@ -98,7 +120,12 @@ commonmark = ["commonmark", "commonmark-ext-gfm-tables"]
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 java-library = { id = "java-library" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinJvm" }
-navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigationSafeArgs" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" } # kapt 추가
+
+# Navigation 버전을 통합된 변수로 참조
+navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigation" }
+

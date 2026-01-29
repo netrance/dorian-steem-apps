@@ -22,7 +22,7 @@ fun Context.toDPFromDimension(dimenID: Int): Float {
 }
 
 fun Context.getCurrentFragment(id: Int): Fragment? {
-    val activity = this as? FragmentActivity
+    val activity = findActivity() as? FragmentActivity
     val navHostFragment = activity?.supportFragmentManager?.findFragmentById(id)
     return navHostFragment?.childFragmentManager?.fragments?.lastOrNull()
 }

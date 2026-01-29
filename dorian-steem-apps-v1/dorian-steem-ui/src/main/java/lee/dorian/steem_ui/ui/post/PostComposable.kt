@@ -27,12 +27,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.fragment.findNavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.Dispatchers
 import lee.dorian.dorian_android_ktx.androidx.compose.foundation.lazy.AppendableLazyColumn
 import lee.dorian.dorian_android_ktx.androidx.compose.ui.borderBottom
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.R
 import lee.dorian.dorian_android_ktx.android.context.getCurrentFragment
+import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ActiveVote
+import lee.dorian.steem_domain.usecase.ReadPostsUseCase
 import lee.dorian.steem_ui.ext.showToastShortly
 import lee.dorian.steem_ui.ext.startDownvoteListActivity
 import lee.dorian.steem_ui.ext.startUpvoteListActivity
@@ -72,7 +75,15 @@ fun PostListPreview() {
         samplePostItem
     )
 
-    PostList(postList, PostListViewModel())
+    PostList(
+        postList,
+        PostListViewModel(
+            ReadPostsUseCase(
+                SteemRepositoryImpl(Dispatchers.IO),
+                Dispatchers.IO
+            )
+        )
+    )
 }
 
 @Composable

@@ -1,5 +1,6 @@
 package lee.dorian.steem_ui.ui.post
 
+import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.usecase.ReadPostAndRepliesUseCase
@@ -11,7 +12,10 @@ import org.junit.Test
 
 class PostContentViewModelTest : CommonPartOfViewModelTest() {
 
-    private val postContentViewModel = PostContentViewModel(ReadPostAndRepliesUseCase(SteemRepositoryImpl(), dispatcher))
+    private val postContentViewModel = PostContentViewModel(
+        SavedStateHandle(),
+        ReadPostAndRepliesUseCase(SteemRepositoryImpl(dispatcher), dispatcher)
+    )
 
     private val author = "dorian-lee"
     private val permlink = "1000"

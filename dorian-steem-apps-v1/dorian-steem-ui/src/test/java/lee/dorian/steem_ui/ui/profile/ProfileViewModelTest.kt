@@ -12,7 +12,7 @@ import org.junit.Test
 
 class ProfileViewModelTest : CommonPartOfViewModelTest() {
 
-    private val postViewModel = ProfileViewModel(State.Empty, ReadSteemitProfileUseCase(SteemRepositoryImpl(), dispatcher))
+    private val postViewModel = ProfileViewModel(State.Empty, ReadSteemitProfileUseCase(SteemRepositoryImpl(dispatcher), dispatcher))
 
     @Test
     fun readSteemitProfile() = runTest {

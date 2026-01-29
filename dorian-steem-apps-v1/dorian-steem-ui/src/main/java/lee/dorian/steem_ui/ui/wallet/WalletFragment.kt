@@ -28,9 +28,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.navArgs
+import dagger.hilt.android.AndroidEntryPoint
 import lee.dorian.steem_domain.model.SteemitWallet
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.model.State
@@ -38,17 +41,10 @@ import lee.dorian.steem_ui.ui.compose.AccountInputForm
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
 
+@AndroidEntryPoint
 class WalletFragment : Fragment() {
 
     private val args: WalletFragmentArgs by navArgs()
-
-    val viewModel: WalletViewModel by lazy {
-        ViewModelProvider(this).get(WalletViewModel::class.java)
-    }
-
-    val activityViewModel by lazy {
-        ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,7 +53,7 @@ class WalletFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                SteemitWalletScreen(viewModel, args.account)
+                SteemitWalletScreen(initialAccount = args.account)
             }
         }
     }
@@ -70,8 +66,8 @@ class WalletFragment : Fragment() {
 
 @Composable
 fun SteemitWalletScreen(
-    viewModel: WalletViewModel,
-    initialAccount: String
+    initialAccount: String,
+    viewModel: WalletViewModel = hiltViewModel()
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val state by viewModel.flowWalletState.collectAsStateWithLifecycle()

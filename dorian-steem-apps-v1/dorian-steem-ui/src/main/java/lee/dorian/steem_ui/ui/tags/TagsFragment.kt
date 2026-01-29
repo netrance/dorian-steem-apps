@@ -24,10 +24,16 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.fragment.app.Fragment
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import lee.dorian.dorian_android_ktx.androidx.compose.foundation.lazy.AppendableLazyColumn
+import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.PostItem
+import lee.dorian.steem_domain.usecase.ReadRankedPostsUseCase
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
@@ -40,11 +46,8 @@ import lee.dorian.steem_ui.ui.post.onPostListItemClick
 import lee.dorian.steem_ui.ui.post.onUpvoteClick
 import lee.dorian.steem_ui.ui.preview.samplePostItem
 
+@AndroidEntryPoint
 class TagsFragment : Fragment() {
-
-    val viewModel by lazy {
-        ViewModelProvider(this).get(TagsViewModel::class.java)
-    }
 
     val activityViewModel by lazy {
         ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
@@ -57,7 +60,7 @@ class TagsFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                TagsScreen(viewModel)
+                TagsScreen()
             }
         }
     }
@@ -76,7 +79,7 @@ private val tagInfoList = listOf(
 
 @Composable
 fun TagsScreen(
-    viewModel: TagsViewModel
+    viewModel: TagsViewModel = hiltViewModel()
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -114,7 +117,11 @@ fun TagsScreen(
 @Composable
 @Preview
 fun TagsScreenPreview() {
-    TagsScreen(TagsViewModel())
+    TagsScreen(
+        viewModel = TagsViewModel(
+            ReadRankedPostsUseCase(SteemRepositoryImpl(Dispatchers.IO), Dispatchers.IO)
+        )
+    )
 }
 
 @Composable
@@ -141,7 +148,13 @@ fun TagsContent(viewModel: TagsViewModel, onAppend: () -> Unit, modifier: Modifi
 @Composable
 @Preview
 fun TagsContentPreview() {
-    TagsContent(TagsViewModel(), {}, Modifier.fillMaxWidth())
+    TagsContent(
+        viewModel = TagsViewModel(
+            ReadRankedPostsUseCase(SteemRepositoryImpl(Dispatchers.IO), Dispatchers.IO)
+        ),
+        onAppend = {},
+        Modifier.fillMaxWidth()
+    )
 }
 
 @Composable
@@ -202,8 +215,10 @@ fun TagsPostList(postList: List<PostItem>, viewModel: TagsViewModel, onAppend: (
 @Preview
 fun TagsPostListPreview() {
     TagsPostList(
-        listOf(samplePostItem, samplePostItem, samplePostItem),
-        TagsViewModel(),
-        {}
+        postList = listOf(samplePostItem, samplePostItem, samplePostItem),
+        viewModel = TagsViewModel(
+            ReadRankedPostsUseCase(SteemRepositoryImpl(Dispatchers.IO), Dispatchers.IO)
+        ),
+        onAppend = {}
     )
 }

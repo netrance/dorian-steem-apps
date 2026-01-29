@@ -6,10 +6,11 @@ import kotlinx.coroutines.withContext
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.AccountHistoryItem
 import lee.dorian.steem_domain.repository.SteemRepository
+import javax.inject.Inject
 
-class ReadAccountHistoryUseCase(
+class ReadAccountHistoryUseCase @Inject constructor(
     private val steemRepository: SteemRepository,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher
 ) {
 
     companion object {

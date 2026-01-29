@@ -1,16 +1,19 @@
 package lee.dorian.steem_data.repository
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_test.TestData
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
 import lee.dorian.steem_domain.model.ApiResult
+import lee.dorian.steem_test.CommonPartOfViewModelTest
 import org.junit.Test
 
 import org.junit.Assert.*
 
-class SteemRepositoryImplTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class SteemRepositoryImplTest : CommonPartOfViewModelTest() {
 
-    val steemRepository = SteemRepositoryImpl()
+    val steemRepository = SteemRepositoryImpl(dispatcher)
 
     @Test
     fun readAccountDetails_case1() = runTest {
