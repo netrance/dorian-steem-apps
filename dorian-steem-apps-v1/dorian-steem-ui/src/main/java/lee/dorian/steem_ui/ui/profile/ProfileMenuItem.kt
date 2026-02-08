@@ -7,5 +7,5 @@ data class ProfileMenuItem(
     val textColor: Color,
     val fontSize: Int,
     val backgroundColor: Color,
-    val onClick: () -> Unit
+    //val onClick: () -> Unit
 )

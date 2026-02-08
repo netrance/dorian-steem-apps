@@ -60,7 +60,7 @@ class TagsFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                TagsScreen()
+                // TagsScreen()
             }
         }
     }

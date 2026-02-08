@@ -1,6 +1,8 @@
 package lee.dorian.steem_ui.ui.wallet
 
 import kotlinx.coroutines.test.runTest
+import lee.dorian.steem_data.repository.SteemRepositoryImpl
+import lee.dorian.steem_domain.usecase.ReadRankedPostsUseCase
 import lee.dorian.steem_test.CommonPartOfViewModelTest
 import lee.dorian.steem_ui.ui.tags.TagsViewModel
 import org.junit.Assert.assertEquals
@@ -13,7 +15,9 @@ import org.junit.Assert.assertTrue
 
 class TagsViewModelTest : CommonPartOfViewModelTest() {
 
-    private val tagViewModel = TagsViewModel()
+    private val tagViewModel = TagsViewModel(
+        ReadRankedPostsUseCase(SteemRepositoryImpl(dispatcher), dispatcher)
+    )
 
     @Test
     fun readRankedPosts() = runTest {

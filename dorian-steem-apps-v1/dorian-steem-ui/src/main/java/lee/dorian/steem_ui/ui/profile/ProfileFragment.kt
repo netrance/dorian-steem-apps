@@ -73,38 +73,38 @@ class ProfileFragment : Fragment() {
 
     val viewModel by viewModels<ProfileViewModel>()
 
-    val profileMenuItems = listOf(
-        ProfileMenuItem("Details", Color.Black, 18, Color.White) {
-            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountDetails(viewModel.getCurrentAccount())
-            findNavController().navigate(action)
-            setActivityActionBarTitle("Details of @${viewModel.getCurrentAccount()}")
-        },
-        ProfileMenuItem("Blog", Color.White, 18, Color.Black) {
-            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "blog")
-            findNavController().navigate(action)
-            setActivityActionBarTitle("Blog of @${viewModel.getCurrentAccount()}")
-        },
-        ProfileMenuItem("Posts", Color.Black, 18, Color.White) {
-            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "posts")
-            findNavController().navigate(action)
-            setActivityActionBarTitle("Posts of @${viewModel.getCurrentAccount()}")
-        },
-        ProfileMenuItem("Comments", Color.White, 18, Color.Black) {
-            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "comments")
-            findNavController().navigate(action)
-            setActivityActionBarTitle("Comments of @${viewModel.getCurrentAccount()}")
-        },
-        ProfileMenuItem("Replies", Color.Black, 18, Color.White) {
-            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "replies")
-            findNavController().navigate(action)
-            setActivityActionBarTitle("Replies of @${viewModel.getCurrentAccount()}")
-        },
-        ProfileMenuItem("History", Color.White, 18, Color.Black) {
-            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountHistory(viewModel.getCurrentAccount())
-            findNavController().navigate(action)
-            setActivityActionBarTitle("History of @${viewModel.getCurrentAccount()}")
-        }
-    )
+//    val profileMenuItems = listOf(
+//        ProfileMenuItem("Details", Color.Black, 18, Color.White) {
+//            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountDetails(viewModel.getCurrentAccount())
+//            findNavController().navigate(action)
+//            setActivityActionBarTitle("Details of @${viewModel.getCurrentAccount()}")
+//        },
+//        ProfileMenuItem("Blog", Color.White, 18, Color.Black) {
+//            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "blog")
+//            findNavController().navigate(action)
+//            setActivityActionBarTitle("Blog of @${viewModel.getCurrentAccount()}")
+//        },
+//        ProfileMenuItem("Posts", Color.Black, 18, Color.White) {
+//            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "posts")
+//            findNavController().navigate(action)
+//            setActivityActionBarTitle("Posts of @${viewModel.getCurrentAccount()}")
+//        },
+//        ProfileMenuItem("Comments", Color.White, 18, Color.Black) {
+//            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "comments")
+//            findNavController().navigate(action)
+//            setActivityActionBarTitle("Comments of @${viewModel.getCurrentAccount()}")
+//        },
+//        ProfileMenuItem("Replies", Color.Black, 18, Color.White) {
+//            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationPostList(viewModel.getCurrentAccount(), "replies")
+//            findNavController().navigate(action)
+//            setActivityActionBarTitle("Replies of @${viewModel.getCurrentAccount()}")
+//        },
+//        ProfileMenuItem("History", Color.White, 18, Color.Black) {
+//            val action = ProfileFragmentDirections.actionNavigationProfileToNavigationAccountHistory(viewModel.getCurrentAccount())
+//            findNavController().navigate(action)
+//            setActivityActionBarTitle("History of @${viewModel.getCurrentAccount()}")
+//        }
+//    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -113,7 +113,7 @@ class ProfileFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                ProfileScreen(profileMenuItems, viewModel)
+                //ProfileScreen(profileMenuItems, viewModel)
             }
 
             if (args.account.isNotEmpty() and (viewModel.profileState.value is State.Empty)) {
@@ -139,9 +139,18 @@ class ProfileFragment : Fragment() {
 
 }
 
+val profileMenuItems = listOf(
+    ProfileMenuItem("Details", Color.Black, 18, Color.White),
+    ProfileMenuItem("Blog", Color.White, 18, Color.Black),
+    ProfileMenuItem("Posts", Color.Black, 18, Color.White),
+    ProfileMenuItem("Comments", Color.White, 18, Color.Black),
+    ProfileMenuItem("Replies", Color.Black, 18, Color.White),
+    ProfileMenuItem("History", Color.White, 18, Color.Black)
+)
+
 @Composable
 fun ProfileScreen(
-    profileMenuItems: List<ProfileMenuItem>,
+    account: String,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val state by viewModel.profileState.collectAsStateWithLifecycle()
@@ -162,7 +171,13 @@ fun ProfileScreen(
 
         val commonModifier = Modifier.fillMaxWidth().weight(1f).background(Color.White)
         when (state) {
-            is State.Empty -> ProfileEmpty(modifier = commonModifier)
+            is State.Empty -> {
+                if (account.isEmpty()) {
+                    ProfileEmpty(modifier = commonModifier)
+                } else {
+                    viewModel.readSteemitProfile(account)
+                }
+            }
             is State.Loading -> Loading(modifier = commonModifier)
             !is State.Success -> ErrorOrFailure()
             else -> {
@@ -184,16 +199,7 @@ fun ProfileScreenPreview() {
         )
     )
     viewModel.readSteemitProfile(sampleSteemitProfile)
-
-    val profileMenuItems = listOf(
-        ProfileMenuItem("Details", Color.Black, 18, Color.White) {},
-        ProfileMenuItem("Blog", Color.White, 18, Color.Black) {},
-        ProfileMenuItem("Posts", Color.Black, 18, Color.White) {},
-        ProfileMenuItem("Comments", Color.White, 18, Color.Black) {},
-        ProfileMenuItem("Replies", Color.Black, 18, Color.White) {},
-        ProfileMenuItem("History", Color.White, 18, Color.Black) {}
-    )
-    ProfileScreen(profileMenuItems, viewModel)
+    ProfileScreen("", viewModel)
 }
 
 private val profileContentTextStyle = TextStyle(
@@ -352,30 +358,22 @@ fun ProfileMenu(
     profileMenuItems: List<ProfileMenuItem>
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        ProfileMenuRow(
-            profileMenuItems[0],
-            profileMenuItems[1],
-            profileMenuItems[2]
-        )
-        ProfileMenuRow(
-            profileMenuItems[3],
-            profileMenuItems[4],
-            profileMenuItems[5]
-        )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            ProfileMenuCell(profileMenuItems[0], this)
+            ProfileMenuCell(profileMenuItems[1], this)
+            ProfileMenuCell(profileMenuItems[2], this)
+        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            ProfileMenuCell(profileMenuItems[3], this)
+            ProfileMenuCell(profileMenuItems[4], this)
+            ProfileMenuCell(profileMenuItems[5], this)
+        }
     }
 }
 
 @Composable
 @Preview
 fun ProfileMenuPreview() {
-    val profileMenuItems = listOf(
-        ProfileMenuItem("Details", Color.Black, 18, Color.White) {},
-        ProfileMenuItem("Blog", Color.White, 18, Color.Black) {},
-        ProfileMenuItem("Posts", Color.Black, 18, Color.White) {},
-        ProfileMenuItem("Comments", Color.White, 18, Color.Black) {},
-        ProfileMenuItem("Replies", Color.Black, 18, Color.White) {},
-        ProfileMenuItem("History", Color.White, 18, Color.Black) {}
-    )
     ProfileMenu(sampleSteemitProfile, profileMenuItems)
 }
 
@@ -396,11 +394,12 @@ fun ProfileMenuRow(
 fun ProfileMenuCell(
     menuItem: ProfileMenuItem,
     rowScope: RowScope,
+    onClick: () -> Unit = {}
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = rowScope.getMenuCellModifier(menuItem.backgroundColor).clickable {
-            menuItem.onClick()
+            onClick()
         }
     ) {
         Text(
