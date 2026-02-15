@@ -79,6 +79,7 @@ private val tagInfoList = listOf(
 
 @Composable
 fun TagsScreen(
+    onPostItemClick: (PostItem) -> Unit = {},
     viewModel: TagsViewModel = hiltViewModel()
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -104,7 +105,8 @@ fun TagsScreen(
             onAppend = {
                 viewModel.appendRankedPosts(tag, sort)
             },
-            Modifier.fillMaxWidth().weight(1f)
+            onPostItemClick = onPostItemClick,
+            modifier = Modifier.fillMaxWidth().weight(1f)
         )
     }
 
@@ -125,7 +127,12 @@ fun TagsScreenPreview() {
 }
 
 @Composable
-fun TagsContent(viewModel: TagsViewModel, onAppend: () -> Unit, modifier: Modifier) {
+fun TagsContent(
+    viewModel: TagsViewModel,
+    onAppend: () -> Unit,
+    onPostItemClick: (PostItem) -> Unit = {},
+    modifier: Modifier
+) {
     val state by viewModel.flowTagsState.collectAsStateWithLifecycle()
 
     if (state is State.Loading) {
@@ -141,7 +148,8 @@ fun TagsContent(viewModel: TagsViewModel, onAppend: () -> Unit, modifier: Modifi
     TagsPostList(
         tagPostList,
         viewModel,
-        onAppend = onAppend
+        onAppend = onAppend,
+        onPostItemClick = onPostItemClick
     )
 }
 
@@ -153,6 +161,7 @@ fun TagsContentPreview() {
             ReadRankedPostsUseCase(SteemRepositoryImpl(Dispatchers.IO), Dispatchers.IO)
         ),
         onAppend = {},
+        onPostItemClick = {},
         Modifier.fillMaxWidth()
     )
 }
@@ -195,17 +204,24 @@ fun TagsSortTabRowPreview() {
 }
 
 @Composable
-fun TagsPostList(postList: List<PostItem>, viewModel: TagsViewModel, onAppend: () -> Unit) {
+fun TagsPostList(
+    postList: List<PostItem>,
+    viewModel: TagsViewModel,
+    onAppend: () -> Unit,
+    onPostItemClick: (PostItem) -> Unit
+) {
     AppendableLazyColumn(
         onAppend = onAppend
     ) {
         items(postList.size) { index ->
             PostListItem(
-                postList[index],
-                ::onPostListItemClick,
-                ::onPostListItemImageClick,
-                ::onUpvoteClick,
-                ::onDownvoteClick
+                postItem = postList[index],
+                onItemClick = { _, postItem ->
+                    onPostItemClick(postItem)
+                },
+                onImageClick = ::onPostListItemImageClick,
+                onUpvoteClick = ::onUpvoteClick,
+                onDownvoteClick = ::onDownvoteClick
             )
         }
     }
@@ -219,6 +235,7 @@ fun TagsPostListPreview() {
         viewModel = TagsViewModel(
             ReadRankedPostsUseCase(SteemRepositoryImpl(Dispatchers.IO), Dispatchers.IO)
         ),
-        onAppend = {}
+        onAppend = {},
+        onPostItemClick = {}
     )
 }

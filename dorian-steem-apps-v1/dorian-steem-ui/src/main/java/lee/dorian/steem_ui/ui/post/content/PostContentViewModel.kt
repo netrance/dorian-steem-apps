@@ -25,13 +25,9 @@ class PostContentViewModel @Inject constructor(
     private val _flowPostContentState: MutableStateFlow<PostContentState> = MutableStateFlow(PostContentState.Empty)
     val flowPostState = _flowPostContentState.asStateFlow()
 
-    fun initState(author: String, permlink: String) = viewModelScope.launch {
-        readPostAndReplies(author, permlink)
-    }
-
-    suspend fun readPostAndReplies(author: String, permlink: String) {
+    fun readPostAndReplies() = viewModelScope.launch {
         _flowPostContentState.emit(PostContentState.Loading)
-        val apiResult = readPostAndRepliesUseCase(author, permlink)
+        val apiResult = readPostAndRepliesUseCase(author.value, permlink.value)
         val newState = when (apiResult) {
             is ApiResult.Failure -> PostContentState.Failure(apiResult.content)
             is ApiResult.Error -> PostContentState.Error(apiResult.throwable)
@@ -51,7 +47,7 @@ class PostContentViewModel @Inject constructor(
         savedStateHandle["author"] = author
         savedStateHandle["permlink"] = permlink
         viewModelScope.launch {
-            readPostAndReplies(author, permlink)
+            readPostAndReplies()
         }
     }
 

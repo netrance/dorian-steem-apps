@@ -11,8 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -23,15 +25,19 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dagger.hilt.android.AndroidEntryPoint
+import lee.dorian.steem_ui.ext.startDownvoteListActivity
+import lee.dorian.steem_ui.ext.startUpvoteListActivity
+import lee.dorian.steem_ui.model.navigation.PostContentRoute
 import lee.dorian.steem_ui.model.navigation.ProfileScreenRoute
 import lee.dorian.steem_ui.model.navigation.TagsScreenRoute
 import lee.dorian.steem_ui.model.navigation.WalletScreenRoute
+import lee.dorian.steem_ui.ui.post.content.PostScreen
 import lee.dorian.steem_ui.ui.profile.ProfileScreen
 import lee.dorian.steem_ui.ui.tags.TagsScreen
 import lee.dorian.steem_ui.ui.wallet.SteemitWalletScreen
 
 // 1. 네비게이션 대상 정의
-sealed class Screen<T: Any>(val route: T, val label: String, val iconId: Int) {
+sealed class Screen<T: Any>(val route: T, val label: String, val iconId: Int?) {
     object Tags : Screen<TagsScreenRoute>(
         route = TagsScreenRoute(""),
         label = "Tags",
@@ -48,6 +54,12 @@ sealed class Screen<T: Any>(val route: T, val label: String, val iconId: Int) {
         route = WalletScreenRoute(""),
         label = "Wallet",
         iconId = R.drawable.ic_bottom_menu_wallet
+    )
+
+    object PostContent : Screen<PostContentRoute>(
+        route = PostContentRoute("", ""),
+        label = "PostContent",
+        iconId = null
     )
 }
 
@@ -116,7 +128,7 @@ fun TopAppBarTitle(
 @Composable
 fun Main2BottomBar(
     navController: NavHostController,
-    items: List<Screen<Any>>
+    items: List<Screen<out Any>>
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -125,7 +137,7 @@ fun Main2BottomBar(
         items.forEach { screen ->
             NavigationBarItem(
                 icon = {
-                    Icon(painter = painterResource(screen.iconId), contentDescription = screen.label)
+                    Icon(painter = painterResource(screen.iconId ?: R.drawable.ic_bottom_menu_profile), contentDescription = screen.label)
                 },
                 label = {
                     Text(screen.label)
@@ -161,18 +173,17 @@ fun AppNavigation(
     ) {
 
         composable<TagsScreenRoute> {
-            TagsScreen()
+            TagsScreen(
+                onPostItemClick = { postItem ->
+                    navController.navigate(PostContentRoute(postItem.account, postItem.permlink))
+                }
+            )
         }
 
-        // 1. 프로필 화면 등록 (데이터 클래스 타입을 경로로 사용)
         composable<ProfileScreenRoute> { backStackEntry ->
-            // 경로에서 파라미터 객체 추출
             val params: ProfileScreenRoute = backStackEntry.toRoute()
-
-            // ProfileScreen 호출 시 객체 전달
             ProfileScreen(
                 account = params.account
-                //onBack = { navController.popBackStack() }
             )
         }
 
@@ -180,14 +191,12 @@ fun AppNavigation(
             SteemitWalletScreen(initialAccount = "")
         }
 
-        // 예시: 메인 화면에서 이동 버튼
-//        composable("Home") {
-//            Button(onClick = {
-//                val params = ProfileScreenRoute(account = "dorian", permlink = "hello-world")
-//                navController.navigate(params) // 객체를 직접 전달
-//            }) {
-//                Text("Go to Profile")
-//            }
-//        }
+        composable<PostContentRoute> { backStackEntry ->
+            val context = LocalContext.current
+            PostScreen(
+                onUpvoteClick = { activeVotes -> context.startUpvoteListActivity(activeVotes) },
+                onDownvoteClick = { activeVotes -> context.startDownvoteListActivity(activeVotes) }
+            )
+        }
     }
 }

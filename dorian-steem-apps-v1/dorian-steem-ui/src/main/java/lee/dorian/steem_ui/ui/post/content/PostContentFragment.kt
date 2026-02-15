@@ -84,7 +84,6 @@ class PostContentFragment : Fragment() {
             setContent {
                 val viewModel = hiltViewModel<PostContentViewModel>()
                 val state by viewModel.flowPostState.collectAsStateWithLifecycle()
-                var showSheet by remember { mutableStateOf(false) }
 
                 if (state is PostContentState.Empty) {
                     viewModel.updateAutherAndPermlink(args.author, args.permlink)
@@ -92,23 +91,8 @@ class PostContentFragment : Fragment() {
 
                 PostScreen(
                     onUpvoteClick = { activeVotes -> onUpvoteClicked(activeVotes) },
-                    onDownvoteClick = { activeVotes -> onDownvoteClicked(activeVotes) },
-                    onReplyCountClick = { replyCount ->
-                        if (replyCount > 0) {
-                            showSheet = true
-                        }
-                    }
+                    onDownvoteClick = { activeVotes -> onDownvoteClicked(activeVotes) }
                 )
-
-                if (showSheet) {
-                    ModalBottomSheet(
-                        onDismissRequest = { showSheet = false }
-                    ) {
-
-                        val replies = (state as PostContentState.Success).replies
-                        ReplyBottomSheet(replies) { showSheet = false }
-                    }
-                }
             }
         }
     }
@@ -127,16 +111,18 @@ class PostContentFragment : Fragment() {
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostScreen(
     viewModel: PostContentViewModel = hiltViewModel(),
     onUpvoteClick: (activeVotes: List<ActiveVote>) -> Unit,
     onDownvoteClick: (activeVotes: List<ActiveVote>) -> Unit,
-    onReplyCountClick: (replyCount: Int) -> Unit
 ) {
     val state by viewModel.flowPostState.collectAsStateWithLifecycle()
+    var showSheet by remember { mutableStateOf(false) }
 
     if (state is PostContentState.Empty) {
+        viewModel.readPostAndReplies()
         return
     }
     if (state is PostContentState.Loading) {
@@ -170,8 +156,22 @@ fun PostScreen(
                 replyCount,
                 onUpvoteClick,
                 onDownvoteClick,
-                onReplyCountClick
+                onReplyCountClick = { replyCount ->
+                    if (replyCount > 0) {
+                        showSheet = true
+                    }
+                }
             )
+        }
+    }
+
+    if (showSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showSheet = false }
+        ) {
+
+            val replies = (state as PostContentState.Success).replies
+            ReplyBottomSheet(replies) { showSheet = false }
         }
     }
 }
