@@ -12,17 +12,19 @@ import org.junit.Test
 
 class PostContentViewModelTest : CommonPartOfViewModelTest() {
 
+    private val savedStateHandle = SavedStateHandle().apply {
+        set("author", "dorian-lee")
+        set("permlink", "1000")
+    }
+
     private val postContentViewModel = PostContentViewModel(
-        SavedStateHandle(),
+        savedStateHandle,
         ReadPostAndRepliesUseCase(SteemRepositoryImpl(dispatcher), dispatcher)
     )
 
-    private val author = "dorian-lee"
-    private val permlink = "1000"
-
     @Test
     fun readPostAndReplies() = runTest {
-        postContentViewModel.readPostAndReplies(author, permlink)
+        postContentViewModel.readPostAndReplies()
         Thread.sleep(WAITING_TIME_MSEC)
 
         val state = postContentViewModel.flowPostState.value
@@ -30,7 +32,7 @@ class PostContentViewModelTest : CommonPartOfViewModelTest() {
         (state as PostContentState.Success).also {
             val post = it.post
             val replies = it.replies
-            assertEquals(author, post.account)
+            assertEquals(savedStateHandle["author"], post.account)
             assertTrue(replies.size > 0)
         }
     }
