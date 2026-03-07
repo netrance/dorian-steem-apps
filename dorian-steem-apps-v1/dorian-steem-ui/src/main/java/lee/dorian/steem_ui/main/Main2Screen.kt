@@ -35,7 +35,7 @@ fun Main2Screen() {
 
     // Determine UI elements based on current screen
     val topBarTitle = getTopBarTitle(currentDestination, navBackStackEntry)
-    val showBottomBar = shouldShowBottomBar(currentDestination)
+    val showBottomBar = shouldShowBottomBar(currentDestination, navBackStackEntry)
 
     Scaffold(
         topBar = {

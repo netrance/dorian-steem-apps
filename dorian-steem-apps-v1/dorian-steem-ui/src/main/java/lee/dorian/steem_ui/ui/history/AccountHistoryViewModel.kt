@@ -1,5 +1,6 @@
 package lee.dorian.steem_ui.ui.history
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,9 +20,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AccountHistoryViewModel @Inject constructor(
+    val savedStateHandle: SavedStateHandle,
     private val readAccountHistoryUseCase: ReadAccountHistoryUseCase,
     private val readDynamicGlobalPropertiesUseCase: ReadDynamicGlobalPropertiesUseCase
 ) : BaseViewModel() {
+
+    // parameters
+    val account = savedStateHandle.getStateFlow("account", "")
 
     private val _flowAccountHistoryState: MutableStateFlow<State<AccountHistory>> = MutableStateFlow(State.Empty)
     val flowAccountHistoryState = _flowAccountHistoryState.asStateFlow()
@@ -50,9 +55,9 @@ class AccountHistoryViewModel @Inject constructor(
         _flowDGPState.emit(newState)
     }
 
-    fun readAccountHistory(account: String) = viewModelScope.launch {
+    fun readAccountHistory() = viewModelScope.launch {
         _flowAccountHistoryState.emit(State.Loading)
-        val apiResult = readAccountHistoryUseCase(account)
+        val apiResult = readAccountHistoryUseCase(account.value)
         _flowIsRefreshing.value = false
         val newState = when (apiResult) {
             is ApiResult.Failure -> State.Failure(apiResult.content)
@@ -61,7 +66,7 @@ class AccountHistoryViewModel @Inject constructor(
                 val historyItemList = mutableListOf<AccountHistoryItem>().apply {
                     addAll(apiResult.data)
                 }
-                State.Success(AccountHistory(account, historyItemList))
+                State.Success(AccountHistory(account.value, historyItemList))
             }
         }
         _flowAccountHistoryState.emit(newState)
@@ -97,7 +102,6 @@ class AccountHistoryViewModel @Inject constructor(
         }
 
         _flowIsRefreshing.value = true
-        val accountHistory = (flowAccountHistoryState.value as State.Success<AccountHistory>).data
-        readAccountHistory(accountHistory.account)
+        readAccountHistory()
     }
 }

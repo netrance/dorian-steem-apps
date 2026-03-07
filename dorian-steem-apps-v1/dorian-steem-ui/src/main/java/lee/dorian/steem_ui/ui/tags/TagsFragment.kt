@@ -1,5 +1,6 @@
 package lee.dorian.steem_ui.ui.tags
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,10 +13,8 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -27,11 +26,11 @@ import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import lee.dorian.dorian_android_ktx.androidx.compose.foundation.lazy.AppendableLazyColumn
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
+import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_domain.usecase.ReadRankedPostsUseCase
 import lee.dorian.steem_ui.MainViewModel
@@ -40,10 +39,6 @@ import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
 import lee.dorian.steem_ui.ui.compose.TagInputForm
 import lee.dorian.steem_ui.ui.post.PostListItem
-import lee.dorian.steem_ui.ui.post.onDownvoteClick
-import lee.dorian.steem_ui.ui.post.onPostListItemImageClick
-import lee.dorian.steem_ui.ui.post.onPostListItemClick
-import lee.dorian.steem_ui.ui.post.onUpvoteClick
 import lee.dorian.steem_ui.ui.preview.samplePostItem
 
 @AndroidEntryPoint
@@ -80,6 +75,9 @@ private val tagInfoList = listOf(
 @Composable
 fun TagsScreen(
     onPostItemClick: (PostItem) -> Unit = {},
+    onPostImageClick: (Context, PostItem) -> Unit = { _, _ -> },
+    onUpvoteClick: (Context, List<ActiveVote>) -> Unit = { _, _ -> },
+    onDownvoteClick: (Context, List<ActiveVote>) -> Unit = { _, _ -> },
     viewModel: TagsViewModel = hiltViewModel()
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -106,6 +104,9 @@ fun TagsScreen(
                 viewModel.appendRankedPosts(tag, sort)
             },
             onPostItemClick = onPostItemClick,
+            onPostImageClick = onPostImageClick,
+            onUpvoteClick = onUpvoteClick,
+            onDownvoteClick = onDownvoteClick,
             modifier = Modifier.fillMaxWidth().weight(1f)
         )
     }
@@ -131,6 +132,9 @@ fun TagsContent(
     viewModel: TagsViewModel,
     onAppend: () -> Unit,
     onPostItemClick: (PostItem) -> Unit = {},
+    onPostImageClick: (Context, PostItem) -> Unit = { _, _ -> },
+    onUpvoteClick: (Context, List<ActiveVote>) -> Unit = { _, _ -> },
+    onDownvoteClick: (Context, List<ActiveVote>) -> Unit = { _, _ -> },
     modifier: Modifier
 ) {
     val state by viewModel.flowTagsState.collectAsStateWithLifecycle()
@@ -149,7 +153,10 @@ fun TagsContent(
         tagPostList,
         viewModel,
         onAppend = onAppend,
-        onPostItemClick = onPostItemClick
+        onPostItemClick = onPostItemClick,
+        onPostImageClick = onPostImageClick,
+        onUpvoteClick = onUpvoteClick,
+        onDownvoteClick = onDownvoteClick
     )
 }
 
@@ -162,7 +169,10 @@ fun TagsContentPreview() {
         ),
         onAppend = {},
         onPostItemClick = {},
-        Modifier.fillMaxWidth()
+        onPostImageClick = { _, _ -> },
+        onUpvoteClick = { _, _ -> },
+        onDownvoteClick = { _, _ -> },
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
@@ -208,7 +218,10 @@ fun TagsPostList(
     postList: List<PostItem>,
     viewModel: TagsViewModel,
     onAppend: () -> Unit,
-    onPostItemClick: (PostItem) -> Unit
+    onPostItemClick: (PostItem) -> Unit,
+    onPostImageClick: (Context, PostItem) -> Unit = { _, _ -> },
+    onUpvoteClick: (Context, List<ActiveVote>) -> Unit = { _, _ -> },
+    onDownvoteClick: (Context, List<ActiveVote>) -> Unit = { _, _ -> }
 ) {
     AppendableLazyColumn(
         onAppend = onAppend
@@ -216,12 +229,12 @@ fun TagsPostList(
         items(postList.size) { index ->
             PostListItem(
                 postItem = postList[index],
-                onItemClick = { _, postItem ->
+                onPostItemClick = { postItem ->
                     onPostItemClick(postItem)
                 },
-                onImageClick = ::onPostListItemImageClick,
-                onUpvoteClick = ::onUpvoteClick,
-                onDownvoteClick = ::onDownvoteClick
+                onImageClick = onPostImageClick,
+                onUpvoteClick = onUpvoteClick,
+                onDownvoteClick = onDownvoteClick
             )
         }
     }

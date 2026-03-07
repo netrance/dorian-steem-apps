@@ -1,5 +1,6 @@
 package lee.dorian.steem_ui.ui.history
 
+import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.AccountHistory
@@ -17,6 +18,9 @@ class AccountHistoryViewModelTest : CommonPartOfViewModelTest() {
 
     private val steemRepository = SteemRepositoryImpl(dispatcher)
     private val accountHistoryViewModel = AccountHistoryViewModel(
+        SavedStateHandle().apply {
+            set("account", TestData.singleAccount2)
+        },
         ReadAccountHistoryUseCase(
             steemRepository,
             dispatcher
@@ -29,7 +33,7 @@ class AccountHistoryViewModelTest : CommonPartOfViewModelTest() {
 
     @Test
     fun readAccountHistory() = runTest {
-        accountHistoryViewModel.readAccountHistory(TestData.singleAccount2)
+        accountHistoryViewModel.readAccountHistory()
         Thread.sleep(WAITING_TIME_MSEC)
 
         val state: State<AccountHistory> = accountHistoryViewModel.flowAccountHistoryState.value
@@ -43,7 +47,7 @@ class AccountHistoryViewModelTest : CommonPartOfViewModelTest() {
 
     @Test
     fun appendAccountHistory() = runTest {
-        accountHistoryViewModel.readAccountHistory(TestData.singleAccount2)
+        accountHistoryViewModel.readAccountHistory()
         Thread.sleep(WAITING_TIME_MSEC)
 
         accountHistoryViewModel.appendAccountHistory()

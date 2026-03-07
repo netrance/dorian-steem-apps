@@ -1,5 +1,6 @@
 package lee.dorian.steem_ui.ui.post.list
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
+import lee.dorian.steem_domain.model.ActiveVote
+import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_domain.model.PostListInfo
 import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.R
@@ -41,10 +44,10 @@ class PostListFragment : Fragment() {
     ): View? {
         return ComposeView(requireContext()).apply {
             setContent {
-                PostListScreen(
-                    account = args.author,
-                    sort = args.sort
-                )
+//                PostListScreen(
+//                    account = args.author,
+//                    sort = args.sort
+//                )
             }
         }
     }
@@ -58,15 +61,17 @@ class PostListFragment : Fragment() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostListScreen(
-    account: String,
-    sort: String,
-    viewModel: PostListViewModel = hiltViewModel()
+    viewModel: PostListViewModel = hiltViewModel(),
+    onPostItemClick: (PostItem) -> Unit = {},
+    onPostImageClick: (Context, PostItem) -> Unit = { _, _ -> },
+    onUpvoteClick: (Context, List<ActiveVote>) -> Unit = { _, _ -> },
+    onDownvoteClick: (Context, List<ActiveVote>) -> Unit = { _, _ -> }
 ) {
     val state by viewModel.flowState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.flowIsRefreshing.collectAsStateWithLifecycle()
 
     if (state is State.Empty) {
-        viewModel.readPosts(account, sort)
+        viewModel.readPosts()
         return
     }
     else if (state is State.Loading) {
@@ -83,10 +88,17 @@ fun PostListScreen(
         state = pullRefreshState,
         isRefreshing = isRefreshing,
         onRefresh = {
-            viewModel.readPosts(account, sort)
+            viewModel.readPosts()
         }
     ) {
         val postListInfo = (state as State.Success<PostListInfo>).data
-        PostList(postListInfo.posts, viewModel)
+        PostList(
+            postListInfo.posts,
+            viewModel,
+            onPostItemClick,
+            onPostImageClick,
+            onUpvoteClick,
+            onDownvoteClick
+        )
     }
 }

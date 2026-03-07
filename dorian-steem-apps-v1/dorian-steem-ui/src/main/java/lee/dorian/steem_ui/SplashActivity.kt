@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import lee.dorian.steem_ui.main.Main2Activity
 
 class SplashActivity : AppCompatActivity() {
 

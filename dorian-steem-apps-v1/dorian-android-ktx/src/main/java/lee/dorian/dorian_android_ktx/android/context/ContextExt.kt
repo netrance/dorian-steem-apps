@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.util.TypedValue
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 
@@ -25,4 +26,8 @@ fun Context.getCurrentFragment(id: Int): Fragment? {
     val activity = findActivity() as? FragmentActivity
     val navHostFragment = activity?.supportFragmentManager?.findFragmentById(id)
     return navHostFragment?.childFragmentManager?.fragments?.lastOrNull()
+}
+
+fun Context.showToastShortly(msg: String) {
+    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 }

@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -65,9 +66,9 @@ class AccountHistoryFragment : Fragment() {
     ): View? {
         return ComposeView(requireContext()).apply {
             setContent {
-                AccountHistoryScreen(account = args.author) { accountHistoryItemLink ->
-                    onMenuItemClick(accountHistoryItemLink)
-                }
+//                AccountHistoryScreen(account = args.author) { accountHistoryItemLink ->
+//                    onMenuItemClick(accountHistoryItemLink)
+//                }
             }
         }
     }
@@ -76,38 +77,10 @@ class AccountHistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
     }
 
-    fun onMenuItemClick(accountHistoryItemLink: AccountHistoryItemLink) {
-        when (accountHistoryItemLink.type) {
-            "profile" -> {
-                val account = accountHistoryItemLink.link.replace("@", "")
-                val action = AccountHistoryFragmentDirections.actionNavigationAccountHistoryToNavigationProfile(account)
-                findNavController().navigate(action)
-                setActivityActionBarTitle("Profile of @${accountHistoryItemLink.link}")
-            }
-            "post" -> {
-                val linkElements = accountHistoryItemLink.link.split("/")
-                val author = linkElements[0].replace("@", "")
-                val permlink = linkElements[1]
-                val action = AccountHistoryFragmentDirections.actionNavigationAccountHistoryToNavigationPost(
-                    author, permlink
-                )
-                findNavController().navigate(action)
-                setActivityActionBarTitle("Posts of @${author}")
-            }
-            "wallet" -> {
-                val account = accountHistoryItemLink.link.replace("@", "")
-                val action = AccountHistoryFragmentDirections.actionNavigationAccountHistoryToNavigationWallet(account)
-                findNavController().navigate(action)
-                setActivityActionBarTitle("Wallet of @${account}")
-            }
-        }
-    }
-
 }
 
 @Composable
 fun AccountHistoryScreen(
-    account: String,
     viewModel: AccountHistoryViewModel = hiltViewModel(),
     onMenuItemClick: (AccountHistoryItemLink) -> Unit
 ) {
@@ -116,7 +89,7 @@ fun AccountHistoryScreen(
     val isRefreshing by viewModel.flowIsRefreshing.collectAsStateWithLifecycle()
 
     if (accountHistoryState is State.Empty) {
-        viewModel.readAccountHistory(account)
+        viewModel.readAccountHistory()
         viewModel.readDynamicGlobalProperties()
         return
     }
@@ -183,6 +156,7 @@ fun AccountHistoryItemListPreview() {
             )
         ),
         AccountHistoryViewModel(
+            SavedStateHandle(),
             ReadAccountHistoryUseCase(steemRepository, Dispatchers.IO),
             ReadDynamicGlobalPropertiesUseCase(steemRepository, Dispatchers.IO)
         ),

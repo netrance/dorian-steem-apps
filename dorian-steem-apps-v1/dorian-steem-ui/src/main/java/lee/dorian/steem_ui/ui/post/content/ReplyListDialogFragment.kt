@@ -36,8 +36,8 @@ import lee.dorian.steem_domain.model.Post
 import lee.dorian.steem_ui.R
 import lee.dorian.dorian_android_ktx.android.context.findActivity
 import lee.dorian.steem_ui.ext.loadMarkdown
-import lee.dorian.steem_ui.ui.post.onDownvoteClick
-import lee.dorian.steem_ui.ui.post.onUpvoteClick
+import lee.dorian.steem_ui.ext.startDownvoteListActivity
+import lee.dorian.steem_ui.ext.startUpvoteListActivity
 import lee.dorian.steem_ui.ui.preview.postForTest
 import lee.dorian.steem_ui.ui.preview.replyListForTest
 
@@ -172,10 +172,10 @@ fun ReplyItem(reply: Post, backgroundColor: Color, scrollState: ScrollState) {
         ReplyRewardsAndVotingCounts(
             reply,
             { activeVotes ->
-                onUpvoteClick(context, activeVotes)
+                context.startUpvoteListActivity(activeVotes)
             },
             { activeVotes ->
-                onDownvoteClick(context, activeVotes)
+                context.startDownvoteListActivity(activeVotes)
             }
         )
 

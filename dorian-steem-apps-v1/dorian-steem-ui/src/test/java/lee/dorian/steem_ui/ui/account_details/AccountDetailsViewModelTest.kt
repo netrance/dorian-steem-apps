@@ -1,5 +1,6 @@
 package lee.dorian.steem_ui.ui.account_details
 
+import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.AccountDetails
@@ -12,11 +13,16 @@ import org.junit.Test
 
 class AccountDetailsViewModelTest : CommonPartOfViewModelTest() {
 
-    private val postViewModel = AccountDetailsViewModel(ReadAccountDetailsUseCase(SteemRepositoryImpl(dispatcher), dispatcher))
+    private val postViewModel = AccountDetailsViewModel(
+        SavedStateHandle().apply {
+            set("account", TestData.singleAccount)
+        },
+        ReadAccountDetailsUseCase(SteemRepositoryImpl(dispatcher), dispatcher)
+    )
 
     @Test
     fun readAccountDetails() = runTest {
-        postViewModel.readAccountDetails(TestData.singleAccount)
+        postViewModel.readAccountDetails()
         Thread.sleep(WAITING_TIME_MSEC)
 
         val state = postViewModel.accontDetailsState.value

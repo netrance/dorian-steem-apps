@@ -6,6 +6,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.toRoute
 import lee.dorian.steem_ui.model.navigation.AccountDetailsRoute
 import lee.dorian.steem_ui.model.navigation.PostContentRoute
+import lee.dorian.steem_ui.model.navigation.PostListRoute
 import lee.dorian.steem_ui.model.navigation.ProfileScreenRoute
 import lee.dorian.steem_ui.model.navigation.TagsScreenRoute
 import lee.dorian.steem_ui.model.navigation.WalletScreenRoute
@@ -22,18 +23,31 @@ fun getTopBarTitle(
     navBackStackEntry: NavBackStackEntry?
 ): String {
     return when {
-        destination?.hasRoute<TagsScreenRoute>() == true -> "Tags - Steemit"
+        destination?.hasRoute<TagsScreenRoute>() == true -> {
+            "Tags - Steemit"
+        }
         destination?.hasRoute<ProfileScreenRoute>() == true -> {
             val route = navBackStackEntry?.toRoute<ProfileScreenRoute>()
-            if (route?.account?.isNotEmpty() == true) {
-                "Profile - @${route.account}"
-            } else {
-                "Profile"
+            when {
+                (route?.account?.isNotEmpty() == true) -> "Profile - @${route?.account}"
+                else -> "Profile"
             }
         }
-        destination?.hasRoute<WalletScreenRoute>() == true -> "Wallet"
-        destination?.hasRoute<PostContentRoute>() == true -> "Post"
-        destination?.hasRoute<AccountDetailsRoute>() == true -> "Account Details"
+        destination?.hasRoute<WalletScreenRoute>() == true -> {
+            "Wallet"
+        }
+        destination?.hasRoute<PostListRoute>() == true -> {
+            val route = navBackStackEntry?.toRoute<PostListRoute>()
+            "${route?.sort?.replaceFirstChar { it.uppercase() }} - @${route?.account}"
+        }
+        destination?.hasRoute<PostContentRoute>() == true -> {
+            val route = navBackStackEntry?.toRoute<PostContentRoute>()
+            "Post - @${route?.author}"
+        }
+        destination?.hasRoute<AccountDetailsRoute>() == true -> {
+            val route = navBackStackEntry?.toRoute<AccountDetailsRoute>()
+            "Account Details - @${route?.account}"
+        }
         else -> "Steemit"
     }
 }
@@ -44,11 +58,17 @@ fun getTopBarTitle(
  * @param destination Current navigation destination
  * @return Whether to show BottomBar
  */
-fun shouldShowBottomBar(destination: NavDestination?): Boolean {
+fun shouldShowBottomBar(
+    destination: NavDestination?,
+    navBackStackEntry: NavBackStackEntry? = null
+): Boolean {
     return when {
-        destination?.hasRoute<PostContentRoute>() == true -> false
-        destination?.hasRoute<AccountDetailsRoute>() == true -> false
-        else -> true
+        destination?.hasRoute<TagsScreenRoute>() == true -> true
+        destination?.hasRoute<ProfileScreenRoute>() == true -> {
+            navBackStackEntry?.toRoute<ProfileScreenRoute>()?.account?.isEmpty() ?: true
+        }
+        destination?.hasRoute<WalletScreenRoute>() == true -> true
+        else -> false
     }
 }
 

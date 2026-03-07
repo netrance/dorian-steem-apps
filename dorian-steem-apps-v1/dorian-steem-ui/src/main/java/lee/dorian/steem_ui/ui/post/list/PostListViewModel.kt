@@ -1,14 +1,12 @@
 package lee.dorian.steem_ui.ui.post.list
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
-import lee.dorian.steem_data.repository.SteemRepositoryImpl
-import lee.dorian.steem_domain.model.AccountHistory
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.PostListInfo
 import lee.dorian.steem_domain.model.PostItem
@@ -19,8 +17,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PostListViewModel @Inject constructor(
+    val savedStateHandle: SavedStateHandle,
     private val readPostsUseCase: ReadPostsUseCase
 ) : BaseViewModel() {
+
+    // parameters
+    val account = savedStateHandle.getStateFlow("account", "")
+    val sort = savedStateHandle.getStateFlow("sort", "")
 
     val limit = GetAccountPostParamsDTO.InnerParams.DEFAULT_LIMIT
 
@@ -30,9 +33,9 @@ class PostListViewModel @Inject constructor(
     private val _flowIsRefreshing = MutableStateFlow(false)
     val flowIsRefreshing = _flowIsRefreshing.asStateFlow()
 
-    fun readPosts(author: String, sort: String) = viewModelScope.launch {
+    fun readPosts() = viewModelScope.launch {
         _flowState.emit(State.Loading)
-        val apiResult = readPostsUseCase(author, sort, "")
+        val apiResult = readPostsUseCase(account.value, sort.value, "")
         val newState = when (apiResult) {
             is ApiResult.Failure -> State.Failure(apiResult.content)
             is ApiResult.Error -> State.Error(apiResult.throwable)
@@ -40,7 +43,7 @@ class PostListViewModel @Inject constructor(
                 val postList = mutableListOf<PostItem>().apply {
                     addAll(apiResult.data)
                 }
-                State.Success(PostListInfo(author, sort, postList))
+                State.Success(PostListInfo(account.value, sort.value, postList))
             }
         }
         _flowState.emit(newState)

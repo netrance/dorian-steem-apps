@@ -49,7 +49,7 @@ class AccountDetailsFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                AccountDetailsContent(args.account)
+                AccountDetailsContent()
             }
         }
     }
@@ -86,7 +86,6 @@ fun PreviewAccountDetailsRow() {
 
 @Composable
 fun AccountDetailsContent(
-    account: String,
     viewModel: AccountDetailsViewModel = hiltViewModel()
 ) {
     val accountDetailsState = viewModel.accontDetailsState.collectAsState()
@@ -94,7 +93,7 @@ fun AccountDetailsContent(
 
 
     LaunchedEffect(Unit) {
-        viewModel.readAccountDetails(account)
+        viewModel.readAccountDetails()
     }
 }
 

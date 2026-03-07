@@ -1,5 +1,6 @@
 package lee.dorian.steem_ui.ui.account_details
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,15 +17,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AccountDetailsViewModel @Inject constructor(
+    val savedStateHandle: SavedStateHandle,
     private val readAccountDetailsUseCase: ReadAccountDetailsUseCase
 ) : BaseViewModel() {
+
+    // parameters
+    val account = savedStateHandle.getStateFlow("account", "")
 
     private val _accountDetailsState: MutableStateFlow<State<AccountDetails>> = MutableStateFlow(State.Empty)
     val accontDetailsState = _accountDetailsState.asStateFlow()
 
-    fun readAccountDetails(account: String) = viewModelScope.launch {
+    fun readAccountDetails() = viewModelScope.launch {
         _accountDetailsState.emit(State.Loading)
-        val apiResult = readAccountDetailsUseCase(account)
+        val apiResult = readAccountDetailsUseCase(account.value)
         val newState = when (apiResult) {
             is ApiResult.Failure -> State.Failure(apiResult.content)
             is ApiResult.Error -> State.Error(apiResult.throwable)

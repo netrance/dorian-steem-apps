@@ -2,7 +2,6 @@ package lee.dorian.steem_ui.ui.post
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -24,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.fragment.findNavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
@@ -39,7 +39,6 @@ import lee.dorian.steem_domain.usecase.ReadPostsUseCase
 import lee.dorian.steem_ui.ext.showToastShortly
 import lee.dorian.steem_ui.ext.startDownvoteListActivity
 import lee.dorian.steem_ui.ext.startUpvoteListActivity
-import lee.dorian.steem_ui.ui.post.content.PostContentFragment
 import lee.dorian.steem_ui.ui.post.list.PostListFragment
 import lee.dorian.steem_ui.ui.post.list.PostListFragmentDirections
 import lee.dorian.steem_ui.ui.post.list.PostListViewModel
@@ -48,7 +47,14 @@ import lee.dorian.steem_ui.ui.tags.TagsFragment
 import lee.dorian.steem_ui.ui.tags.TagsFragmentDirections
 
 @Composable
-fun PostList(postList: List<PostItem>, viewModel: PostListViewModel) {
+fun PostList(
+    postList: List<PostItem>,
+    viewModel: PostListViewModel,
+    onPostItemClick: (PostItem) -> Unit = {},
+    onPostImageClick: (Context, PostItem) -> Unit = { _, _ -> },
+    onUpvoteClick: (Context, List<ActiveVote>) -> Unit = { _, _ -> },
+    onDownvoteClick: (Context, List<ActiveVote>) -> Unit = { _, _ -> }
+) {
     AppendableLazyColumn(
         onAppend = {
             viewModel.appendPosts()
@@ -57,10 +63,10 @@ fun PostList(postList: List<PostItem>, viewModel: PostListViewModel) {
         items(postList.size) { index ->
             PostListItem(
                 postList[index],
-                ::onPostListItemClick,
-                ::onPostListItemImageClick,
-                ::onUpvoteClick,
-                ::onDownvoteClick
+                onPostItemClick,
+                onPostImageClick,
+                onUpvoteClick,
+                onDownvoteClick
             )
         }
     }
@@ -78,6 +84,7 @@ fun PostListPreview() {
     PostList(
         postList,
         PostListViewModel(
+            SavedStateHandle(),
             ReadPostsUseCase(
                 SteemRepositoryImpl(Dispatchers.IO),
                 Dispatchers.IO
@@ -89,7 +96,7 @@ fun PostListPreview() {
 @Composable
 fun PostListItem(
     postItem: PostItem,
-    onItemClick: (Context, PostItem) -> Unit,
+    onPostItemClick: (PostItem) -> Unit,
     onImageClick: (Context, PostItem) -> Unit,
     onUpvoteClick: (Context, List<ActiveVote>) -> Unit,
     onDownvoteClick: (Context, List<ActiveVote>) -> Unit
@@ -100,7 +107,7 @@ fun PostListItem(
             .fillMaxWidth()
             .background(Color.White)
             .borderBottom(2.dp, Color.Gray)
-            .clickable { onItemClick(context, postItem) }
+            .clickable { onPostItemClick(postItem) }
             .padding(start = 8.dp, end = 8.dp, top = 8.dp)
     ) {
         // Title
@@ -200,53 +207,9 @@ fun PostListItem(
 fun PostListItemPreview() {
     PostListItem(
         samplePostItem,
-        ::onPostListItemClick,
-        ::onPostListItemImageClick,
-        ::onUpvoteClick,
-        ::onDownvoteClick
+        {},
+        { _, _ -> },
+        { _, _ -> },
+        { _, _ -> }
     )
-}
-
-fun onPostListItemClick(context: Context, postItem: PostItem) {
-    val fragment = context.getCurrentFragment(R.id.nav_host_fragment_activity_main)
-    val action = when (fragment) {
-        is PostListFragment -> {
-            PostListFragmentDirections.actionNavigationPostListToNavigationPost(
-                postItem.account,
-                postItem.permlink
-            )
-        }
-        is TagsFragment -> {
-            TagsFragmentDirections.actionNavigationTagsToNavigationPostContent(
-                postItem.account,
-                postItem.permlink
-            )
-        }
-        else -> {
-            return
-        }
-    }
-    fragment.findNavController().navigate(action)
-}
-
-fun onPostListItemImageClick(context: Context, postItem: PostItem) {
-    Intent(context, PostImagePagerActivity::class.java).also {
-        if (postItem.imageURLs.isEmpty()) {
-            val fragment = context.getCurrentFragment(R.id.nav_host_fragment_activity_main)
-            fragment?.showToastShortly(context.getString(R.string.error_no_post_image))
-            return
-        }
-
-        val imageURLArrayList = ArrayList(postItem.imageURLs)
-        it.putExtra(PostImagePagerActivity.INTENT_BUNDLE_IMAGE_URL_LIST, imageURLArrayList)
-        context.startActivity(it)
-    }
-}
-
-fun onUpvoteClick(context: Context, activeVotes: List<ActiveVote>) {
-    context.startUpvoteListActivity(activeVotes)
-}
-
-fun onDownvoteClick(context: Context, activeVotes: List<ActiveVote>) {
-    context.startDownvoteListActivity(activeVotes)
 }

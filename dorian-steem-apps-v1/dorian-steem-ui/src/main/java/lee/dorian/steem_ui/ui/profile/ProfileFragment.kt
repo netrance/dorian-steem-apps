@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -151,7 +152,10 @@ val profileMenuItems = listOf(
 @Composable
 fun ProfileScreen(
     account: String,
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel(),
+    onAccountDetailsMenuClicked: (account: String) -> Unit = {},
+    onPostListMenuClicked: (account: String, sort: String) -> Unit = { _, _ -> },
+    onAccountHistoryMenuClicked: (account: String) -> Unit = {},
 ) {
     val state by viewModel.profileState.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -183,7 +187,13 @@ fun ProfileScreen(
             else -> {
                 val profile = (state as State.Success<SteemitProfile>).data
                 ProfileContent(profile)
-                ProfileMenu(profile, profileMenuItems)
+                ProfileMenu(
+                    profile,
+                    profileMenuItems,
+                    onAccountDetailsMenuClicked,
+                    onPostListMenuClicked,
+                    onAccountHistoryMenuClicked
+                )
             }
         }
     }
@@ -355,18 +365,33 @@ fun ProfileContentPreview() {
 @Composable
 fun ProfileMenu(
     profile: SteemitProfile,
-    profileMenuItems: List<ProfileMenuItem>
+    profileMenuItems: List<ProfileMenuItem>,
+    onAccountDetailsMenuClicked: (account: String) -> Unit = {},
+    onPostListMenuClicked: (account: String, sort: String) -> Unit = { _, _ -> },
+    onAccountHistoryMenuClicked: (account: String) -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            ProfileMenuCell(profileMenuItems[0], this)
-            ProfileMenuCell(profileMenuItems[1], this)
-            ProfileMenuCell(profileMenuItems[2], this)
+            ProfileMenuCell(profileMenuItems[0], this) {
+                onAccountDetailsMenuClicked(profile.account)
+            }
+            ProfileMenuCell(profileMenuItems[1], this) {
+                onPostListMenuClicked(profile.account, "blog")
+            }
+            ProfileMenuCell(profileMenuItems[2], this) {
+                onPostListMenuClicked(profile.account, "posts")
+            }
         }
         Row(modifier = Modifier.fillMaxWidth()) {
-            ProfileMenuCell(profileMenuItems[3], this)
-            ProfileMenuCell(profileMenuItems[4], this)
-            ProfileMenuCell(profileMenuItems[5], this)
+            ProfileMenuCell(profileMenuItems[3], this) {
+                onPostListMenuClicked(profile.account, "comments")
+            }
+            ProfileMenuCell(profileMenuItems[4], this) {
+                onPostListMenuClicked(profile.account, "replies")
+            }
+            ProfileMenuCell(profileMenuItems[5], this) {
+                onAccountHistoryMenuClicked(profile.account)
+            }
         }
     }
 }
