@@ -1,5 +1,6 @@
 package lee.dorian.steem_ui.ui.post.list
 
+import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.PostListInfo
@@ -14,11 +15,17 @@ import org.junit.Assert.*
 
 class PostListViewModelTest : CommonPartOfViewModelTest() {
 
-    private val postListViewModel = PostListViewModel(ReadPostsUseCase(SteemRepositoryImpl(dispatcher), dispatcher))
+    private val postListViewModel = PostListViewModel(
+        SavedStateHandle().apply {
+            set("account", TestData.singleAccount2)
+            set("sort", "posts")
+        },
+        ReadPostsUseCase(SteemRepositoryImpl(dispatcher), dispatcher)
+    )
 
     @Test
     fun readPosts() = runTest {
-        postListViewModel.readPosts(TestData.singleAccount2, "posts")
+        postListViewModel.readPosts()
         Thread.sleep(WAITING_TIME_MSEC)
 
         val state: State<PostListInfo> = postListViewModel.flowState.value
@@ -32,7 +39,7 @@ class PostListViewModelTest : CommonPartOfViewModelTest() {
 
     @Test
     fun appendRankedPosts() = runTest {
-        postListViewModel.readPosts(TestData.singleAccount2, "posts")
+        postListViewModel.readPosts()
         Thread.sleep(WAITING_TIME_MSEC)
 
         postListViewModel.appendPosts()

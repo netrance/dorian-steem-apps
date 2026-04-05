@@ -5,6 +5,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.toRoute
 import lee.dorian.steem_ui.model.navigation.AccountDetailsRoute
+import lee.dorian.steem_ui.model.navigation.AccountHistoryRoute
 import lee.dorian.steem_ui.model.navigation.PostContentRoute
 import lee.dorian.steem_ui.model.navigation.PostListRoute
 import lee.dorian.steem_ui.model.navigation.ProfileScreenRoute
@@ -47,6 +48,10 @@ fun getTopBarTitle(
         destination?.hasRoute<AccountDetailsRoute>() == true -> {
             val route = navBackStackEntry?.toRoute<AccountDetailsRoute>()
             "Account Details - @${route?.account}"
+        }
+        destination?.hasRoute<AccountHistoryRoute>() == true -> {
+            val route = navBackStackEntry?.toRoute<AccountHistoryRoute>()
+            "Account History - @${route?.account}"
         }
         else -> "Steemit"
     }

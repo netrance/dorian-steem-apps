@@ -2,6 +2,7 @@ package lee.dorian.steem_ui.ui.history
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,6 +16,7 @@ import lee.dorian.steem_domain.model.DynamicGlobalProperties
 import lee.dorian.steem_domain.usecase.ReadAccountHistoryUseCase
 import lee.dorian.steem_domain.usecase.ReadDynamicGlobalPropertiesUseCase
 import lee.dorian.steem_ui.model.State
+import lee.dorian.steem_ui.model.navigation.AccountHistoryRoute
 import lee.dorian.steem_ui.ui.base.BaseViewModel
 import javax.inject.Inject
 
@@ -26,7 +28,7 @@ class AccountHistoryViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     // parameters
-    val account = savedStateHandle.getStateFlow("account", "")
+    val accountHistoryRoute: AccountHistoryRoute = savedStateHandle.toRoute()
 
     private val _flowAccountHistoryState: MutableStateFlow<State<AccountHistory>> = MutableStateFlow(State.Empty)
     val flowAccountHistoryState = _flowAccountHistoryState.asStateFlow()
@@ -57,7 +59,7 @@ class AccountHistoryViewModel @Inject constructor(
 
     fun readAccountHistory() = viewModelScope.launch {
         _flowAccountHistoryState.emit(State.Loading)
-        val apiResult = readAccountHistoryUseCase(account.value)
+        val apiResult = readAccountHistoryUseCase(accountHistoryRoute.account)
         _flowIsRefreshing.value = false
         val newState = when (apiResult) {
             is ApiResult.Failure -> State.Failure(apiResult.content)
@@ -66,7 +68,7 @@ class AccountHistoryViewModel @Inject constructor(
                 val historyItemList = mutableListOf<AccountHistoryItem>().apply {
                     addAll(apiResult.data)
                 }
-                State.Success(AccountHistory(account.value, historyItemList))
+                State.Success(AccountHistory(accountHistoryRoute.account, historyItemList))
             }
         }
         _flowAccountHistoryState.emit(newState)

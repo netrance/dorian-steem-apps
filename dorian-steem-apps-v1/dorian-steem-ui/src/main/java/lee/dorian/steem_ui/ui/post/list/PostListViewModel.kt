@@ -2,6 +2,7 @@ package lee.dorian.steem_ui.ui.post.list
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +13,7 @@ import lee.dorian.steem_domain.model.PostListInfo
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_domain.usecase.ReadPostsUseCase
 import lee.dorian.steem_ui.model.State
+import lee.dorian.steem_ui.model.navigation.PostListRoute
 import lee.dorian.steem_ui.ui.base.BaseViewModel
 import javax.inject.Inject
 
@@ -22,8 +24,7 @@ class PostListViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     // parameters
-    val account = savedStateHandle.getStateFlow("account", "")
-    val sort = savedStateHandle.getStateFlow("sort", "")
+    private val postListRoute: PostListRoute = savedStateHandle.toRoute()
 
     val limit = GetAccountPostParamsDTO.InnerParams.DEFAULT_LIMIT
 
@@ -35,7 +36,7 @@ class PostListViewModel @Inject constructor(
 
     fun readPosts() = viewModelScope.launch {
         _flowState.emit(State.Loading)
-        val apiResult = readPostsUseCase(account.value, sort.value, "")
+        val apiResult = readPostsUseCase(postListRoute.account, postListRoute.sort, "")
         val newState = when (apiResult) {
             is ApiResult.Failure -> State.Failure(apiResult.content)
             is ApiResult.Error -> State.Error(apiResult.throwable)
@@ -43,7 +44,7 @@ class PostListViewModel @Inject constructor(
                 val postList = mutableListOf<PostItem>().apply {
                     addAll(apiResult.data)
                 }
-                State.Success(PostListInfo(account.value, sort.value, postList))
+                State.Success(PostListInfo(postListRoute.account,  postListRoute.sort, postList))
             }
         }
         _flowState.emit(newState)

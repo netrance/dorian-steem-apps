@@ -2,6 +2,7 @@ package lee.dorian.steem_ui.ui.post.content
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,6 +11,7 @@ import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.Post
 import lee.dorian.steem_domain.usecase.ReadPostAndRepliesUseCase
+import lee.dorian.steem_ui.model.navigation.PostContentRoute
 import lee.dorian.steem_ui.ui.base.BaseViewModel
 import javax.inject.Inject
 
@@ -19,15 +21,14 @@ class PostContentViewModel @Inject constructor(
     private val readPostAndRepliesUseCase: ReadPostAndRepliesUseCase
 ) : BaseViewModel() {
 
-    val author = savedStateHandle.getStateFlow("author", "")
-    val permlink = savedStateHandle.getStateFlow("permlink", "")
+    val postContentRoute: PostContentRoute = savedStateHandle.toRoute()
 
     private val _flowPostContentState: MutableStateFlow<PostContentState> = MutableStateFlow(PostContentState.Empty)
     val flowPostState = _flowPostContentState.asStateFlow()
 
     fun readPostAndReplies() = viewModelScope.launch {
         _flowPostContentState.emit(PostContentState.Loading)
-        val apiResult = readPostAndRepliesUseCase(author.value, permlink.value)
+        val apiResult = readPostAndRepliesUseCase(postContentRoute.author, postContentRoute.permlink)
         val newState = when (apiResult) {
             is ApiResult.Failure -> PostContentState.Failure(apiResult.content)
             is ApiResult.Error -> PostContentState.Error(apiResult.throwable)

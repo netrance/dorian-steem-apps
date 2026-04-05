@@ -2,6 +2,7 @@ package lee.dorian.steem_ui.ui.account_details
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +13,7 @@ import lee.dorian.steem_domain.model.AccountDetails
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.usecase.ReadAccountDetailsUseCase
 import lee.dorian.steem_ui.model.State
+import lee.dorian.steem_ui.model.navigation.AccountDetailsRoute
 import lee.dorian.steem_ui.ui.base.BaseViewModel
 import javax.inject.Inject
 
@@ -22,14 +24,14 @@ class AccountDetailsViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     // parameters
-    val account = savedStateHandle.getStateFlow("account", "")
+    val accountDetailsRoute: AccountDetailsRoute = savedStateHandle.toRoute()
 
     private val _accountDetailsState: MutableStateFlow<State<AccountDetails>> = MutableStateFlow(State.Empty)
     val accontDetailsState = _accountDetailsState.asStateFlow()
 
     fun readAccountDetails() = viewModelScope.launch {
         _accountDetailsState.emit(State.Loading)
-        val apiResult = readAccountDetailsUseCase(account.value)
+        val apiResult = readAccountDetailsUseCase(accountDetailsRoute.account)
         val newState = when (apiResult) {
             is ApiResult.Failure -> State.Failure(apiResult.content)
             is ApiResult.Error -> State.Error(apiResult.throwable)
