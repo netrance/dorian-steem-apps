@@ -1,10 +1,6 @@
 package lee.dorian.steem_ui.ui.tags
 
 import android.content.Context
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Tab
@@ -19,52 +15,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import lee.dorian.dorian_android_ktx.androidx.compose.foundation.lazy.AppendableLazyColumn
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_domain.usecase.ReadRankedPostsUseCase
-import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
 import lee.dorian.steem_ui.ui.compose.TagInputForm
 import lee.dorian.steem_ui.ui.post.PostListItem
 import lee.dorian.steem_ui.ui.preview.samplePostItem
-
-@AndroidEntryPoint
-class TagsFragment : Fragment() {
-
-    val activityViewModel by lazy {
-        ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                // TagsScreen()
-            }
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-}
 
 private val tagInfoList = listOf(
     TagScreenSortTabInfo("Trending", "trending"),

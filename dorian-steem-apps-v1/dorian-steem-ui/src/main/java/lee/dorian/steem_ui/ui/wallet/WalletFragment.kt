@@ -1,9 +1,5 @@
 package lee.dorian.steem_ui.ui.wallet
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,49 +16,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.fragment.navArgs
-import dagger.hilt.android.AndroidEntryPoint
 import lee.dorian.steem_domain.model.SteemitWallet
-import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.AccountInputForm
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
-
-@AndroidEntryPoint
-class WalletFragment : Fragment() {
-
-    private val args: WalletFragmentArgs by navArgs()
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                SteemitWalletScreen(initialAccount = args.account)
-            }
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-}
 
 @Composable
 fun SteemitWalletScreen(

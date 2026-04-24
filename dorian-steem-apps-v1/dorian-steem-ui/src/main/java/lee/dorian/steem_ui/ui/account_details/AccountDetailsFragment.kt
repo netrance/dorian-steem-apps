@@ -1,10 +1,5 @@
 package lee.dorian.steem_ui.ui.account_details
 
-import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,43 +13,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.viewModels
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.navArgs
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import lee.dorian.dorian_android_ktx.androidx.compose.ui.borderBottom
 import lee.dorian.steem_domain.model.AccountDetails
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
-
-@AndroidEntryPoint
-class AccountDetailsFragment : Fragment() {
-
-    private val args: AccountDetailsFragmentArgs by navArgs()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                AccountDetailsContent()
-            }
-        }
-    }
-
-}
 
 @Composable
 fun AccountDetailsRow(name: String, value: String) {
@@ -65,7 +32,6 @@ fun AccountDetailsRow(name: String, value: String) {
             .background(Color.White)
             .borderBottom(2.dp, Color.Gray)
             .padding(8.dp)
-
     ) {
         Text(
             text = name
@@ -90,7 +56,6 @@ fun AccountDetailsContent(
 ) {
     val accountDetailsState = viewModel.accontDetailsState.collectAsState()
     AccountDetailsContent(accountDetailsState.value)
-
 
     LaunchedEffect(Unit) {
         viewModel.readAccountDetails()

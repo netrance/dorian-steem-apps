@@ -2,10 +2,6 @@
 
 package lee.dorian.steem_ui.ui.history
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -26,58 +22,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import lee.dorian.dorian_android_ktx.androidx.compose.foundation.lazy.AppendableLazyColumn
-import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.AccountHistory
 import lee.dorian.steem_domain.model.AccountHistoryItem
 import lee.dorian.steem_domain.model.AccountHistoryItemLink
 import lee.dorian.steem_domain.model.DynamicGlobalProperties
-import lee.dorian.steem_domain.usecase.ReadAccountHistoryUseCase
-import lee.dorian.steem_domain.usecase.ReadDynamicGlobalPropertiesUseCase
-import lee.dorian.steem_ui.ext.setActivityActionBarTitle
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
-
-@AndroidEntryPoint
-class AccountHistoryFragment : Fragment() {
-
-    private val args: AccountHistoryFragmentArgs by navArgs()
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return ComposeView(requireContext()).apply {
-            setContent {
-//                AccountHistoryScreen(account = args.author) { accountHistoryItemLink ->
-//                    onMenuItemClick(accountHistoryItemLink)
-//                }
-            }
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-}
 
 @Composable
 fun AccountHistoryScreen(
@@ -112,27 +72,31 @@ fun AccountHistoryScreen(
         }
     ) {
         val accountHistory = (accountHistoryState as State.Success<AccountHistory>).data
-        AccountHistoryItemList(accountHistory, viewModel, onMenuItemClick)
+        AccountHistoryItemList(
+            accountHistory = accountHistory,
+            dgpState = dgpState,
+            onAppend = { viewModel.appendAccountHistory() },
+            onMenuItemClick = onMenuItemClick
+        )
     }
 }
 
 @Composable
 fun AccountHistoryItemList(
     accountHistory: AccountHistory,
-    viewModel: AccountHistoryViewModel,
+    dgpState: State<DynamicGlobalProperties>,
+    onAppend: () -> Unit,
     onMenuItemClick: (AccountHistoryItemLink) -> Unit
 ) {
-    val dgpState by viewModel.flowDGPState.collectAsStateWithLifecycle()
-
     AppendableLazyColumn(
-        onAppend = { viewModel.appendAccountHistory() },
+        onAppend = onAppend,
         modifier = Modifier.fillMaxSize()
     ) {
         items(accountHistory.historyList.size) { index ->
             AccountHistoryItem(
                 item = accountHistory.historyList[index],
                 dynamicGlobalProperties = when {
-                    dgpState is State.Success -> (dgpState as State.Success<DynamicGlobalProperties>).data
+                    dgpState is State.Success -> dgpState.data
                     else -> null
                 },
                 backgroundColor = if ((index % 2) == 0) Color.White else Color.LightGray,
@@ -145,9 +109,8 @@ fun AccountHistoryItemList(
 @Composable
 @Preview
 fun AccountHistoryItemListPreview() {
-    val steemRepository = SteemRepositoryImpl(Dispatchers.IO)
     AccountHistoryItemList(
-        AccountHistory(
+        accountHistory = AccountHistory(
             "test-account",
             listOf(
                 sampleAccountHistoryItem,
@@ -155,12 +118,9 @@ fun AccountHistoryItemListPreview() {
                 sampleAccountHistoryItem
             )
         ),
-        AccountHistoryViewModel(
-            SavedStateHandle(),
-            ReadAccountHistoryUseCase(steemRepository, Dispatchers.IO),
-            ReadDynamicGlobalPropertiesUseCase(steemRepository, Dispatchers.IO)
-        ),
-        {}
+        dgpState = State.Empty,
+        onAppend = {},
+        onMenuItemClick = {}
     )
 }
 

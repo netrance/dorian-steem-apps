@@ -24,7 +24,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.fragment.findNavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.Dispatchers
@@ -39,12 +38,8 @@ import lee.dorian.steem_domain.usecase.ReadPostsUseCase
 import lee.dorian.steem_ui.ext.showToastShortly
 import lee.dorian.steem_ui.ext.startDownvoteListActivity
 import lee.dorian.steem_ui.ext.startUpvoteListActivity
-import lee.dorian.steem_ui.ui.post.list.PostListFragment
-import lee.dorian.steem_ui.ui.post.list.PostListFragmentDirections
 import lee.dorian.steem_ui.ui.post.list.PostListViewModel
 import lee.dorian.steem_ui.ui.preview.samplePostItem
-import lee.dorian.steem_ui.ui.tags.TagsFragment
-import lee.dorian.steem_ui.ui.tags.TagsFragmentDirections
 
 @Composable
 fun PostList(

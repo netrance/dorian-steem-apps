@@ -1,9 +1,5 @@
 package lee.dorian.steem_ui.ui.post.content
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -35,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -44,72 +39,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.navArgs
 import coil.compose.AsyncImage
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import lee.dorian.dorian_android_ktx.android.context.findActivity
 import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.model.Post
-import lee.dorian.steem_ui.MainViewModel
 import lee.dorian.steem_ui.ext.*
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
 import lee.dorian.steem_ui.ui.preview.postForTest
-
-@AndroidEntryPoint
-class PostContentFragment : Fragment() {
-
-    private val args: PostContentFragmentArgs by navArgs()
-
-    val activityViewModel by lazy {
-        ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                val viewModel = hiltViewModel<PostContentViewModel>()
-                val state by viewModel.flowPostState.collectAsStateWithLifecycle()
-
-                if (state is PostContentState.Empty) {
-                    viewModel.updateAutherAndPermlink(args.author, args.permlink)
-                }
-
-                PostScreen(
-                    onUpvoteClick = { activeVotes -> onUpvoteClicked(activeVotes) },
-                    onDownvoteClick = { activeVotes -> onDownvoteClicked(activeVotes) }
-                )
-            }
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-    private fun onUpvoteClicked(activeVotes: List<ActiveVote>) {
-        requireActivity().startUpvoteListActivity(activeVotes)
-    }
-
-    private fun onDownvoteClicked(activeVotes: List<ActiveVote>) {
-        requireActivity().startDownvoteListActivity(activeVotes)
-    }
-
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

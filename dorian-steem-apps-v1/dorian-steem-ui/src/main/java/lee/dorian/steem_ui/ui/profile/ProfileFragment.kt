@@ -1,9 +1,5 @@
 package lee.dorian.steem_ui.ui.profile
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
@@ -45,60 +40,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import coil.compose.AsyncImage
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.SteemitProfile
 import lee.dorian.steem_domain.usecase.ReadSteemitProfileUseCase
-import lee.dorian.steem_ui.ext.setActivityActionBarTitle
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.AccountInputForm
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
 import lee.dorian.steem_ui.ui.post.PostSortType
-
-@AndroidEntryPoint
-class ProfileFragment : Fragment() {
-
-    private val args: ProfileFragmentArgs by navArgs()
-
-    val viewModel by viewModels<ProfileViewModel>()
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            // This class will be deleted
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val state = viewModel.profileState.value
-        setActivityActionBarTitle(when (state) {
-            is State.Success -> "Profile of @${state.data.account}"
-            else -> "Profile"
-        })
-    }
-
-}
 
 val profileMenuItems = listOf(
     ProfileMenuItem(ProfileMenuItemID.DETAILS, "Details", Color.Black, 18, Color.White),
@@ -286,7 +239,6 @@ fun ProfileContentText(profile: SteemitProfile) {
         // Web site
         BasicText(
             text = getWebsiteText(profile.website),
-            //textAlign = TextAlign.Center,
             style = profileContentTextStyle,
             modifier = Modifier.padding(top = 16.dp)
         )
@@ -392,7 +344,6 @@ fun ProfileMenuCell(
             textAlign = TextAlign.Center
         )
     }
-
 }
 
 private fun getMenuTextStyle(textColor: Color, fontSize: Int): TextStyle {
@@ -419,6 +370,6 @@ private val sampleSteemitProfile by lazy {
         followerCount = 100,
         location = "Seoul, Korea",
         website = "www.steemit.com",
-        coverImageURL = "https://cdn.steemitimages.com/DQmUtGtQZGWnosZZrGsC2Dm9Xv8rc7AzomX2ajBKjKwEGcz/photo_2020-07-26%2019.13.27.jpeg"
+        coverImageURL = "https://cdn.steemitimages.com/DQmUtGtQZCWnosZZrGsC2Dm9Xv8rc7AzomX2ajBKjKwEGcz/photo_2020-07-26%2019.13.27.jpeg"
     )
 }
