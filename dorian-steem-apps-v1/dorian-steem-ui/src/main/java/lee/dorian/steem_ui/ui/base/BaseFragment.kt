@@ -1,6 +1,5 @@
 package lee.dorian.steem_ui.ui.base
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,9 +11,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_ui.ext.showToastShortly
-import lee.dorian.steem_ui.ui.voter.VoteListActivity
 import java.net.UnknownHostException
 
 abstract class BaseFragment<VDB: ViewDataBinding, VM: BaseViewModel>(
