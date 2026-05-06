@@ -29,10 +29,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import dagger.hilt.android.AndroidEntryPoint
 import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.CustomTopAppBar
 
+@AndroidEntryPoint
 class PostImagePagerActivity : ComponentActivity() {
 
     companion object {
