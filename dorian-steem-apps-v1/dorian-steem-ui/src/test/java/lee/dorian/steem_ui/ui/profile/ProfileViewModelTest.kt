@@ -1,6 +1,7 @@
 package lee.dorian.steem_ui.ui.profile
 
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.SteemitProfile
 import lee.dorian.steem_domain.usecase.ReadSteemitProfileUseCase
@@ -15,9 +16,9 @@ class ProfileViewModelTest : CommonPartOfViewModelTest() {
     private val postViewModel = ProfileViewModel(ReadSteemitProfileUseCase(SteemRepositoryImpl(dispatcher), dispatcher))
 
     @Test
-    fun readSteemitProfile() = runTest {
+    fun readSteemitProfile() = runBlocking {
         postViewModel.readSteemitProfile(TestData.singleAccount)
-        Thread.sleep(WAITING_TIME_MSEC)
+        delay(WAITING_TIME_MSEC)
 
         val state = postViewModel.profileState.value
         assertTrue(state is State.Success<SteemitProfile>)

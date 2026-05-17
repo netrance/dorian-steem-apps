@@ -1,7 +1,8 @@
 package lee.dorian.steem_ui.ui.post
 
 import androidx.lifecycle.SavedStateHandle
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.usecase.ReadPostAndRepliesUseCase
 import lee.dorian.steem_test.CommonPartOfViewModelTest
@@ -23,9 +24,9 @@ class PostContentViewModelTest : CommonPartOfViewModelTest() {
     )
 
     @Test
-    fun readPostAndReplies() = runTest {
+    fun readPostAndReplies() = runBlocking {
         postContentViewModel.readPostAndReplies()
-        Thread.sleep(WAITING_TIME_MSEC)
+        delay(WAITING_TIME_MSEC)
 
         val state = postContentViewModel.flowPostState.value
         assertTrue(state is PostContentState.Success)

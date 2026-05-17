@@ -1,17 +1,14 @@
-package lee.dorian.steem_ui.ui.wallet
+package lee.dorian.steem_ui.ui.tags
 
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.delay
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.usecase.ReadRankedPostsUseCase
 import lee.dorian.steem_test.CommonPartOfViewModelTest
-import lee.dorian.steem_ui.ui.tags.TagsViewModel
-import org.junit.Assert.assertEquals
-import org.junit.Test
-
-import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.model.State
-import lee.dorian.steem_ui.ui.tags.TagsState
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class TagsViewModelTest : CommonPartOfViewModelTest() {
 
@@ -20,11 +17,11 @@ class TagsViewModelTest : CommonPartOfViewModelTest() {
     )
 
     @Test
-    fun readRankedPosts() = runTest {
+    fun readRankedPosts() = runBlocking {
         tagViewModel.apply {
             readRankedPosts("kr", "trending")
         }
-        Thread.sleep(3000)
+        delay(WAITING_TIME_MSEC)
 
         val tagsState = tagViewModel.flowTagsState.value
         assertTrue(tagsState is State.Success)
@@ -33,11 +30,11 @@ class TagsViewModelTest : CommonPartOfViewModelTest() {
     }
 
     @Test
-    fun appendRankedPosts() = runTest {
+    fun appendRankedPosts() = runBlocking {
         tagViewModel.apply {
             readRankedPosts("kr", "trending")
         }
-        Thread.sleep(3000)
+        delay(WAITING_TIME_MSEC)
         tagViewModel.flowTagsState.value.also { newState ->
             assertTrue(newState is State.Success)
             val tags = (newState as State.Success).data
@@ -45,7 +42,7 @@ class TagsViewModelTest : CommonPartOfViewModelTest() {
         }
 
         tagViewModel.appendRankedPosts("kr", "trending")
-        Thread.sleep(3000)
+        delay(WAITING_TIME_MSEC)
         tagViewModel.flowTagsState.value.also { newState ->
             assertTrue(newState is State.Success)
             val tags = (newState as State.Success).data

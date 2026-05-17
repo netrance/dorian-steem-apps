@@ -1,7 +1,8 @@
 package lee.dorian.steem_ui.ui.account_details
 
 import androidx.lifecycle.SavedStateHandle
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.AccountDetails
 import lee.dorian.steem_domain.usecase.ReadAccountDetailsUseCase
@@ -21,9 +22,9 @@ class AccountDetailsViewModelTest : CommonPartOfViewModelTest() {
     )
 
     @Test
-    fun readAccountDetails() = runTest {
+    fun readAccountDetails() = runBlocking {
         postViewModel.readAccountDetails()
-        Thread.sleep(WAITING_TIME_MSEC)
+        delay(WAITING_TIME_MSEC)
 
         val state = postViewModel.accontDetailsState.value
         assertTrue(state is State.Success<AccountDetails>)

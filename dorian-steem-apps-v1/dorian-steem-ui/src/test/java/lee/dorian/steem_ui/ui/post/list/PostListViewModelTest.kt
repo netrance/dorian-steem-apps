@@ -1,7 +1,8 @@
 package lee.dorian.steem_ui.ui.post.list
 
 import androidx.lifecycle.SavedStateHandle
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.PostListInfo
 import lee.dorian.steem_domain.usecase.ReadPostsUseCase
@@ -10,7 +11,6 @@ import lee.dorian.steem_test.TestData
 import lee.dorian.steem_ui.model.State
 import org.junit.Test
 
-import org.junit.Assert
 import org.junit.Assert.*
 
 class PostListViewModelTest : CommonPartOfViewModelTest() {
@@ -24,34 +24,26 @@ class PostListViewModelTest : CommonPartOfViewModelTest() {
     )
 
     @Test
-    fun readPosts() = runTest {
+    fun readPosts() = runBlocking {
         postListViewModel.readPosts()
-        Thread.sleep(WAITING_TIME_MSEC)
+        delay(WAITING_TIME_MSEC)
 
         val state: State<PostListInfo> = postListViewModel.flowState.value
-        if (state !is State.Success<PostListInfo>) {
-            Assert.fail()
-        }
-        else {
-            assertEquals(state.data.posts.size, postListViewModel.limit)
-        }
+        assertTrue("Expected Success but was $state", state is State.Success<PostListInfo>)
+        assertEquals((state as State.Success).data.posts.size, postListViewModel.limit)
     }
 
     @Test
-    fun appendRankedPosts() = runTest {
+    fun appendRankedPosts() = runBlocking {
         postListViewModel.readPosts()
-        Thread.sleep(WAITING_TIME_MSEC)
+        delay(WAITING_TIME_MSEC)
 
         postListViewModel.appendPosts()
-        Thread.sleep(WAITING_TIME_MSEC)
+        delay(WAITING_TIME_MSEC)
 
         val state: State<PostListInfo> = postListViewModel.flowState.value
-        if (state !is State.Success<PostListInfo>) {
-            Assert.fail()
-        }
-        else {
-            assertEquals(state.data.posts.size, postListViewModel.limit * 2)
-        }
+        assertTrue("Expected Success but was $state", state is State.Success<PostListInfo>)
+        assertEquals((state as State.Success).data.posts.size, postListViewModel.limit * 2)
     }
 
 }

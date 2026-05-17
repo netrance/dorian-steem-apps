@@ -1,7 +1,8 @@
 package lee.dorian.steem_ui.ui.history
 
 import androidx.lifecycle.SavedStateHandle
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.AccountHistory
 import lee.dorian.steem_domain.usecase.ReadAccountHistoryUseCase
@@ -11,7 +12,6 @@ import lee.dorian.steem_test.TestData
 import lee.dorian.steem_ui.model.State
 import org.junit.Test
 
-import org.junit.Assert
 import org.junit.Assert.*
 
 class AccountHistoryViewModelTest : CommonPartOfViewModelTest() {
@@ -32,34 +32,26 @@ class AccountHistoryViewModelTest : CommonPartOfViewModelTest() {
     )
 
     @Test
-    fun readAccountHistory() = runTest {
+    fun readAccountHistory() = runBlocking {
         accountHistoryViewModel.readAccountHistory()
-        Thread.sleep(WAITING_TIME_MSEC)
+        delay(WAITING_TIME_MSEC)
 
         val state: State<AccountHistory> = accountHistoryViewModel.flowAccountHistoryState.value
-        if (state !is State.Success<AccountHistory>) {
-            Assert.fail()
-        }
-        else {
-            assertEquals(state.data.historyList.size, ReadAccountHistoryUseCase.DEFAULT_LIMIT + 1)
-        }
+        assertTrue("Expected Success but was $state", state is State.Success<AccountHistory>)
+        assertEquals((state as State.Success).data.historyList.size, ReadAccountHistoryUseCase.DEFAULT_LIMIT + 1)
     }
 
     @Test
-    fun appendAccountHistory() = runTest {
+    fun appendAccountHistory() = runBlocking {
         accountHistoryViewModel.readAccountHistory()
-        Thread.sleep(WAITING_TIME_MSEC)
+        delay(WAITING_TIME_MSEC)
 
         accountHistoryViewModel.appendAccountHistory()
-        Thread.sleep(WAITING_TIME_MSEC)
+        delay(WAITING_TIME_MSEC)
 
         val state: State<AccountHistory> = accountHistoryViewModel.flowAccountHistoryState.value
-        if (state !is State.Success<AccountHistory>) {
-            Assert.fail()
-        }
-        else {
-            assertEquals(state.data.historyList.size, ReadAccountHistoryUseCase.DEFAULT_LIMIT * 2 + 1)
-        }
+        assertTrue("Expected Success but was $state", state is State.Success<AccountHistory>)
+        assertEquals((state as State.Success).data.historyList.size, ReadAccountHistoryUseCase.DEFAULT_LIMIT * 2 + 1)
     }
 
 }
