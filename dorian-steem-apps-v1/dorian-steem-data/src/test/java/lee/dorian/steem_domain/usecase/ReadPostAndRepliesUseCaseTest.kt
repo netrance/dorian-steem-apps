@@ -1,6 +1,5 @@
 package lee.dorian.steem_domain.usecase
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ApiResult
@@ -8,7 +7,6 @@ import lee.dorian.steem_test.CommonPartOfViewModelTest
 import org.junit.Assert
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class ReadPostAndRepliesUseCaseTest : CommonPartOfViewModelTest() {
 
     val author = "dorian-lee"

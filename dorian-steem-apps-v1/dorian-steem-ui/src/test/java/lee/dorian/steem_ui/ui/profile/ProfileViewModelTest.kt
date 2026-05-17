@@ -13,14 +13,14 @@ import org.junit.Test
 
 class ProfileViewModelTest : CommonPartOfViewModelTest() {
 
-    private val postViewModel = ProfileViewModel(ReadSteemitProfileUseCase(SteemRepositoryImpl(dispatcher), dispatcher))
+    private val profileViewModel = ProfileViewModel(ReadSteemitProfileUseCase(SteemRepositoryImpl(dispatcher), dispatcher))
 
     @Test
     fun readSteemitProfile() = runBlocking {
-        postViewModel.readSteemitProfile(TestData.singleAccount)
+        profileViewModel.readSteemitProfile(TestData.singleAccount)
         delay(WAITING_TIME_MSEC)
 
-        val state = postViewModel.profileState.value
+        val state = profileViewModel.profileState.value
         assertTrue(state is State.Success<SteemitProfile>)
         val profile = (state as State.Success<SteemitProfile>).data
         assertTrue(profile is SteemitProfile)

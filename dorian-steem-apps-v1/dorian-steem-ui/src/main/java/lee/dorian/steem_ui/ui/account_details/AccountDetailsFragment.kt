@@ -55,7 +55,7 @@ fun PreviewAccountDetailsRow() {
 fun AccountDetailsContent(
     viewModel: AccountDetailsViewModel = hiltViewModel()
 ) {
-    val accountDetailsState by viewModel.accontDetailsState.collectAsStateWithLifecycle()
+    val accountDetailsState by viewModel.accountDetailsState.collectAsStateWithLifecycle()
     AccountDetailsContent(accountDetailsState)
 
     LaunchedEffect(Unit) {

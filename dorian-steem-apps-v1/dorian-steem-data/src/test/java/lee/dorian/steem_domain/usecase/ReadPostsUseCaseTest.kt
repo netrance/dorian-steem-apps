@@ -1,6 +1,5 @@
 package lee.dorian.steem_domain.usecase
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
@@ -13,7 +12,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class ReadPostsUseCaseTest : CommonPartOfViewModelTest() {
 
     val readPostsUseCase = ReadPostsUseCase(

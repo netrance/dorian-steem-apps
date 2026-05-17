@@ -10,17 +10,14 @@ import org.junit.Before
 
 open class CommonPartOfViewModelTest {
 
-    @kotlinx.coroutines.ExperimentalCoroutinesApi
     protected val dispatcher: CoroutineDispatcher = UnconfinedTestDispatcher()
 
     @Before
-    @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun setUp() {
         Dispatchers.setMain(dispatcher)
     }
 
     @After
-    @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun teardown() {
         Dispatchers.resetMain()
     }

@@ -27,7 +27,7 @@ class AccountDetailsViewModel @Inject constructor(
     val accountDetailsRoute: AccountDetailsRoute = savedStateHandle.toRoute()
 
     private val _accountDetailsState: MutableStateFlow<State<AccountDetails>> = MutableStateFlow(State.Empty)
-    val accontDetailsState = _accountDetailsState.asStateFlow()
+    val accountDetailsState = _accountDetailsState.asStateFlow()
 
     fun readAccountDetails() = viewModelScope.launch {
         _accountDetailsState.emit(State.Loading)

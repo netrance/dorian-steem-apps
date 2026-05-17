@@ -14,7 +14,7 @@ import org.junit.Test
 
 class AccountDetailsViewModelTest : CommonPartOfViewModelTest() {
 
-    private val postViewModel = AccountDetailsViewModel(
+    private val accountDetailsViewModel = AccountDetailsViewModel(
         SavedStateHandle().apply {
             set("account", TestData.singleAccount)
         },
@@ -23,10 +23,10 @@ class AccountDetailsViewModelTest : CommonPartOfViewModelTest() {
 
     @Test
     fun readAccountDetails() = runBlocking {
-        postViewModel.readAccountDetails()
+        accountDetailsViewModel.readAccountDetails()
         delay(WAITING_TIME_MSEC)
 
-        val state = postViewModel.accontDetailsState.value
+        val state = accountDetailsViewModel.accountDetailsState.value
         assertTrue(state is State.Success<AccountDetails>)
         val profile = (state as State.Success<AccountDetails>).data
         assertEquals(profile.name, TestData.singleAccount)
