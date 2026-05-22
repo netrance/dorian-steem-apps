@@ -19,7 +19,7 @@ class WalletViewModel @Inject constructor(
     val readSteemitWalletUseCase: ReadSteemitWalletUseCase
 ) : BaseViewModel() {
 
-    val _flowWalletState = MutableStateFlow<State<SteemitWallet>>(State.Empty)
+    private val _flowWalletState = MutableStateFlow<State<SteemitWallet>>(State.Empty)
     val flowWalletState = _flowWalletState.asStateFlow()
 
     fun readSteemitWallet(account: String) = viewModelScope.launch {
