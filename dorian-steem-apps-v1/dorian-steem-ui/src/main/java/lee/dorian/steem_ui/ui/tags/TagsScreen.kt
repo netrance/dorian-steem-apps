@@ -19,18 +19,15 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.Dispatchers
 import lee.dorian.dorian_android_ktx.androidx.compose.foundation.lazy.AppendableLazyColumn
-import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.model.PostItem
-import lee.dorian.steem_domain.usecase.ReadRankedPostsUseCase
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
+import lee.dorian.steem_ui.ui.compose.OnLaunch
 import lee.dorian.steem_ui.ui.compose.TagInputForm
 import lee.dorian.steem_ui.ui.post.PostListItem
-import lee.dorian.steem_ui.ui.preview.samplePostItem
 
 private val tagInfoList = listOf(
     TagScreenSortTabInfo("Trending", "trending"),
@@ -50,7 +47,12 @@ fun TagsScreen(
 
     var tag by rememberSaveable { mutableStateOf("") }
     var sort by rememberSaveable { mutableStateOf(tagInfoList[0].sort) }
-    var isFirstStart by rememberSaveable { mutableStateOf(true) }
+
+    OnLaunch {
+        if (viewModel.isContentEmpty()) {
+            viewModel.readRankedPosts(tag, sort)
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -76,21 +78,6 @@ fun TagsScreen(
             modifier = Modifier.fillMaxWidth().weight(1f)
         )
     }
-
-    if (isFirstStart or viewModel.isContentEmpty()) {
-        viewModel.readRankedPosts(tag, sort)
-        isFirstStart = false
-    }
-}
-
-@Composable
-@Preview
-fun TagsScreenPreview() {
-    TagsScreen(
-        viewModel = TagsViewModel(
-            ReadRankedPostsUseCase(SteemRepositoryImpl(Dispatchers.IO), Dispatchers.IO)
-        )
-    )
 }
 
 @Composable
@@ -123,22 +110,6 @@ fun TagsContent(
         onPostImageClick = onPostImageClick,
         onUpvoteClick = onUpvoteClick,
         onDownvoteClick = onDownvoteClick
-    )
-}
-
-@Composable
-@Preview
-fun TagsContentPreview() {
-    TagsContent(
-        viewModel = TagsViewModel(
-            ReadRankedPostsUseCase(SteemRepositoryImpl(Dispatchers.IO), Dispatchers.IO)
-        ),
-        onAppend = {},
-        onPostItemClick = {},
-        onPostImageClick = { _, _ -> },
-        onUpvoteClick = { _, _ -> },
-        onDownvoteClick = { _, _ -> },
-        modifier = Modifier.fillMaxWidth()
     )
 }
 
@@ -206,15 +177,3 @@ fun TagsPostList(
     }
 }
 
-@Composable
-@Preview
-fun TagsPostListPreview() {
-    TagsPostList(
-        postList = listOf(samplePostItem, samplePostItem, samplePostItem),
-        viewModel = TagsViewModel(
-            ReadRankedPostsUseCase(SteemRepositoryImpl(Dispatchers.IO), Dispatchers.IO)
-        ),
-        onAppend = {},
-        onPostItemClick = {}
-    )
-}

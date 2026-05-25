@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,6 +18,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import coil.compose.rememberAsyncImagePainter
 import lee.dorian.steem_ui.R
+
+@Composable
+fun OnLaunch(block: suspend () -> Unit) {
+    LaunchedEffect(Unit) {
+        block()
+    }
+}
 
 @Composable
 fun Loading(

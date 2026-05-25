@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +39,12 @@ fun SteemitWalletScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val state by viewModel.flowWalletState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(initialAccount) {
+        if (initialAccount.isNotEmpty()) {
+            viewModel.readSteemitWallet(initialAccount)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -54,14 +61,7 @@ fun SteemitWalletScreen(
 
         val commonModifier = Modifier.fillMaxWidth().weight(1f).background(Color.White)
         when (state) {
-            is State.Empty -> {
-                if (initialAccount.isEmpty()) {
-                    WalletEmpty(modifier = commonModifier)
-                }
-                else {
-                    viewModel.readSteemitWallet(initialAccount)
-                }
-            }
+            is State.Empty -> WalletEmpty(modifier = commonModifier)
             is State.Loading -> Loading(modifier = commonModifier)
             !is State.Success -> ErrorOrFailure()
             else -> {

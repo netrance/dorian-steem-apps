@@ -20,6 +20,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,10 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import kotlinx.coroutines.Dispatchers
-import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.SteemitProfile
-import lee.dorian.steem_domain.usecase.ReadSteemitProfileUseCase
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.AccountInputForm
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
@@ -73,6 +71,12 @@ fun ProfileScreen(
     val state by viewModel.profileState.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    LaunchedEffect(account) {
+        if (account.isNotEmpty()) {
+            viewModel.readSteemitProfile(account)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -88,12 +92,7 @@ fun ProfileScreen(
 
         val commonModifier = Modifier.fillMaxWidth().weight(1f).background(Color.White)
         when (state) {
-            is State.Empty -> {
-                when (account.isEmpty()) {
-                    true -> ProfileEmpty(modifier = commonModifier)
-                    else -> viewModel.readSteemitProfile(account)
-                }
-            }
+            is State.Empty -> ProfileEmpty(modifier = commonModifier)
             is State.Loading -> Loading(modifier = commonModifier)
             !is State.Success -> ErrorOrFailure()
             else -> {
@@ -114,14 +113,10 @@ fun ProfileScreen(
 @Composable
 @Preview
 fun ProfileScreenPreview() {
-    val viewModel = ProfileViewModel(
-        ReadSteemitProfileUseCase(
-            SteemRepositoryImpl(dispatcher = Dispatchers.IO),
-            dispatcher = Dispatchers.IO
-        )
-    )
-    viewModel.readSteemitProfile(sampleSteemitProfile)
-    ProfileScreen("", viewModel)
+    Column(modifier = Modifier.fillMaxWidth().background(Color.Gray)) {
+        ProfileContent(sampleSteemitProfile)
+        ProfileMenu(sampleSteemitProfile, profileMenuItems)
+    }
 }
 
 private val profileContentTextStyle = TextStyle(

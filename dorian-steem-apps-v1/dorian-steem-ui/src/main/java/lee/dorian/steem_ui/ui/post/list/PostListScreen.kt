@@ -14,6 +14,7 @@ import lee.dorian.steem_domain.model.PostListInfo
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
+import lee.dorian.steem_ui.ui.compose.OnLaunch
 import lee.dorian.steem_ui.ui.post.PostList
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,11 +29,11 @@ fun PostListScreen(
     val state by viewModel.flowState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.flowIsRefreshing.collectAsStateWithLifecycle()
 
-    if (state is State.Empty) {
+    OnLaunch {
         viewModel.readPosts()
-        return
     }
-    else if (state is State.Loading) {
+
+    if (state is State.Empty || state is State.Loading) {
         Loading()
         return
     }

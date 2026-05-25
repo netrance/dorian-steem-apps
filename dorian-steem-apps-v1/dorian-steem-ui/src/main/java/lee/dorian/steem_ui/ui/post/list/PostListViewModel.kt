@@ -7,7 +7,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.PostListInfo
 import lee.dorian.steem_domain.model.PostItem
@@ -26,7 +25,7 @@ class PostListViewModel @Inject constructor(
     // parameters
     private val postListRoute: PostListRoute = savedStateHandle.toRoute()
 
-    val limit = GetAccountPostParamsDTO.InnerParams.DEFAULT_LIMIT
+    val limit = DEFAULT_ACCOUNT_POSTS_LIMIT
 
     private val _flowState: MutableStateFlow<State<PostListInfo>> = MutableStateFlow(State.Empty)
     val flowState = _flowState.asStateFlow()
@@ -48,6 +47,10 @@ class PostListViewModel @Inject constructor(
             }
         }
         _flowState.emit(newState)
+    }
+
+    companion object {
+        const val DEFAULT_ACCOUNT_POSTS_LIMIT = 20
     }
 
     fun appendPosts() = viewModelScope.launch {
