@@ -182,7 +182,7 @@ fun WalletSavingsPreview() {
 @Composable
 fun WalletPowerDown(wallet: SteemitWallet, modifier: Modifier) {
     TitleContentCard(
-        title = "Balances",
+        title = "Power Down",
         contents = listOf(
             Pair("SP to power down", wallet.totalSPToBeWithdrawn),
             Pair("Power down rate:", wallet.spWithdrawRate),

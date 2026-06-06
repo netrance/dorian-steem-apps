@@ -5,9 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.AccountHistory
@@ -34,11 +32,7 @@ class AccountHistoryViewModel @Inject constructor(
     val flowAccountHistoryState = _flowAccountHistoryState.asStateFlow()
 
     private val _flowDGPState: MutableStateFlow<State<DynamicGlobalProperties>> = MutableStateFlow(State.Empty)
-    val flowDGPState = _flowDGPState.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = State.Empty
-    )
+    val flowDGPState = _flowDGPState.asStateFlow()
 
     private val _flowIsRefreshing = MutableStateFlow(false)
     val flowIsRefreshing = _flowIsRefreshing.asStateFlow()

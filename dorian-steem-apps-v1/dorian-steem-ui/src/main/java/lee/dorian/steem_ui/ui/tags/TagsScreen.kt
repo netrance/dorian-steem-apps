@@ -92,7 +92,7 @@ fun TagsContent(
 ) {
     val state by viewModel.flowTagsState.collectAsStateWithLifecycle()
 
-    if (state is State.Loading) {
+    if (state is State.Empty || state is State.Loading) {
         Loading()
         return
     }
@@ -104,7 +104,6 @@ fun TagsContent(
     val tagPostList = (state as State.Success).data
     TagsPostList(
         tagPostList,
-        viewModel,
         onAppend = onAppend,
         onPostItemClick = onPostItemClick,
         onPostImageClick = onPostImageClick,
@@ -153,7 +152,6 @@ fun TagsSortTabRowPreview() {
 @Composable
 fun TagsPostList(
     postList: List<PostItem>,
-    viewModel: TagsViewModel,
     onAppend: () -> Unit,
     onPostItemClick: (PostItem) -> Unit,
     onPostImageClick: (Context, PostItem) -> Unit = { _, _ -> },

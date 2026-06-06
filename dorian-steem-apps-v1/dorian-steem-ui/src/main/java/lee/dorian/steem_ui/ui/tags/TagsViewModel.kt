@@ -18,7 +18,7 @@ class TagsViewModel @Inject constructor(
 
     val limit = DEFAULT_RANKED_POSTS_LIMIT
 
-    private val _flowTagsState: MutableStateFlow<State<List<PostItem>>> = MutableStateFlow(State.Loading)
+    private val _flowTagsState: MutableStateFlow<State<List<PostItem>>> = MutableStateFlow(State.Empty)
     val flowTagsState = _flowTagsState.asStateFlow()
 
     fun isContentEmpty(): Boolean {
