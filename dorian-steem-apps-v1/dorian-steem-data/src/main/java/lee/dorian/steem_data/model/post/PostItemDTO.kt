@@ -17,6 +17,8 @@ data class PostItemDTO(
     val json_metadata: JSONMetadataDTO?,
     val created: String?,
     val updated: String?,
+    val parent_author: String?,
+    val parent_permlink: String?,
     val depth: Int?,
     val children: Int?,
     val net_rshares: Long?,

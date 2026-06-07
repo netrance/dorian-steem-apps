@@ -9,6 +9,7 @@ import lee.dorian.steem_data.model.history.GetAccountHistoryParamsDTO
 import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
 import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
 import lee.dorian.steem_data.model.post.GetRankedPostParamsDTO
+import lee.dorian.steem_data.model.post.PostItemDTO
 import lee.dorian.steem_data.retrofit.SteemClient
 import lee.dorian.steem_domain.model.*
 import lee.dorian.steem_domain.repository.SteemRepository
@@ -269,10 +270,26 @@ class SteemRepositoryImpl @Inject constructor(
                 ApiResult.Failure(response.errorBody()?.string() ?: "")
             }
             else {
-                val postItemDTOList = (response.body()?.result ?: mapOf()).values.toList()
-                val postList = postItemDTOList.map {
-                    it.toPost()
+                val resultMap = response.body()?.result ?: mapOf()
+                val rootKey = "$account/$permlink"
+                val rootPostDTO = resultMap[rootKey]
+                // Group items by their parent key to enable O(n) tree traversal.
+                // DFS pre-order: each parent is immediately followed by its subtree.
+                // Siblings at the same level are sorted newest-first via created.
+                val childrenByParent = resultMap.values
+                    .groupBy { "${it.parent_author}/${it.parent_permlink}" }
+                fun buildSubtree(parent: PostItemDTO): List<PostItemDTO> {
+                    val siblings = childrenByParent["${parent.author}/${parent.permlink}"]
+                        ?.sortedByDescending { it.created ?: "" }
+                        ?: emptyList()
+                    return siblings.flatMap { listOf(it) + buildSubtree(it) }
                 }
+                val postItemDTOList = if (rootPostDTO != null) {
+                    listOf(rootPostDTO) + buildSubtree(rootPostDTO)
+                } else {
+                    resultMap.values.toList()
+                }
+                val postList = postItemDTOList.map { it.toPost() }
                 ApiResult.Success(postList)
             }
         }
