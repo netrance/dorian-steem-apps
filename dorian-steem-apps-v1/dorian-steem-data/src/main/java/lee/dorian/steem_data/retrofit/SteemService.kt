@@ -7,6 +7,10 @@ import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesResponseDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountResponseDTO
+import lee.dorian.steem_data.model.delegation.GetExpiringVestingDelegationsParamsDTO
+import lee.dorian.steem_data.model.delegation.GetExpiringVestingDelegationsResponseDTO
+import lee.dorian.steem_data.model.delegation.GetVestingDelegationsParamsDTO
+import lee.dorian.steem_data.model.delegation.GetVestingDelegationsResponseDTO
 import lee.dorian.steem_data.model.history.GetAccountHistoryParamsDTO
 import lee.dorian.steem_data.model.history.GetAccountHistoryResponseDTO
 import lee.dorian.steem_data.model.post.*
@@ -54,5 +58,17 @@ interface SteemService {
     suspend fun getAccountHistory(
         @Body params: GetAccountHistoryParamsDTO
     ): Response<GetAccountHistoryResponseDTO>
+
+    // Runs condenser_api.get_vesting_delegations API.
+    @POST(".")
+    suspend fun getVestingDelegations(
+        @Body params: GetVestingDelegationsParamsDTO
+    ): Response<GetVestingDelegationsResponseDTO>
+
+    // Runs condenser_api.get_expiring_vesting_delegations API.
+    @POST(".")
+    suspend fun getExpiringVestingDelegations(
+        @Body params: GetExpiringVestingDelegationsParamsDTO
+    ): Response<GetExpiringVestingDelegationsResponseDTO>
 
 }

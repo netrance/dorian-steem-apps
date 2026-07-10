@@ -5,6 +5,7 @@ import lee.dorian.steem_test.TestData
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
+import lee.dorian.steem_data.model.delegation.GetVestingDelegationsParamsDTO
 import lee.dorian.steem_data.model.history.GetAccountHistoryParamsDTO
 import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
 import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
@@ -324,6 +325,108 @@ class SteemServiceTest {
 
         val accountHistoryResult = response.body()?.result
         assertTrue(accountHistoryResult?.isNotEmpty() ?: false)
+    }
+
+    // Test case 1: Valid account — each delegation has correct delegator and non-empty fields.
+    @Test
+    fun getVestingDelegations_case1() = runTest {
+        val account = TestData.singleAccount2
+        val params = GetVestingDelegationsParamsDTO(
+            params = GetVestingDelegationsParamsDTO.InnerParams(account, "", 10),
+            id = 1
+        )
+
+        val response = SteemClient.apiService.getVestingDelegations(params)
+        assertTrue(response.isSuccessful)
+        response.body()?.let {
+            assertEquals("2.0", it.jsonrpc ?: "")
+            assertNotNull(it.result)
+            val delegations = it.result ?: listOf()
+            for (delegation in delegations) {
+                assertEquals(account, delegation.delegator ?: "")
+                assertTrue(delegation.delegatee?.isNotEmpty() ?: false)
+                assertTrue(delegation.vesting_shares?.isNotEmpty() ?: false)
+                assertTrue(delegation.min_delegation_time?.isNotEmpty() ?: false)
+            }
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 2: limit parameter is respected — result size does not exceed limit.
+    @Test
+    fun getVestingDelegations_case2() = runTest {
+        val account = TestData.singleAccount2
+        val limit = 3
+        val params = GetVestingDelegationsParamsDTO(
+            params = GetVestingDelegationsParamsDTO.InnerParams(account, "", limit),
+            id = 1
+        )
+
+        val response = SteemClient.apiService.getVestingDelegations(params)
+        assertTrue(response.isSuccessful)
+        response.body()?.let {
+            assertNotNull(it.result)
+            assertTrue((it.result?.size ?: 0) <= limit)
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 3: Invalid account — result is an empty list.
+    @Test
+    fun getVestingDelegations_case3() = runTest {
+        val params = GetVestingDelegationsParamsDTO(
+            params = GetVestingDelegationsParamsDTO.InnerParams(TestData.invalidSingleAccount, "", 100),
+            id = 1
+        )
+
+        val response = SteemClient.apiService.getVestingDelegations(params)
+        assertTrue(response.isSuccessful)
+        response.body()?.let {
+            assertEquals("2.0", it.jsonrpc ?: "")
+            assertEquals(0, it.result?.size ?: 0)
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 4: Pagination — second page starts from the last delegatee of the first page.
+    @Test
+    fun getVestingDelegations_case4() = runTest {
+        val account = TestData.singleAccount2
+        val limit = 3
+        val params1 = GetVestingDelegationsParamsDTO(
+            params = GetVestingDelegationsParamsDTO.InnerParams(account, "", limit),
+            id = 1
+        )
+
+        val response1 = SteemClient.apiService.getVestingDelegations(params1)
+        assertTrue(response1.isSuccessful)
+        assertNotNull(response1.body())
+        val firstPage = response1.body()?.result ?: listOf()
+        if (firstPage.size < limit) return@runTest
+
+        val startAccount = firstPage.last().delegatee ?: ""
+        val params2 = GetVestingDelegationsParamsDTO(
+            params = GetVestingDelegationsParamsDTO.InnerParams(account, startAccount, limit),
+            id = 1
+        )
+
+        val response2 = SteemClient.apiService.getVestingDelegations(params2)
+        assertTrue(response2.isSuccessful)
+        response2.body()?.let {
+            assertNotNull(it.result)
+            val secondPage = it.result ?: listOf()
+            assertTrue(secondPage.isNotEmpty())
+            assertEquals(startAccount, secondPage.first().delegatee ?: "")
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
     }
 
 }

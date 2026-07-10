@@ -46,4 +46,15 @@ interface SteemRepository {
         existingList: List<AccountHistoryItem>
     ): ApiResult<List<AccountHistoryItem>>
 
+    suspend fun readVestingDelegations(
+        account: String,
+        startAccount: String,
+        limit: Int
+    ): ApiResult<List<VestingDelegation>>
+
+    suspend fun readExpiringVestingDelegations(
+        account: String,
+        after: String
+    ): ApiResult<List<ExpiringVestingDelegation>>
+
 }

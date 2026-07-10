@@ -9,16 +9,16 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import lee.dorian.dorian_android_ktx.android.context.getCurrentFragment
 import lee.dorian.dorian_android_ktx.android.context.showToastShortly
 import lee.dorian.steem_domain.model.AccountHistoryItemLink
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_ui.R
-import lee.dorian.steem_ui.ext.showToastShortly
 import lee.dorian.steem_ui.ext.startDownvoteListActivity
 import lee.dorian.steem_ui.ext.startUpvoteListActivity
 import lee.dorian.steem_ui.model.navigation.AccountDetailsRoute
 import lee.dorian.steem_ui.model.navigation.AccountHistoryRoute
+import lee.dorian.steem_ui.model.navigation.IncomingDelegationListRoute
+import lee.dorian.steem_ui.model.navigation.OutgoingDelegationListRoute
 import lee.dorian.steem_ui.model.navigation.PostContentRoute
 import lee.dorian.steem_ui.model.navigation.PostListRoute
 import lee.dorian.steem_ui.model.navigation.ProfileScreenRoute
@@ -31,6 +31,8 @@ import lee.dorian.steem_ui.ui.post.content.PostScreen
 import lee.dorian.steem_ui.ui.post.list.PostListScreen
 import lee.dorian.steem_ui.ui.profile.ProfileScreen
 import lee.dorian.steem_ui.ui.tags.TagsScreen
+import lee.dorian.steem_ui.ui.wallet.DelegatedListScreen
+import lee.dorian.steem_ui.ui.wallet.OutgoingDelegationListScreen
 import lee.dorian.steem_ui.ui.wallet.SteemitWalletScreen
 
 /**
@@ -126,8 +128,33 @@ fun AppNavigation(
         }
 
         // Wallet screen
-        composable<WalletScreenRoute> {
-            SteemitWalletScreen(initialAccount = "")
+        composable<WalletScreenRoute> { backStackEntry ->
+            val params: WalletScreenRoute = backStackEntry.toRoute()
+            SteemitWalletScreen(
+                initialAccount = params.account,
+                onDelegatingClick = { account ->
+                    navController.navigate(OutgoingDelegationListRoute(account))
+                },
+                onDelegatedClick = { account ->
+                    navController.navigate(IncomingDelegationListRoute(account))
+                }
+            )
+        }
+
+        // Delegating list screen
+        composable<OutgoingDelegationListRoute> { backStackEntry ->
+            val params: OutgoingDelegationListRoute = backStackEntry.toRoute()
+            OutgoingDelegationListScreen(
+                onDelegateeClick = { account ->
+                    navController.navigate(ProfileScreenRoute(account))
+                }
+            )
+        }
+
+        // Delegated list screen
+        composable<IncomingDelegationListRoute> { backStackEntry ->
+            val params: IncomingDelegationListRoute = backStackEntry.toRoute()
+            DelegatedListScreen(account = params.account)
         }
 
         // Post list screen

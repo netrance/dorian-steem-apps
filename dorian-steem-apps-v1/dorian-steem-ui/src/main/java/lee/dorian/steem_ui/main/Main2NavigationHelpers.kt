@@ -1,11 +1,15 @@
 package lee.dorian.steem_ui.main
 
+import android.content.Context
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.toRoute
+import lee.dorian.steem_ui.R
 import lee.dorian.steem_ui.model.navigation.AccountDetailsRoute
 import lee.dorian.steem_ui.model.navigation.AccountHistoryRoute
+import lee.dorian.steem_ui.model.navigation.IncomingDelegationListRoute
+import lee.dorian.steem_ui.model.navigation.OutgoingDelegationListRoute
 import lee.dorian.steem_ui.model.navigation.PostContentRoute
 import lee.dorian.steem_ui.model.navigation.PostListRoute
 import lee.dorian.steem_ui.model.navigation.ProfileScreenRoute
@@ -20,6 +24,7 @@ import lee.dorian.steem_ui.model.navigation.WalletScreenRoute
  * @return Title string to display in TopBar
  */
 fun getTopBarTitle(
+    context: Context,
     destination: NavDestination?,
     navBackStackEntry: NavBackStackEntry?
 ): String {
@@ -52,6 +57,14 @@ fun getTopBarTitle(
         destination?.hasRoute<AccountHistoryRoute>() == true -> {
             val route = navBackStackEntry?.toRoute<AccountHistoryRoute>()
             "Account History - @${route?.account}"
+        }
+        destination?.hasRoute<IncomingDelegationListRoute>() == true -> {
+            val route = navBackStackEntry?.toRoute<IncomingDelegationListRoute>()
+            String.format("%s - @%s", context.getString(R.string.wallet_delegated_list), route?.account)
+        }
+        destination?.hasRoute<OutgoingDelegationListRoute>() == true -> {
+            val route = navBackStackEntry?.toRoute<OutgoingDelegationListRoute>()
+            String.format("%s - @%s", context.getString(R.string.wallet_delegating_list), route?.account)
         }
         else -> "Steemit"
     }

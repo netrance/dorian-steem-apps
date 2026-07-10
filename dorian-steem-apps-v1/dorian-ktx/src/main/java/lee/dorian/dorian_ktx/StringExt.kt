@@ -58,6 +58,32 @@ fun String.fromUtcTimeToLocalTime(): String {
     }
 }
 
+// Precondition: The date format of this string is "yyyy-MM-dd'T'HH:mm:ss" (UTC)
+fun String.toRelativeTimeString(): String {
+    return try {
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
+        val date = sdf.parse(this.replace("T", " ").trim()) ?: return ""
+        val diffMs = System.currentTimeMillis() - date.time
+        val diffMinutes = diffMs / (1000L * 60)
+        val diffHours   = diffMs / (1000L * 60 * 60)
+        val diffDays    = diffMs / (1000L * 60 * 60 * 24)
+        val diffMonths  = diffDays / 30
+        val diffYears   = diffDays / 365
+        when {
+            diffMinutes < 1   -> "방금 전"
+            diffMinutes < 60  -> "${diffMinutes}분 전"
+            diffHours   < 24  -> "${diffHours}시간 전"
+            diffDays    < 30  -> "${diffDays}일 전"
+            diffMonths  < 12  -> "${diffMonths}개월 전"
+            else              -> "${diffYears}년 전"
+        }
+    } catch (e: ParseException) {
+        e.printStackTrace()
+        ""
+    }
+}
+
 fun String.applyURLEncoding(enc: String = "UTF-8"): String {
     return try {
         URLEncoder.encode(this, enc).replace("+", "%20")

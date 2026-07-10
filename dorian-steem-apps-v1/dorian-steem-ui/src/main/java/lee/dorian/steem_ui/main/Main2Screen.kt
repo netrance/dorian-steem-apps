@@ -6,6 +6,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import lee.dorian.steem_ui.model.navigation.TagsScreenRoute
@@ -22,6 +23,7 @@ import lee.dorian.steem_ui.ui.compose.CustomTopAppBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Main2Screen() {
+    val context = LocalContext.current
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -34,7 +36,7 @@ fun Main2Screen() {
     )
 
     // Determine UI elements based on current screen
-    val topBarTitle = getTopBarTitle(currentDestination, navBackStackEntry)
+    val topBarTitle = getTopBarTitle(context, currentDestination, navBackStackEntry)
     val showBottomBar = shouldShowBottomBar(currentDestination, navBackStackEntry)
 
     Scaffold(
