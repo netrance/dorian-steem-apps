@@ -31,7 +31,7 @@ import lee.dorian.steem_ui.ui.post.content.PostScreen
 import lee.dorian.steem_ui.ui.post.list.PostListScreen
 import lee.dorian.steem_ui.ui.profile.ProfileScreen
 import lee.dorian.steem_ui.ui.tags.TagsScreen
-import lee.dorian.steem_ui.ui.wallet.DelegatedListScreen
+import lee.dorian.steem_ui.ui.wallet.IncomingDelegationListScreen
 import lee.dorian.steem_ui.ui.wallet.OutgoingDelegationListScreen
 import lee.dorian.steem_ui.ui.wallet.SteemitWalletScreen
 
@@ -152,9 +152,12 @@ fun AppNavigation(
         }
 
         // Delegated list screen
-        composable<IncomingDelegationListRoute> { backStackEntry ->
-            val params: IncomingDelegationListRoute = backStackEntry.toRoute()
-            DelegatedListScreen(account = params.account)
+        composable<IncomingDelegationListRoute> {
+            IncomingDelegationListScreen(
+                onDelegatorClick = { account ->
+                    navController.navigate(ProfileScreenRoute(account))
+                }
+            )
         }
 
         // Post list screen
