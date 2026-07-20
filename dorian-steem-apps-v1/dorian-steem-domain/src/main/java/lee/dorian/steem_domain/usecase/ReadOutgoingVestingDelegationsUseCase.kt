@@ -4,24 +4,18 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.VestingDelegation
-import lee.dorian.steem_domain.repository.SteemRepository
+import lee.dorian.steem_domain.repository.SteemWorldRepository
 import javax.inject.Inject
 
-class ReadVestingDelegationsUseCase @Inject constructor(
-    private val steemRepository: SteemRepository,
+class ReadOutgoingVestingDelegationsUseCase @Inject constructor(
+    private val steemWorldRepository: SteemWorldRepository,
     private val dispatcher: CoroutineDispatcher
 ) {
-    companion object {
-        const val DEFAULT_LIMIT = 100
-    }
-
     suspend operator fun invoke(
-        account: String,
-        startAccount: String = "",
-        limit: Int = DEFAULT_LIMIT
+        account: String
     ): ApiResult<List<VestingDelegation>> = withContext(dispatcher) {
         try {
-            steemRepository.readVestingDelegations(account, startAccount, limit)
+            steemWorldRepository.readOutgoingVestingDelegations(account)
         } catch (e: Exception) {
             e.printStackTrace()
             ApiResult.Error(e)

@@ -5,8 +5,6 @@ import kotlinx.coroutines.*
 import lee.dorian.steem_data.model.GetAccountsParamsDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
 import lee.dorian.steem_data.model.follow.GetFollowCountParamsDTO
-import lee.dorian.steem_data.model.delegation.GetExpiringVestingDelegationsParamsDTO
-import lee.dorian.steem_data.model.delegation.GetVestingDelegationsParamsDTO
 import lee.dorian.steem_data.model.history.GetAccountHistoryParamsDTO
 import lee.dorian.steem_data.model.post.GetAccountPostParamsDTO
 import lee.dorian.steem_data.model.post.GetDiscussionParamsDTO
@@ -330,87 +328,6 @@ class SteemRepositoryImpl @Inject constructor(
         }
         catch (e: java.lang.Exception) {
             ApiResult.Error(e)
-        }
-    }
-
-    override suspend fun readVestingDelegations(
-        account: String,
-        startAccount: String,
-        limit: Int
-    ): ApiResult<List<VestingDelegation>> = withContext(dispatcher) {
-        val getDynamicGlobalPropertiesParams = GetDynamicGlobalPropertiesParamsDTO(id = 1)
-        val params = GetVestingDelegationsParamsDTO(
-            params = GetVestingDelegationsParamsDTO.InnerParams(account, startAccount, limit),
-            id = 1
-        )
-
-        try {
-            val responseDGPAsync = async {
-                SteemClient.apiService.getDynamicGlobalProperties(getDynamicGlobalPropertiesParams)
-            }
-            val responseVestingDelegationsAsync = async {
-                SteemClient.apiService.getVestingDelegations(params)
-            }
-            val responseDGP = responseDGPAsync.await()
-            val responseVestingDelegations = responseVestingDelegationsAsync.await()
-
-            if (!responseDGP.isSuccessful) {
-                return@withContext ApiResult.Failure(responseDGP.errorBody()?.string() ?: "")
-            }
-            if (!responseVestingDelegations.isSuccessful) {
-                return@withContext ApiResult.Failure(responseVestingDelegations.errorBody()?.string() ?: "")
-            }
-
-            val dgp = responseDGP.body()?.result
-                ?: return@withContext ApiResult.Failure("Failed to read dynamic global properties")
-            val resultList = responseVestingDelegations.body()?.result
-                ?.map { it.toVestingDelegation(dgp) }
-                ?: listOf()
-            return@withContext ApiResult.Success(resultList)
-        }
-        catch (e: java.lang.Exception) {
-            e.printStackTrace()
-            return@withContext ApiResult.Error(e)
-        }
-    }
-
-    override suspend fun readExpiringVestingDelegations(
-        account: String,
-        after: String
-    ): ApiResult<List<ExpiringVestingDelegation>> = withContext(dispatcher) {
-        val getDynamicGlobalPropertiesParams = GetDynamicGlobalPropertiesParamsDTO(id = 1)
-        val params = GetExpiringVestingDelegationsParamsDTO(
-            params = GetExpiringVestingDelegationsParamsDTO.InnerParams(account, after),
-            id = 1
-        )
-
-        try {
-            val responseDGPAsync = async {
-                SteemClient.apiService.getDynamicGlobalProperties(getDynamicGlobalPropertiesParams)
-            }
-            val responseExpiringAsync = async {
-                SteemClient.apiService.getExpiringVestingDelegations(params)
-            }
-            val responseDGP = responseDGPAsync.await()
-            val responseExpiring = responseExpiringAsync.await()
-
-            if (!responseDGP.isSuccessful) {
-                return@withContext ApiResult.Failure(responseDGP.errorBody()?.string() ?: "")
-            }
-            if (!responseExpiring.isSuccessful) {
-                return@withContext ApiResult.Failure(responseExpiring.errorBody()?.string() ?: "")
-            }
-
-            val dgp = responseDGP.body()?.result
-                ?: return@withContext ApiResult.Failure("Failed to read dynamic global properties")
-            val resultList = responseExpiring.body()?.result
-                ?.map { it.toExpiringVestingDelegation(dgp) }
-                ?: listOf()
-            return@withContext ApiResult.Success(resultList)
-        }
-        catch (e: java.lang.Exception) {
-            e.printStackTrace()
-            return@withContext ApiResult.Error(e)
         }
     }
 

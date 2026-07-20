@@ -11,7 +11,7 @@ import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.ExpiringVestingDelegation
 import lee.dorian.steem_domain.model.VestingDelegation
 import lee.dorian.steem_domain.usecase.ReadExpiringVestingDelegationsUseCase
-import lee.dorian.steem_domain.usecase.ReadVestingDelegationsUseCase
+import lee.dorian.steem_domain.usecase.ReadOutgoingVestingDelegationsUseCase
 import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.model.navigation.OutgoingDelegationListRoute
 import lee.dorian.steem_ui.ui.base.BaseViewModel
@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OutgoingDelegationListViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val readVestingDelegationsUseCase: ReadVestingDelegationsUseCase,
+    private val readOutgoingVestingDelegationsUseCase: ReadOutgoingVestingDelegationsUseCase,
     private val readExpiringVestingDelegationsUseCase: ReadExpiringVestingDelegationsUseCase
 ) : BaseViewModel() {
 
@@ -39,7 +39,7 @@ class OutgoingDelegationListViewModel @Inject constructor(
 
     fun readDelegatingList() = viewModelScope.launch {
         _flowOutgoingDelegationList.emit(State.Loading)
-        val apiResult = readVestingDelegationsUseCase(route.account)
+        val apiResult = readOutgoingVestingDelegationsUseCase(route.account)
         val newState = when (apiResult) {
             is ApiResult.Failure -> State.Failure(apiResult.content)
             is ApiResult.Error -> State.Error(apiResult.throwable)

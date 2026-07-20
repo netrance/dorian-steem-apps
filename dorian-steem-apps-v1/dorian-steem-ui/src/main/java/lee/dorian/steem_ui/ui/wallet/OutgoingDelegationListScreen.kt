@@ -25,9 +25,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import lee.dorian.steem_ui.R
 import androidx.compose.ui.text.font.FontWeight
+import lee.dorian.dorian_android_ktx.android.context.showToastShortly
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,7 +82,7 @@ fun OutgoingDelegationListScreen(
         }
         when (selectedTabIndex) {
             0 -> OutgoingDelegationListContent(outgoingState, onDelegateeClick)
-            else -> ExpiringDelegationListContent(expiringState)
+            else -> ExpiringDelegationListContent(expiringState, onDelegateeClick)
         }
     }
 }
@@ -90,6 +92,7 @@ private fun OutgoingDelegationListContent(
     state: State<List<VestingDelegation>>,
     onDelegateeClick: (account: String) -> Unit
 ) {
+    val context = LocalContext.current
     when {
         state is State.Empty -> { }
         state is State.Loading -> Loading()
@@ -126,7 +129,10 @@ private fun OutgoingDelegationListContent(
                                     .fillMaxWidth()
                                     .background(if (index % 2 == 0) Color.LightGray else Color.White)
                                     .padding(10.dp),
-                                onDelegateeClick = onDelegateeClick
+                                onDelegateeClick = onDelegateeClick,
+                                onDelegationTimeClick = { time ->
+                                    context.showToastShortly(time.fromUtcTimeToLocalTime())
+                                }
                             )
                         }
                     }
@@ -151,34 +157,49 @@ fun OutgoingDelegationListContentPreview() {
 }
 
 @Composable
-private fun ExpiringDelegationListContent(state: State<List<ExpiringVestingDelegation>>) {
+private fun ExpiringDelegationListContent(
+    state: State<List<ExpiringVestingDelegation>>,
+    onDelegateeClick: (account: String) -> Unit
+) {
     when {
         state is State.Empty -> { }
         state is State.Loading -> Loading()
         state !is State.Success -> ErrorOrFailure()
         else -> {
+            var searchQuery by remember { mutableStateOf("") }
             val list = (state as State.Success<List<ExpiringVestingDelegation>>).data
-            if (list.isEmpty()) {
-                Text(
-                    text = "No steem power is being withdrawn.",
-                    color = Color.Gray,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(16.dp)
+            val filteredList = remember(list, searchQuery) {
+                if (searchQuery.isEmpty()) list
+                else list.filter { it.delegatee.contains(searchQuery) }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+            ) {
+                AccountSearchTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it }
                 )
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.White)
-                ) {
-                    items(list.size) { index ->
-                        ExpiringDelegationItem(
-                            delegation = list[index],
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(if (index % 2 == 0) Color.LightGray else Color.White)
-                                .padding(10.dp)
-                        )
+                if (filteredList.isEmpty()) {
+                    Text(
+                        text = "No steem power is being withdrawn.",
+                        color = Color.Gray,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                } else {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(filteredList.size) { index ->
+                            ExpiringDelegationItem(
+                                delegation = filteredList[index],
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(if (index % 2 == 0) Color.LightGray else Color.White)
+                                    .padding(10.dp),
+                                onDelegateeClick = onDelegateeClick
+                            )
+                        }
                     }
                 }
             }
@@ -190,11 +211,12 @@ private fun ExpiringDelegationListContent(state: State<List<ExpiringVestingDeleg
 @Preview
 fun ExpiringDelegationListContentPreview() {
     val sampleExpiringDelegations = listOf(
-        ExpiringVestingDelegation(delegator = "dorian-lee", steemPower = "300.000 SP", expiration = "2026-07-20T00:00:00"),
-        ExpiringVestingDelegation(delegator = "dorian-lee", steemPower = "150.000 SP", expiration = "2026-07-25T12:00:00"),
+        ExpiringVestingDelegation(delegatee = "alice", steemPower = "300.000 SP", expiration = "2026-07-20T00:00:00"),
+        ExpiringVestingDelegation(delegatee = "bob", steemPower = "150.000 SP", expiration = "2026-07-25T12:00:00"),
     )
     ExpiringDelegationListContent(
-        state = State.Success(sampleExpiringDelegations)
+        state = State.Success(sampleExpiringDelegations),
+        onDelegateeClick = {}
     )
 }
 
@@ -202,7 +224,8 @@ fun ExpiringDelegationListContentPreview() {
 fun OutgoingDelegationItem(
     delegation: VestingDelegation,
     modifier: Modifier,
-    onDelegateeClick: (account: String) -> Unit = {}
+    onDelegateeClick: (account: String) -> Unit = {},
+    onDelegationTimeClick: (String) -> Unit = {}
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -233,6 +256,7 @@ fun OutgoingDelegationItem(
                 color = Color.Gray,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable { onDelegationTimeClick(delegation.minDelegationTime) }
             )
         }
         Text(
@@ -246,23 +270,44 @@ fun OutgoingDelegationItem(
 @Composable
 fun ExpiringDelegationItem(
     delegation: ExpiringVestingDelegation,
-    modifier: Modifier
+    modifier: Modifier,
+    onDelegateeClick: (account: String) -> Unit = {}
 ) {
     Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        Text(
-            text = delegation.expiration.fromUtcTimeToLocalTime(),
-            color = Color.Gray,
-            fontSize = 16.sp
+        AsyncImage(
+            model = "https://steemitimages.com/u/${delegation.delegatee}/avatar/small",
+            contentDescription = "Profile image of ${delegation.delegatee}",
+            modifier = Modifier
+                .width(50.dp)
+                .height(50.dp)
+                .clickable {}
         )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = delegation.delegatee,
+                color = Color.Black,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable { onDelegateeClick(delegation.delegatee) }
+            )
+            Text(
+                text = delegation.expiration.fromUtcTimeToLocalTime(),
+                color = Color.Gray,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
         Text(
             text = delegation.steemPower,
             color = Color.Black,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = 15.sp
         )
     }
 }
@@ -288,6 +333,7 @@ fun OutgoingDelegationItemPreview() {
 @Preview
 fun ExpiringDelegationItemPreview() {
     val sampleDelegation = ExpiringVestingDelegation(
+        delegatee = "dorian-mobileapp",
         steemPower = "100.000 SP",
         expiration = "2026-07-15T00:00:00"
     )

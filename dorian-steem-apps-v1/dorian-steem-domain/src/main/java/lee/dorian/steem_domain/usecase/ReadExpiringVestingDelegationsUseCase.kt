@@ -4,23 +4,18 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.ExpiringVestingDelegation
-import lee.dorian.steem_domain.repository.SteemRepository
+import lee.dorian.steem_domain.repository.SteemWorldRepository
 import javax.inject.Inject
 
 class ReadExpiringVestingDelegationsUseCase @Inject constructor(
-    private val steemRepository: SteemRepository,
+    private val steemWorldRepository: SteemWorldRepository,
     private val dispatcher: CoroutineDispatcher
 ) {
-    companion object {
-        const val AFTER_EPOCH_START = "1970-01-01T00:00:00"
-    }
-
     suspend operator fun invoke(
-        account: String,
-        after: String = AFTER_EPOCH_START
+        account: String
     ): ApiResult<List<ExpiringVestingDelegation>> = withContext(dispatcher) {
         try {
-            steemRepository.readExpiringVestingDelegations(account, after)
+            steemWorldRepository.readExpiringVestingDelegations(account)
         } catch (e: Exception) {
             e.printStackTrace()
             ApiResult.Error(e)
