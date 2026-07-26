@@ -1,7 +1,7 @@
 package lee.dorian.steem_data.model.delegation
 
+import lee.dorian.dorian_ktx.removeSubstring
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesDTO
-import lee.dorian.steem_domain.ext.removeSubstring
 import lee.dorian.steem_domain.model.VestingDelegation
 import lee.dorian.steem_domain.util.Converter
 import java.text.SimpleDateFormat

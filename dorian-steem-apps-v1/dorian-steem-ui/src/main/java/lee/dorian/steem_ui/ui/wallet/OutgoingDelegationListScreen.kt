@@ -36,8 +36,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import lee.dorian.steem_domain.ext.fromUtcTimeToLocalTime
-import lee.dorian.steem_domain.ext.toRelativeTimeString
+import lee.dorian.dorian_ktx.fromUtcTimeToLocalTime
+import lee.dorian.dorian_ktx.toRelativeTimeString
 import lee.dorian.steem_domain.model.ExpiringVestingDelegation
 import lee.dorian.steem_domain.model.VestingDelegation
 import lee.dorian.steem_ui.model.State

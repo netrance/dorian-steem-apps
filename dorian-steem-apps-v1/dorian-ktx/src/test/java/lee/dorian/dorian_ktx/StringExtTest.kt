@@ -1,6 +1,6 @@
 package lee.dorian.dorian_ktx
 
-import lee.dorian.steem_domain.ext.toJsonObject
+import lee.dorian.dorian_ktx.toJsonObject
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

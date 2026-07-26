@@ -35,7 +35,7 @@ import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.model.Post
 import lee.dorian.steem_ui.R
 import lee.dorian.dorian_android_ktx.android.context.findActivity
-import lee.dorian.steem_ui.ext.loadMarkdown
+import lee.dorian.dorian_android_ktx.android.webkit.loadMarkdown
 import lee.dorian.steem_ui.ext.startDownvoteListActivity
 import lee.dorian.steem_ui.ext.startUpvoteListActivity
 import lee.dorian.steem_ui.ui.preview.postForTest

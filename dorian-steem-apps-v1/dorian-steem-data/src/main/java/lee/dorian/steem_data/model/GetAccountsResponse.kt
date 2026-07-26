@@ -1,10 +1,10 @@
 package lee.dorian.steem_data.model
 
 import com.google.gson.JsonObject
+import lee.dorian.dorian_ktx.convertToUserReadableReputation
+import lee.dorian.dorian_ktx.removeSubstring
+import lee.dorian.dorian_ktx.toJsonObject
 import lee.dorian.steem_data.model.follow.GetFollowCountResponseDTO
-import lee.dorian.steem_domain.ext.convertToUserReadableReputation
-import lee.dorian.steem_domain.ext.removeSubstring
-import lee.dorian.steem_domain.ext.toJsonObject
 import lee.dorian.steem_domain.model.AccountDetails
 import lee.dorian.steem_domain.model.SteemitProfile
 import lee.dorian.steem_domain.model.SteemitWallet

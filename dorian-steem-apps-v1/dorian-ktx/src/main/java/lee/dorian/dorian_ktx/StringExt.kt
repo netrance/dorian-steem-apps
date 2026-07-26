@@ -1,4 +1,4 @@
-package lee.dorian.steem_domain.ext
+package lee.dorian.dorian_ktx
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser

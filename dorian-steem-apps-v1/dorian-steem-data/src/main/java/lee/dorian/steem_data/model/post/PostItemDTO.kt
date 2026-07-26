@@ -1,8 +1,7 @@
 package lee.dorian.steem_data.model.post
 
-import lee.dorian.steem_domain.ext.convertMarkdownToHtml
-import lee.dorian.steem_domain.ext.convertMarkdownToHtmlDocument
-import lee.dorian.steem_domain.ext.extractTextIfThisIsHtml
+import lee.dorian.dorian_ktx.convertMarkdownToHtml
+import lee.dorian.dorian_ktx.extractTextIfThisIsHtml
 import lee.dorian.steem_domain.model.Post
 import lee.dorian.steem_domain.model.PostItem
 import lee.dorian.steem_domain.util.Converter

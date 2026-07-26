@@ -1,4 +1,4 @@
-package lee.dorian.steem_ui.ext
+package lee.dorian.dorian_android_ktx.android.widget
 
 import android.graphics.drawable.Drawable
 import android.net.Uri

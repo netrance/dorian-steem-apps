@@ -45,7 +45,7 @@ import coil.compose.AsyncImage
 import lee.dorian.dorian_android_ktx.android.context.findActivity
 import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.model.Post
-import lee.dorian.steem_ui.ext.*
+import lee.dorian.dorian_android_ktx.android.webkit.loadMarkdown
 import lee.dorian.steem_ui.ui.compose.ErrorOrFailure
 import lee.dorian.steem_ui.ui.compose.Loading
 import lee.dorian.steem_ui.ui.preview.postForTest

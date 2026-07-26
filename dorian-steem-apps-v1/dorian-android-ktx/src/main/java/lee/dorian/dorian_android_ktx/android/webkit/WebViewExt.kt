@@ -1,4 +1,4 @@
-package lee.dorian.steem_ui.ext
+package lee.dorian.dorian_android_ktx.android.webkit
 
 import android.net.Uri
 import android.text.Html
@@ -8,15 +8,9 @@ import lee.dorian.dorian_android_ktx.android.net.getStartTimeOfYoutubeVideo
 import lee.dorian.dorian_android_ktx.android.net.getYoutubeVideoId
 import lee.dorian.dorian_android_ktx.android.net.isContentImage
 import lee.dorian.dorian_android_ktx.android.net.isYoutubeSite
-import lee.dorian.steem_domain.ext.applyURLEncoding
-import lee.dorian.steem_domain.ext.convertMarkdownToHtml
-import lee.dorian.steem_domain.ext.convertMarkdownToHtmlDocument
-import org.commonmark.ext.gfm.tables.TablesExtension
-import org.commonmark.node.Node
-import org.commonmark.parser.Parser
-import org.commonmark.renderer.html.HtmlRenderer
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
+import lee.dorian.dorian_ktx.applyURLEncoding
+import lee.dorian.dorian_ktx.convertMarkdownToHtml
+import lee.dorian.dorian_ktx.convertMarkdownToHtmlDocument
 import org.jsoup.nodes.Element
 
 fun WebView.loadMarkdown(markdown: String) {

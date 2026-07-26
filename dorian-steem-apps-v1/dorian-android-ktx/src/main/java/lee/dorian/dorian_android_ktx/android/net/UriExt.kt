@@ -1,8 +1,8 @@
 package lee.dorian.dorian_android_ktx.android.net
 
 import android.net.Uri
-import lee.dorian.steem_domain.ext.endsWithOneOf
-import lee.dorian.steem_domain.ext.startsWithOneOf
+import lee.dorian.dorian_ktx.endsWithOneOf
+import lee.dorian.dorian_ktx.startsWithOneOf
 
 private const val youtubeSiteTypeA = "https://youtube.com"
 private const val youtubeSiteTypeB = "https://m.youtube.com"

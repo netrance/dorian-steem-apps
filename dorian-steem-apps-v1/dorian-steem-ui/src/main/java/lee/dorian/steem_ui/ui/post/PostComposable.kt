@@ -35,7 +35,7 @@ import lee.dorian.dorian_android_ktx.android.context.getCurrentFragment
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
 import lee.dorian.steem_domain.model.ActiveVote
 import lee.dorian.steem_domain.usecase.ReadPostsUseCase
-import lee.dorian.steem_ui.ext.showToastShortly
+import lee.dorian.dorian_android_ktx.android.context.showToastShortly
 import lee.dorian.steem_ui.ext.startDownvoteListActivity
 import lee.dorian.steem_ui.ext.startUpvoteListActivity
 import lee.dorian.steem_ui.ui.post.list.PostListViewModel
