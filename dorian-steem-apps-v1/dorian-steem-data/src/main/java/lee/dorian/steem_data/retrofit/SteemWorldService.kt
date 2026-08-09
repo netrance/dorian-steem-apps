@@ -3,6 +3,7 @@ package lee.dorian.steem_data.retrofit
 import lee.dorian.steem_data.model.delegation.GetExpiringDelegationsResponseDTO
 import lee.dorian.steem_data.model.delegation.GetIncomingDelegationsResponseDTO
 import lee.dorian.steem_data.model.delegation.GetOutgoingDelegationsResponseDTO
+import lee.dorian.steem_data.model.transfer.GetTransfersResponseDTO
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -23,5 +24,44 @@ interface SteemWorldService {
     suspend fun getExpiringDelegations(
         @Path("account") account: String
     ): Response<GetExpiringDelegationsResponseDTO>
+
+    // Returns the transfers of the given type sent by the given account, latest first.
+    @GET("transfers_api/getTransfersByTypeFrom/{type}/{from}/{orderBy}/{orderDir}/{limit}/{offset}")
+    suspend fun getTransfersByTypeFrom(
+        @Path("from") from: String,
+        @Path("offset") offset: Int = DEFAULT_OFFSET,
+        @Path("limit") limit: Int = DEFAULT_TRANSFERS_LIMIT,
+        @Path("type") type: String = TRANSFER_TYPE_TRANSFER,
+        @Path("orderBy") orderBy: String = ORDER_BY_TIME,
+        @Path("orderDir") orderDir: String = ORDER_DIR_DESC
+    ): Response<GetTransfersResponseDTO>
+
+    // Returns the transfers of the given type received by the given account, latest first.
+    @GET("transfers_api/getTransfersByTypeTo/{type}/{to}/{orderBy}/{orderDir}/{limit}/{offset}")
+    suspend fun getTransfersByTypeTo(
+        @Path("to") to: String,
+        @Path("offset") offset: Int = DEFAULT_OFFSET,
+        @Path("limit") limit: Int = DEFAULT_TRANSFERS_LIMIT,
+        @Path("type") type: String = TRANSFER_TYPE_TRANSFER,
+        @Path("orderBy") orderBy: String = ORDER_BY_TIME,
+        @Path("orderDir") orderDir: String = ORDER_DIR_DESC
+    ): Response<GetTransfersResponseDTO>
+
+    companion object {
+        const val DEFAULT_OFFSET = 0
+        const val DEFAULT_TRANSFERS_LIMIT = 250
+        const val MAX_TRANSFERS_LIMIT = 1000
+
+        // The op types supported by transfers_api.
+        const val TRANSFER_TYPE_TRANSFER = "transfer"
+        const val TRANSFER_TYPE_TRANSFER_TO_VESTING = "transfer_to_vesting"
+        const val TRANSFER_TYPE_WITHDRAW_VESTING = "withdraw_vesting"
+        const val TRANSFER_TYPE_TRANSFER_TO_SAVINGS = "transfer_to_savings"
+        const val TRANSFER_TYPE_TRANSFER_FROM_SAVINGS = "transfer_from_savings"
+        const val TRANSFER_TYPE_CANCEL_TRANSFER_FROM_SAVINGS = "cancel_transfer_from_savings"
+
+        const val ORDER_BY_TIME = "time"
+        const val ORDER_DIR_DESC = "DESC"
+    }
 
 }

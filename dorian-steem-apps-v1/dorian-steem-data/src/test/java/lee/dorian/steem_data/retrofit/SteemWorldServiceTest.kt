@@ -125,4 +125,105 @@ class SteemWorldServiceTest {
         fail("The body of response is empty!")
     }
 
+    // Test case 1: Valid account — response is successful, and every transfer is sent by the account.
+    @Test
+    fun getTransfersByTypeFrom_case1() = runTest {
+        val response = SteemWorldClient.apiService.getTransfersByTypeFrom(TestData.singleAccount)
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertEquals(0, body.code ?: -1)
+            assertNull(body.error)
+            assertNotNull(body.result)
+            val transfers = body.result?.toTransferList() ?: listOf()
+            for (transfer in transfers) {
+                assertEquals(TestData.singleAccount, transfer.from)
+                assertTrue(transfer.to.isNotEmpty())
+                assertTrue(transfer.amount > 0f)
+                assertTrue(transfer.unit.isNotEmpty())
+            }
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 2: Invalid account — response is successful, but the body contains an error.
+    @Test
+    fun getTransfersByTypeFrom_case2() = runTest {
+        val response = SteemWorldClient.apiService.getTransfersByTypeFrom(TestData.invalidSingleAccount)
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertNotEquals(0, body.code ?: 0)
+            assertNotNull(body.error)
+            assertNull(body.result)
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 1: Valid account — response is successful, and every transfer is received by the account.
+    @Test
+    fun getTransfersByTypeTo_case1() = runTest {
+        val response = SteemWorldClient.apiService.getTransfersByTypeTo(TestData.singleAccount)
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertEquals(0, body.code ?: -1)
+            assertNull(body.error)
+            assertNotNull(body.result)
+            val transfers = body.result?.toTransferList() ?: listOf()
+            for (transfer in transfers) {
+                assertEquals(TestData.singleAccount, transfer.to)
+                assertTrue(transfer.from.isNotEmpty())
+                assertTrue(transfer.amount > 0f)
+                assertTrue(transfer.unit.isNotEmpty())
+            }
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 2: Invalid account — response is successful, but the body contains an error.
+    @Test
+    fun getTransfersByTypeTo_case2() = runTest {
+        val response = SteemWorldClient.apiService.getTransfersByTypeTo(TestData.invalidSingleAccount)
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertNotEquals(0, body.code ?: 0)
+            assertNotNull(body.error)
+            assertNull(body.result)
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 3: The rows are ordered by time in descending order,
+    // and the offset skips as many of them as it is given.
+    @Test
+    fun getTransfersByTypeTo_case3() = runTest {
+        val limit = 2
+        val firstPage = SteemWorldClient.apiService.getTransfersByTypeTo(
+            TestData.singleAccount,
+            SteemWorldService.DEFAULT_OFFSET,
+            limit
+        ).body()?.result?.toTransferList() ?: listOf()
+        val secondPage = SteemWorldClient.apiService.getTransfersByTypeTo(
+            TestData.singleAccount,
+            limit,
+            limit
+        ).body()?.result?.toTransferList() ?: listOf()
+
+        assertTrue(firstPage.size <= limit)
+        assertTrue(secondPage.size <= limit)
+        for (i in 1 until firstPage.size) {
+            assertTrue(firstPage[i - 1].time >= firstPage[i].time)
+        }
+        if (firstPage.size == limit && secondPage.isNotEmpty()) {
+            assertNotEquals(firstPage[0], secondPage[0])
+            assertTrue(firstPage.last().time >= secondPage[0].time)
+        }
+    }
+
 }

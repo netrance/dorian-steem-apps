@@ -4,11 +4,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
+import lee.dorian.steem_data.model.transfer.GetTransfersResponseDTO
 import lee.dorian.steem_data.retrofit.SteemClient
 import lee.dorian.steem_data.retrofit.SteemWorldClient
 import lee.dorian.steem_domain.model.ApiResult
 import lee.dorian.steem_domain.model.ExpiringVestingDelegation
+import lee.dorian.steem_domain.model.Transfer
 import lee.dorian.steem_domain.model.VestingDelegation
+import retrofit2.Response
 import lee.dorian.steem_domain.repository.SteemWorldRepository
 import javax.inject.Inject
 
@@ -107,6 +110,53 @@ class SteemWorldRepositoryImpl @Inject constructor(
             e.printStackTrace()
             ApiResult.Error(e)
         }
+    }
+
+    override suspend fun readOutgoingTransfers(
+        account: String,
+        offset: Int,
+        limit: Int
+    ): ApiResult<List<Transfer>> = withContext(dispatcher) {
+        try {
+            val response = SteemWorldClient.apiService.getTransfersByTypeFrom(account, offset, limit)
+            response.toTransfersApiResult()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ApiResult.Error(e)
+        }
+    }
+
+    override suspend fun readIncomingTransfers(
+        account: String,
+        offset: Int,
+        limit: Int
+    ): ApiResult<List<Transfer>> = withContext(dispatcher) {
+        try {
+            val response = SteemWorldClient.apiService.getTransfersByTypeTo(account, offset, limit)
+            response.toTransfersApiResult()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ApiResult.Error(e)
+        }
+    }
+
+    // SDS reports its own errors (e.g. a non-existent account) with HTTP 200 and a non-zero code,
+    // so the body has to be checked even when the response itself is successful.
+    private fun Response<GetTransfersResponseDTO>.toTransfersApiResult(): ApiResult<List<Transfer>> {
+        if (!isSuccessful) {
+            return ApiResult.Failure(errorBody()?.string() ?: "")
+        }
+
+        val body = body() ?: return ApiResult.Failure("The body of response is empty")
+        if (body.code != SDS_SUCCESS_CODE) {
+            return ApiResult.Failure(body.error ?: "")
+        }
+
+        return ApiResult.Success(body.result?.toTransfers() ?: listOf())
+    }
+
+    companion object {
+        const val SDS_SUCCESS_CODE = 0
     }
 
 }
