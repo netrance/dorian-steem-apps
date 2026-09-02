@@ -1,6 +1,7 @@
 package lee.dorian.steem_data.retrofit
 
 import kotlinx.coroutines.test.runTest
+import lee.dorian.steem_domain.model.RewardType
 import lee.dorian.steem_test.TestData
 import org.junit.Assert.*
 import org.junit.Test
@@ -224,6 +225,129 @@ class SteemWorldServiceTest {
             assertNotEquals(firstPage[0], secondPage[0])
             assertTrue(firstPage.last().time >= secondPage[0].time)
         }
+    }
+
+    // Test case 1: Valid account — response is successful, and every author reward
+    // belongs to a post of the account.
+    @Test
+    fun getRewards_author_case1() = runTest {
+        val response = SteemWorldClient.apiService.getRewards(
+            SteemWorldService.REWARD_OP_AUTHOR,
+            TestData.singleAccount
+        )
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertEquals(0, body.code ?: -1)
+            assertNull(body.error)
+            assertNotNull(body.result)
+            val rewards = body.result?.toAuthorRewardList() ?: listOf()
+            for (reward in rewards) {
+                assertEquals(RewardType.AUTHOR, reward.type)
+                assertEquals(TestData.singleAccount, reward.author)
+                assertTrue(reward.permlink.isNotEmpty())
+                assertTrue(reward.sbd >= 0f)
+                assertTrue(reward.steem >= 0f)
+                assertTrue(reward.vests >= 0f)
+            }
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 2: Invalid account — response is successful, but the body contains an error.
+    @Test
+    fun getRewards_author_case2() = runTest {
+        val response = SteemWorldClient.apiService.getRewards(
+            SteemWorldService.REWARD_OP_AUTHOR,
+            TestData.invalidSingleAccount
+        )
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertNotEquals(0, body.code ?: 0)
+            assertNotNull(body.error)
+            assertNull(body.result)
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 1: Valid account — response is successful, and every curation reward
+    // is paid in VESTS for a post of another account.
+    @Test
+    fun getRewards_curation_case1() = runTest {
+        val response = SteemWorldClient.apiService.getRewards(
+            SteemWorldService.REWARD_OP_CURATION,
+            TestData.singleAccount
+        )
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertEquals(0, body.code ?: -1)
+            assertNull(body.error)
+            assertNotNull(body.result)
+            val rewards = body.result?.toCurationRewardList() ?: listOf()
+            for (reward in rewards) {
+                assertEquals(RewardType.CURATION, reward.type)
+                assertTrue(reward.author.isNotEmpty())
+                assertTrue(reward.permlink.isNotEmpty())
+                // Curation rewards are paid in VESTS only.
+                assertTrue(reward.sbd == 0f)
+                assertTrue(reward.steem == 0f)
+                assertTrue(reward.vests > 0f)
+            }
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 2: rewards_api orders the rows by time in ascending order,
+    // and the offset skips as many of them as it is given.
+    @Test
+    fun getRewards_curation_case2() = runTest {
+        val limit = 2
+        val firstPage = SteemWorldClient.apiService.getRewards(
+            SteemWorldService.REWARD_OP_CURATION,
+            TestData.singleAccount,
+            offset = SteemWorldService.DEFAULT_OFFSET,
+            limit = limit
+        ).body()?.result?.toCurationRewardList() ?: listOf()
+        val secondPage = SteemWorldClient.apiService.getRewards(
+            SteemWorldService.REWARD_OP_CURATION,
+            TestData.singleAccount,
+            offset = limit,
+            limit = limit
+        ).body()?.result?.toCurationRewardList() ?: listOf()
+
+        assertTrue(firstPage.size <= limit)
+        assertTrue(secondPage.size <= limit)
+        for (i in 1 until firstPage.size) {
+            assertTrue(firstPage[i - 1].time <= firstPage[i].time)
+        }
+        if (firstPage.size == limit && secondPage.isNotEmpty()) {
+            assertNotEquals(firstPage[0], secondPage[0])
+            assertTrue(firstPage.last().time <= secondPage[0].time)
+        }
+    }
+
+    // Test case 3: rewards_api rejects 0 as fromTime, so MIN_REWARD_TIME has to be used
+    // to read the whole history.
+    @Test
+    fun getRewards_curation_case3() = runTest {
+        val response = SteemWorldClient.apiService.getRewards(
+            SteemWorldService.REWARD_OP_CURATION,
+            TestData.singleAccount,
+            fromTime = 0L
+        )
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertNotEquals(0, body.code ?: 0)
+            assertNotNull(body.error)
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
     }
 
 }
