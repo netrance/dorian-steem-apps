@@ -167,7 +167,9 @@ class SteemWorldRepositoryImpl @Inject constructor(
     // rewards_api orders the rows by time in ascending order, has no parameter to change it,
     // and cuts the rows that exceed the limit off the newest end of the time range. The newest
     // rewards can therefore only be reported first once the whole time range has been read,
-    // which is what this does: it reads page after page until one of them is not full.
+    // which is what this does: it reads page after page until one of them is not full, and
+    // keeps every reward the range holds. The time range is the only thing that bounds the
+    // amount of work, which makes it the caller's job to ask for one worth reading.
     // Every op declares its own set of columns, so the caller passes the mapping function
     // that matches the op it asked for.
     private suspend fun readRewards(
@@ -218,12 +220,6 @@ class SteemWorldRepositoryImpl @Inject constructor(
                 val rowCount = result.rows?.size ?: 0
                 rewards.addAll(toRewards(result, dgp))
 
-                // A time range that holds more rewards than the app keeps is cut off at its
-                // oldest end, so that the newest rewards of the range always survive.
-                if (rewards.size > MAX_REWARD_COUNT) {
-                    rewards.subList(0, rewards.size - MAX_REWARD_COUNT).clear()
-                }
-
                 // A page that is not full is the last one of the time range.
                 if (rowCount < REWARDS_PAGE_SIZE) {
                     break
@@ -259,10 +255,6 @@ class SteemWorldRepositoryImpl @Inject constructor(
 
     companion object {
         const val SDS_SUCCESS_CODE = 0
-
-        // The most rewards a single time range is read into. A result of exactly this size
-        // means the range was cut off, and the caller should narrow it down.
-        const val MAX_REWARD_COUNT = 10000
 
         const val FIRST_REWARDS_OFFSET = SteemWorldService.DEFAULT_OFFSET
         const val REWARDS_PAGE_SIZE = SteemWorldService.MAX_REWARDS_LIMIT

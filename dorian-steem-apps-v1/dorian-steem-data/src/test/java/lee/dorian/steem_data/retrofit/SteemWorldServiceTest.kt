@@ -350,4 +350,25 @@ class SteemWorldServiceTest {
         fail("The body of response is empty!")
     }
 
+    // Test case 4: The offset skips as many rows as it is given instead of restarting at the
+    // row it points to, so consecutive pages join without carrying a row twice.
+    @Test
+    fun getRewards_curation_case4() = runTest {
+        val limit = 5
+        suspend fun readPage(offset: Int, pageLimit: Int) = SteemWorldClient.apiService.getRewards(
+            SteemWorldService.REWARD_OP_CURATION,
+            TestData.singleAccount2,
+            offset = offset,
+            limit = pageLimit
+        ).body()?.result?.toCurationRewardList() ?: listOf()
+
+        val firstPage = readPage(SteemWorldService.DEFAULT_OFFSET, limit)
+        val secondPage = readPage(limit, limit)
+        val bothPagesAtOnce = readPage(SteemWorldService.DEFAULT_OFFSET, limit * 2)
+
+        assertEquals(limit, firstPage.size)
+        assertEquals(limit, secondPage.size)
+        assertEquals(firstPage + secondPage, bothPagesAtOnce)
+    }
+
 }

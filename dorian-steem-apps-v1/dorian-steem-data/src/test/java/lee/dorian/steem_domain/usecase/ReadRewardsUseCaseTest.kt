@@ -47,7 +47,6 @@ class ReadRewardsUseCaseTest : CommonPartOfViewModelTest() {
         Assert.assertTrue(apiResult is ApiResult.Success)
 
         with(apiResult as ApiResult.Success) {
-            Assert.assertTrue(data.size <= ReadAuthorRewardsUseCase.MAX_REWARD_COUNT)
             testRewardList(data, RewardType.AUTHOR)
             for (reward in data) {
                 Assert.assertEquals(TestData.singleAccount, reward.author)
@@ -71,7 +70,6 @@ class ReadRewardsUseCaseTest : CommonPartOfViewModelTest() {
         Assert.assertTrue(apiResult is ApiResult.Success)
 
         with(apiResult as ApiResult.Success) {
-            Assert.assertTrue(data.size <= ReadCurationRewardsUseCase.MAX_REWARD_COUNT)
             testRewardList(data, RewardType.CURATION)
             for (reward in data) {
                 Assert.assertTrue(reward.amount.endsWith(" SP"))
@@ -119,28 +117,27 @@ class ReadRewardsUseCaseTest : CommonPartOfViewModelTest() {
     }
 
     // Test case 5: A time range that holds more rewards than one call can return is read page
-    // by page, and is cut off at its oldest end once it exceeds MAX_REWARD_COUNT.
+    // by page, and none of them is lost on the way: the whole history still reaches back to
+    // the first reward the account ever curated.
     @Test
     fun readCurationRewards_case5() = runTest {
         val apiResult = readCurationRewardsUseCase(TestData.singleAccount2)
         Assert.assertTrue(apiResult is ApiResult.Success)
 
         val data = (apiResult as ApiResult.Success).data
-        Assert.assertEquals(ReadCurationRewardsUseCase.MAX_REWARD_COUNT, data.size)
+        // More than one page of rewards, or the paging this tests never happened.
+        Assert.assertTrue(data.size > REWARDS_PAGE_SIZE)
         testRewardList(data, RewardType.CURATION)
         for (i in 1 until data.size) {
             Assert.assertTrue(data[i - 1].time >= data[i].time)
         }
-
-        // The rewards that were cut off are the oldest ones, so the first reward the account
-        // ever curated must not have survived. It is read from the earliest days of the account,
-        // a range small enough to be returned in full.
+        // The oldest reward of the whole history is the first one the account ever curated,
+        // which is read again from the earliest days of the account to be compared with.
         val earliest = readCurationRewardsUseCase(TestData.singleAccount2, toTime = EARLY_HISTORY_TO_TIME)
         Assert.assertTrue(earliest is ApiResult.Success)
         val earliestData = (earliest as ApiResult.Success).data
         Assert.assertTrue(earliestData.isNotEmpty())
-        Assert.assertTrue(earliestData.size < ReadCurationRewardsUseCase.MAX_REWARD_COUNT)
-        Assert.assertTrue(earliestData.last().time < data.last().time)
+        Assert.assertEquals(earliestData.last(), data.last())
     }
 
     private fun Long.toLocalTimeString(): String {
@@ -150,6 +147,9 @@ class ReadRewardsUseCaseTest : CommonPartOfViewModelTest() {
 
     companion object {
         const val TIME_FORMAT = "yyyy-MM-dd HH:mm"
+
+        // The rows a single rewards_api call returns at most.
+        const val REWARDS_PAGE_SIZE = 10000
 
         // The first days the account was curating in, which hold only a handful of rewards.
         const val EARLY_HISTORY_TO_TIME = 1519000000L   // 2018-02-19 00:26 UTC
