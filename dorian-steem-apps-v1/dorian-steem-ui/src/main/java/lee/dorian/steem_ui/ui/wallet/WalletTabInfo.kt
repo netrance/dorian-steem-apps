@@ -5,5 +5,6 @@ enum class WalletTabInfo(
 ) {
     BALANCE("Balance"),
     SENT("Transfer\n(sent)"),
-    RECEIVED("Transfer\n(received)")
+    RECEIVED("Transfer\n(received)"),
+    REWARDS("Rewards")
 }

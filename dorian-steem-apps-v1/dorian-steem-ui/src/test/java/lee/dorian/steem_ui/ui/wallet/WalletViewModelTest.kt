@@ -3,7 +3,12 @@ package lee.dorian.steem_ui.ui.wallet
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
+import lee.dorian.steem_data.repository.SteemWorldRepositoryImpl
 import lee.dorian.steem_domain.model.SteemitWallet
+import lee.dorian.steem_domain.usecase.ReadAuthorRewardsUseCase
+import lee.dorian.steem_domain.usecase.ReadCurationRewardsUseCase
+import lee.dorian.steem_domain.usecase.ReadIncomingTransfersUseCase
+import lee.dorian.steem_domain.usecase.ReadOutgoingTransfersUseCase
 import lee.dorian.steem_domain.usecase.ReadSteemitWalletUseCase
 import lee.dorian.steem_test.CommonPartOfViewModelTest
 import lee.dorian.steem_ui.model.State
@@ -14,7 +19,13 @@ import org.junit.Assert.*
 // To test WalletViewModel class
 class WalletViewModelTest : CommonPartOfViewModelTest() {
 
-    var walletViewModel = WalletViewModel(ReadSteemitWalletUseCase(SteemRepositoryImpl(dispatcher), dispatcher))
+    var walletViewModel = WalletViewModel(
+        ReadSteemitWalletUseCase(SteemRepositoryImpl(dispatcher), dispatcher),
+        ReadOutgoingTransfersUseCase(SteemWorldRepositoryImpl(dispatcher), dispatcher),
+        ReadIncomingTransfersUseCase(SteemWorldRepositoryImpl(dispatcher), dispatcher),
+        ReadAuthorRewardsUseCase(SteemWorldRepositoryImpl(dispatcher), dispatcher),
+        ReadCurationRewardsUseCase(SteemWorldRepositoryImpl(dispatcher), dispatcher)
+    )
 
     // Test case 1: Trying to get the wallet of a valid account.
     @Test
