@@ -6,7 +6,8 @@ This directory contains documentation and tools for automating STEEM APPBASE API
 
 | File | Purpose |
 |------|---------|
-| `generate-api.md` | Complete guide and templates for API code generation |
+| `generate-steem-api-integration.md` | Complete guide and templates for API code generation |
+| `integrate-steemworld-api.md` | Guide for integrating SteemWorld (SDS) REST APIs |
 | `EXAMPLE_API_GENERATION.md` | Full working example of generated code |
 | This `README.md` | Quick start guide |
 
@@ -39,7 +40,7 @@ Claude Code will automatically generate all 8 files across the architecture laye
 
 ### Method 2: Manual Generation (Using Templates)
 
-1. Read `generate-api.md` for templates
+1. Read `generate-steem-api-integration.md` for templates
 2. Replace placeholders with your API details
 3. Create files manually
 
@@ -196,7 +197,7 @@ Planned improvements:
 
 To improve the automation:
 
-1. Update templates in `generate-api.md`
+1. Update templates in `generate-steem-api-integration.md`
 2. Add more examples to `EXAMPLE_API_GENERATION.md`
 3. Document edge cases and solutions
 4. Share reusable patterns
