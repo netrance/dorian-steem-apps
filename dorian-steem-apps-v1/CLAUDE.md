@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Dorian Steem Apps is an Android application for the Steemit blockchain platform. The project uses Clean Architecture with multi-module structure and is currently migrating from traditional Fragment-based UI to Jetpack Compose.
+Dorian Steem Apps is an Android application for the Steemit blockchain platform. The project
+uses Clean Architecture with a multi-module structure, and its UI is **fully Jetpack Compose**
+(the migration away from Fragments and XML layouts is complete).
 
 ## Build and Run Commands
 
@@ -23,9 +25,17 @@ Dorian Steem Apps is an Android application for the Steemit blockchain platform.
 ./gradlew :dorian-steem-domain:test
 ./gradlew :dorian-steem-data:test
 
+# Run a single test class
+./gradlew :dorian-steem-data:test --tests "*ReadRewardsUseCaseTest*"
+
 # Run UI tests
 ./gradlew connectedAndroidTest
 ```
+
+**Important**: most tests in `dorian-steem-data` are integration tests that call the live
+Steem and SteemWorld APIs with the real accounts in `lee.dorian.steem_test.TestData`.
+They fail without a network connection, and they can fail when the remote API or the test
+account's data changes. There is no mock server.
 
 ### Clean Build
 ```bash
@@ -49,38 +59,34 @@ This project follows Clean Architecture principles with clear separation of conc
 ### Module Structure
 
 - **dorian-steem-ui**: Main application module (UI layer)
-  - Contains Activities, Fragments, Composables, ViewModels
-  - Uses both traditional Views (XML + ViewBinding/DataBinding) and Jetpack Compose
+  - Activities, Composables, ViewModels
+  - 100% Jetpack Compose — every Activity is a `ComponentActivity` that calls `setContent`
   - Package: `lee.dorian.steem_ui`
-  - Entry points: `MainActivity` (traditional), `Main2Activity` (Compose-based, newer)
+  - Launcher: `SplashActivity` → `Main2Activity` (hosts the whole navigation graph)
 
 - **dorian-steem-domain**: Domain layer (pure Kotlin)
-  - Contains use cases, repository interfaces, and domain models
+  - Use cases, repository interfaces, and domain models
   - No Android dependencies
   - Use cases follow single responsibility (one action per use case)
   - Package: `lee.dorian.steem_domain`
 
 - **dorian-steem-data**: Data layer (pure Kotlin)
-  - Contains repository implementations and API services
-  - Uses Retrofit for network calls to Steemit blockchain
+  - Repository implementations and API services
+  - Retrofit clients for two backends: `SteemClient` and `SteemWorldClient`
   - No Android dependencies
   - Package: `lee.dorian.steem_data`
 
 - **dorian-android-ktx**: Android-specific Kotlin extensions
-  - Helper functions for Android framework classes
   - Package: `lee.dorian.dorian_android_ktx`
 
-- **dorian-ktx**: General Kotlin extensions
-  - Pure Kotlin utilities (no Android dependencies)
+- **dorian-ktx**: General Kotlin extensions (no Android dependencies)
   - Package: `lee.dorian.dorian_ktx`
 
-- **dorian-steem-test**: Test utilities
-  - Shared test helpers and fixtures
+- **dorian-steem-test**: Shared test helpers and fixtures (`TestData`, `CommonPartOfViewModelTest`)
   - Package: `lee.dorian.steem_test`
 
 ### Dependency Flow
 
-The dependency flow follows Clean Architecture:
 ```
 dorian-steem-ui → dorian-steem-domain ← dorian-steem-data
                 ↓                               ↓
@@ -89,80 +95,126 @@ dorian-steem-ui → dorian-steem-domain ← dorian-steem-data
 
 ### Navigation Architecture
 
-The app supports two navigation implementations:
+There is a single navigation implementation: type-safe Compose Navigation.
 
-1. **MainActivity** (Traditional): Fragment-based navigation using Navigation Component with XML navigation graphs and SafeArgs
-2. **Main2Activity** (New): Jetpack Compose navigation with type-safe navigation routes using serializable data classes (e.g., `TagsScreenRoute`, `ProfileScreenRoute`, `PostContentRoute`)
+- Route classes are `@Serializable` data classes in `lee.dorian.steem_ui.model.navigation`
+  (e.g. `TagsScreenRoute`, `ProfileScreenRoute`, `PostContentRoute`, `WalletScreenRoute`)
+- The graph is declared in `AppNavigation` in `main/Main2Navigation.kt`, using
+  `composable<RouteType>` and `backStackEntry.toRoute()` to read arguments
+- The `Screen` sealed class in the same file declares the three bottom-bar destinations
+  (Tags, Profile, Wallet)
+- Screens that are not part of the graph (image viewer, vote list) are separate
+  `ComponentActivity`s started with an `Intent`
 
-When working with navigation:
-- For Compose screens: Use sealed route classes in `lee.dorian.steem_ui.model.navigation`
-- For Fragment screens: Use SafeArgs-generated directions classes
-- New features should prefer Compose-based navigation in Main2Activity
+Navigation callbacks are passed **into** a screen as lambdas; screens do not hold the
+`NavHostController` themselves.
 
 ## Technology Stack
 
-- **Language**: Kotlin 2.1.0
-- **Build System**: Gradle with version catalog (libs.versions.toml)
+- **Language**: Kotlin 2.1.0 (Java 17 toolchain)
+- **SDK**: minSdk 24, compileSdk / targetSdk 36
+- **Build System**: Gradle with version catalog (`gradle/libs.versions.toml`)
 - **Dependency Injection**: Hilt/Dagger
-  - Application class: `MainApplication` (annotated with `@HiltAndroidApp`)
-  - Modules located in `dorian-steem-ui/src/main/java/lee/dorian/steem_ui/di/`
-  - ViewModels use `@HiltViewModel`
-  - Activities/Fragments use `@AndroidEntryPoint`
-- **UI**:
-  - Jetpack Compose (Material3) - preferred for new screens
-  - Traditional Views with ViewBinding/DataBinding - legacy screens
+  - Application class: `MainApplication` (`@HiltAndroidApp`)
+  - Modules in `dorian-steem-ui/src/main/java/lee/dorian/steem_ui/di/`
+  - ViewModels use `@HiltViewModel`, Activities use `@AndroidEntryPoint`
+- **UI**: Jetpack Compose (Material3). The only enabled build feature is `compose`;
+  ViewBinding and DataBinding are **not** enabled and there are no XML layouts.
 - **Networking**: Retrofit with Gson converter
-- **Async**: Kotlin Coroutines (preferred) and RxJava2 (legacy)
-- **Image Loading**: Coil (Compose) and Glide (traditional Views)
-- **Markdown Rendering**: CommonMark with GFM tables extension
+- **Async**: Kotlin Coroutines. RxJava2 is effectively gone — only `RxJava2CallAdapterFactory`
+  in `SteemClient` and two unused `io.reactivex.Single` imports remain. Do not add new RxJava code.
+- **Image Loading**: Coil (`coil-compose`). Glide is no longer used.
+- **Markdown Rendering**: CommonMark with the GFM tables extension. Post bodies are converted
+  to an HTML document by `String.convertMarkdownToHtmlDocument()` in `dorian-ktx`, then shown
+  with `WebView.loadMarkdown()` from `dorian-android-ktx`, wrapped in an `AndroidView`. This is
+  the one place a platform View appears inside the Compose UI.
+
+## Backends
+
+The app reads from two different backends. **Prefer the official Steem API**; use SteemWorld
+only when the official API cannot do the job or would be unreasonably complex.
+
+| | Steem (official) | SteemWorld (SDS) |
+|---|---|---|
+| Client | `SteemClient` | `SteemWorldClient` |
+| Base URL | `https://api.steemit.com` | `https://sds.steemworld.org/` |
+| Service | `SteemService` | `SteemWorldService` |
+| Protocol | JSON-RPC over POST | REST with path parameters (GET) |
+| Repository | `SteemRepository` / `SteemRepositoryImpl` | `SteemWorldRepository` / `SteemWorldRepositoryImpl` |
+| Used for | posts, profiles, wallets, account history, global properties | delegations, transfers, rewards |
+
+SteemWorld responses have their own shape (`{code, error, result{cols, rows}}`) and report
+errors with HTTP 200 plus a non-zero `code`. The full procedure for adding a SteemWorld
+endpoint is in [scripts/integrate-steemworld-api.md](scripts/integrate-steemworld-api.md);
+the official-API generator templates are in
+[scripts/generate-steem-api-integration.md](scripts/generate-steem-api-integration.md).
 
 ## Key Patterns and Conventions
 
+### Result and State types
+
+Two distinct types carry results, and they are not interchangeable:
+
+- `ApiResult<T>` (domain): `Success` / `Failure` (API-level error message) / `Error` (exception).
+  Returned by repositories and use cases.
+- `State<T>` (ui, `lee.dorian.steem_ui.model.State`): `Empty` / `Loading` / `Success` /
+  `Failure` / `Error`. Exposed by ViewModels to Composables.
+
+ViewModels convert one into the other, and the `when` must handle all three `ApiResult` branches.
+
 ### ViewModels
-- Use `@HiltViewModel` annotation
-- Inject use cases via constructor
-- Expose UI state using LiveData or Compose State
-- Located in same package as corresponding UI component
+- Annotate with `@HiltViewModel`, extend `BaseViewModel`, inject use cases via constructor
+- Expose state as `MutableStateFlow<State<T>>` behind an `asStateFlow()` property
+- Emit `State.Loading` before the call, then the converted result
+- Located in the same package as the corresponding screen
+
+### Composable screens
+- Obtain the ViewModel with `hiltViewModel()`, collect with `collectAsStateWithLifecycle()`
+- Trigger loading from `LaunchedEffect(key)` where the key is what should re-trigger it
+- Render `State.Empty`/`State.Loading` as `Loading()`, failures as `ErrorOrFailure()`
+- Accept navigation and click handling as lambda parameters
+- Add a `@Preview` composable next to each screen-level composable
 
 ### Use Cases
-- Single responsibility per use case
-- Named with pattern: `Read[Entity][Action]UseCase` (e.g., `ReadPostsUseCase`)
-- Return domain models, not data models
-- Use constructor injection for dependencies
+- One action per use case; opposite directions get separate use cases
+  (e.g. `ReadIncomingTransfersUseCase` / `ReadOutgoingTransfersUseCase`)
+- Named `Read[Entity][Action]UseCase`
+- Declared as `suspend operator fun invoke(...)`, wrapped in `withContext(dispatcher)` and `try/catch`
+- Return domain models inside `ApiResult`, never DTOs
+- Constructor injection; no Hilt module entry needed
 
 ### Repository Pattern
-- Interfaces defined in domain module (`lee.dorian.steem_domain.repository`)
-- Implementations in data module (`lee.dorian.steem_data.repository`)
-- Currently: `SteemRepository` interface and `SteemRepositoryImpl`
-- Bound in `RepositoryModule` using Hilt
+- Interfaces in `lee.dorian.steem_domain.repository`, implementations in `lee.dorian.steem_data.repository`
+- Both `SteemRepository` and `SteemWorldRepository` are bound with `@Binds` in `di/RepositoryModule.kt`
+- `CoroutineDispatcher` comes from `di/CoroutinesModule.kt` (`Dispatchers.IO`)
+- Repositories map DTOs to domain models; Retrofit types never leave the data module
 
-### API Integration
-- Steemit blockchain API accessed via Retrofit
-- Service interface: `SteemService` in data module
-- API endpoints use Steem RPC protocol
-- Responses converted to domain models in repository layer
+### Naming
+- Packages: snake_case (`steem_ui`, `steem_domain`)
+- Classes: PascalCase — note that `PostContentFragment.kt` and `ReplyListDialogFragment.kt`
+  are legacy *file names* containing only Composables, not Fragments
+- DTOs end in `DTO`; screen files end in `Screen.kt`
 
 ## Dependency Management
 
-Dependencies are managed in `gradle/libs.versions.toml`:
-- **Versions section**: Centralized version numbers
-- **Libraries section**: Dependency declarations
-- **Bundles section**: Grouped dependencies (e.g., `androidx-compose`, `retrofit`)
-- **Plugins section**: Gradle plugins
-
-When adding dependencies, update `libs.versions.toml` first, then reference in module build files.
+Dependencies are managed in `gradle/libs.versions.toml` (versions / libraries / bundles / plugins).
+Add the entry there first, then reference it from the module's `build.gradle`.
 
 ## Testing
 
-- Unit tests for domain layer: Pure Kotlin tests without Android framework
-- Unit tests for ViewModels: Use `androidx-core-testing` for LiveData testing
-- Integration tests for data layer: Test repository implementations
-- UI tests: Espresso for traditional views, Compose testing for Compose screens
+- **Domain use case tests live in the data module**, at
+  `dorian-steem-data/src/test/java/lee/dorian/steem_domain/usecase/`. The package does not
+  match the module on purpose: these tests construct a real `RepositoryImpl`, which is only
+  visible from the data module.
+- Pure unit tests (`ConverterTest`, `StringExtTest`) live in their own module's `src/test`.
+- ViewModel tests are in `dorian-steem-ui/src/test`, using `androidx-core-testing`.
+- Test accounts come from `lee.dorian.steem_test.TestData`; shared setup from `CommonPartOfViewModelTest`.
+- For every API-backed feature, cover both a valid account and an invalid account.
 
-Test configuration in UI module includes:
+The UI module mocks the Android framework in unit tests:
 ```groovy
 testOptions {
-    unitTests.returnDefaultValues = true  // Mocks Android framework
+    unitTests.returnDefaultValues = true
 }
 ```
 
@@ -170,37 +222,28 @@ testOptions {
 
 ### Adding a New Screen
 
-1. **For Compose screens** (preferred):
-   - Create route data class in `lee.dorian.steem_ui.model.navigation`
-   - Create Composable in `lee.dorian.steem_ui.ui.[feature]`
-   - Create ViewModel with `@HiltViewModel`
-   - Add route to `AppNavigation` in `Main2Activity`
-
-2. **For Fragment screens** (legacy):
-   - Create Fragment extending `BaseActivity` with ViewBinding
-   - Create ViewModel with `@HiltViewModel`
-   - Add to navigation graph XML
-   - Update `MainActivity` navigation setup if needed
+1. Create an `@Serializable` route data class in `lee.dorian.steem_ui.model.navigation`
+2. Create the Composable in `lee.dorian.steem_ui.ui.[feature]` as `[Name]Screen.kt`, plus a `@Preview`
+3. Create the ViewModel with `@HiltViewModel`, exposing `StateFlow<State<T>>`
+4. Register the destination with `composable<Route>` in `AppNavigation` (`main/Main2Navigation.kt`)
+5. If it belongs on the bottom bar, add it to the `Screen` sealed class
 
 ### Adding a New Use Case
 
-1. Create use case interface in domain module
-2. Implement use case with constructor-injected repository
-3. Inject use case into ViewModel
-4. Repository methods should already exist or be added as needed
+1. Create the use case in the domain module with constructor-injected repository and dispatcher
+2. Inject it into the ViewModel
+3. Add the repository method if it does not exist yet
 
-### Adding API Endpoint
+### Adding an API Endpoint
 
-1. Add method to `SteemService` interface in data module
-2. Add corresponding method to `SteemRepository` interface in domain module
-3. Implement in `SteemRepositoryImpl` in data module
-4. Create or update use case to expose functionality
+- Official Steem API: follow [scripts/generate-steem-api-integration.md](scripts/generate-steem-api-integration.md)
+- SteemWorld (SDS) API: follow [scripts/integrate-steemworld-api.md](scripts/integrate-steemworld-api.md)
 
-## Migration Notes
+Both end with the same shape: Service method → Repository interface method →
+Repository implementation → Use case → ViewModel → Screen, plus tests.
 
-The project is actively migrating from traditional Android Views to Jetpack Compose:
-- `MainActivity`: Legacy Fragment-based UI
-- `Main2Activity`: New Compose-based UI
-- Both activities coexist during migration
-- New features should use `Main2Activity` and Jetpack Compose
-- When refactoring existing screens, migrate to Compose incrementally
+## Additional Documentation
+
+- [readme.md](readme.md) — project introduction and setup
+- [docs/WHY_USE_CASES.md](docs/WHY_USE_CASES.md) — rationale for the use case layer
+- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) — detailed structure analysis (Korean; parts predate the SteemWorld work)
