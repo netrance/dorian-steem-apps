@@ -116,6 +116,8 @@ Most tests in `dorian-steem-data` are **integration tests that call the live API
 accounts in `lee.dorian.steem_test.TestData`. They require a network connection, and they can
 fail when the remote data changes. There is no mock server.
 
+See [docs/TESTING.md](docs/TESTING.md) for the test layout, conventions and known failures.
+
 ---
 
 ## Documentation
@@ -123,7 +125,7 @@ fail when the remote data changes. There is no mock server.
 | Document | Contents |
 |----------|----------|
 | [CLAUDE.md](CLAUDE.md) | Architecture, conventions and workflows (also the guide for AI coding agents) |
-| [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) / [PROJECT_STRUCTURE_EN.md](PROJECT_STRUCTURE_EN.md) | Detailed structure analysis |
+| [docs/TESTING.md](docs/TESTING.md) | Test layout, conventions and known failures |
 | [docs/WHY_USE_CASES.md](docs/WHY_USE_CASES.md) | Why the project has a use case layer |
 | [scripts/generate-steem-api-integration.md](scripts/generate-steem-api-integration.md) | Adding an official Steem API endpoint |
 | [scripts/integrate-steemworld-api.md](scripts/integrate-steemworld-api.md) | Adding a SteemWorld (SDS) API endpoint |
