@@ -93,6 +93,33 @@ dorian-steem-ui → dorian-steem-domain ← dorian-steem-data
         dorian-android-ktx              dorian-ktx
 ```
 
+### Package Structure
+
+```
+steem_ui/                    steem_domain/            steem_data/
+├── di/                      ├── model/               ├── model/
+├── ext/                     ├── repository/          │   ├── delegation/
+├── main/                    ├── usecase/             │   ├── follow/
+├── model/                   ├── ext/                 │   ├── history/
+│   └── navigation/          └── util/                │   ├── post/
+├── ui/                                               │   ├── reward/
+│   ├── account_details/                              │   └── transfer/
+│   ├── base/                                         ├── repository/
+│   ├── compose/                                      └── retrofit/
+│   ├── history/
+│   ├── post/{content,list}/
+│   ├── preview/
+│   ├── profile/
+│   ├── tags/
+│   ├── voter/
+│   └── wallet/
+└── util/
+```
+
+UI packages are organised by feature, and a screen's Composable, its ViewModel and its
+previews live together in the same package. `ui/compose/` holds the Composables shared
+across features; `ui/preview/` holds the sample data the previews use.
+
 ### Navigation Architecture
 
 There is a single navigation implementation: type-safe Compose Navigation.
@@ -202,6 +229,8 @@ Add the entry there first, then reference it from the module's `build.gradle`.
 
 ## Testing
 
+See [docs/TESTING.md](docs/TESTING.md) for the full guide, including the known failures.
+
 - **Domain use case tests live in the data module**, at
   `dorian-steem-data/src/test/java/lee/dorian/steem_domain/usecase/`. The package does not
   match the module on purpose: these tests construct a real `RepositoryImpl`, which is only
@@ -242,8 +271,27 @@ testOptions {
 Both end with the same shape: Service method → Repository interface method →
 Repository implementation → Use case → ViewModel → Screen, plus tests.
 
-## Additional Documentation
+## Documentation
+
+### Language
+
+`readme.md` is written in English, since its readers are visitors to the repository, and it
+may carry a `readme.ko.md` translation. Every other document is written in **one language
+only**: Korean for internal working documents, English where an external reader is the
+audience. Do not maintain two language versions of the same internal document.
+
+This is not a style preference. `PROJECT_STRUCTURE.md` and `PROJECT_STRUCTURE_EN.md` were
+kept as such a pair: both were created in a single commit, neither was ever updated again,
+and they went stale together while the code moved on. Doubling the cost of an update is
+what stops the update from happening.
+
+### Documents
 
 - [readme.md](readme.md) — project introduction and setup
+- [docs/TESTING.md](docs/TESTING.md) — test layout, conventions, known failures (Korean)
 - [docs/WHY_USE_CASES.md](docs/WHY_USE_CASES.md) — rationale for the use case layer
-- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) — detailed structure analysis (Korean; parts predate the SteemWorld work)
+- [scripts/generate-steem-api-integration.md](scripts/generate-steem-api-integration.md) — adding an official Steem API endpoint
+- [scripts/integrate-steemworld-api.md](scripts/integrate-steemworld-api.md) — adding a SteemWorld (SDS) endpoint (Korean)
+
+This file is the single source of truth for the project's structure and conventions. Keep it
+current with the code rather than describing the structure a second time somewhere else.
