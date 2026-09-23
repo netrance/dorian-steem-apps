@@ -16,3 +16,7 @@ local.properties
 
 # Additional files
 .idea
+# iCloud Drive 가 ~/Documents 동기화 중 만드는 충돌 사본.
+# 같은 패키지에 같은 클래스를 재선언해 빌드를 깨뜨린다.
+* [0-9].*
+* [0-9][0-9].*
