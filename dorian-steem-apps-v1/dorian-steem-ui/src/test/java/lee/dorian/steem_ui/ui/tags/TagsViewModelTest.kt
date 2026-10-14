@@ -43,11 +43,13 @@ class TagsViewModelTest : CommonPartOfViewModelTest() {
 
         tagViewModel.appendRankedPosts("kr", "trending")
         delay(WAITING_TIME_MSEC)
-        tagViewModel.flowTagsState.value.also { newState ->
-            assertTrue(newState is State.Success)
-            val tags = (newState as State.Success).data
-            assertEquals(tags.size, 2 * tagViewModel.limit)
-        }
+        // This has to end in a Unit expression. `fun x() = runBlocking { ... }` takes its return
+        // type from the last expression, and a test method that does not return void invalidates
+        // the whole class, not just that one method. A trailing `also { }` returns its receiver.
+        val appendedState = tagViewModel.flowTagsState.value
+        assertTrue(appendedState is State.Success)
+        val appendedTags = (appendedState as State.Success).data
+        assertEquals(appendedTags.size, 2 * tagViewModel.limit)
     }
 
 }

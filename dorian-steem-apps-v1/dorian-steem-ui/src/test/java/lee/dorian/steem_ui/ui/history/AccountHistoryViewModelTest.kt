@@ -13,7 +13,13 @@ import lee.dorian.steem_ui.model.State
 import org.junit.Test
 
 import org.junit.Assert.*
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+// The ViewModel reads its route with SavedStateHandle.toRoute(), which decodes through a real
+// android.os.Bundle. This module stubs the framework in unit tests, so without Robolectric the
+// route decodes to null. (see docs/TESTING.md)
+@RunWith(RobolectricTestRunner::class)
 class AccountHistoryViewModelTest : CommonPartOfViewModelTest() {
 
     private val steemRepository = SteemRepositoryImpl(dispatcher)

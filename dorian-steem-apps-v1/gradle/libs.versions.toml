@@ -40,6 +40,13 @@ coilCompose = "2.7.0"
 commonmark = "0.20.0"
 jsoup = "1.16.1"
 junit = "4.13.2"
+
+# toRoute()가 실제 android.os.Bundle을 거치므로, ViewModel 테스트에는 프레임워크
+# 스터브가 아닌 Robolectric이 필요하다. (docs/TESTING.md 참고)
+robolectric = "4.17"
+# Robolectric의 Android 런타임. SDK 35(Android 15)에 대응하는 빌드이며, robolectric.properties의
+# sdk 값과 반드시 함께 올려야 한다.
+robolectricAndroidAll = "15-robolectric-13954326-i7"
 kotlinxSerializationJson = "1.6.3"
 unbescape = "1.1.6.RELEASE"
 activity = "1.12.2"
@@ -99,6 +106,8 @@ commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmark" 
 commonmark-ext-gfm-tables = { module = "org.commonmark:commonmark-ext-gfm-tables", version.ref = "commonmark" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit = { module = "junit:junit", version.ref = "junit" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+robolectric-android-all = { module = "org.robolectric:android-all-instrumented", version.ref = "robolectricAndroidAll" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 unbescape = { module = "org.unbescape:unbescape", version.ref = "unbescape" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }

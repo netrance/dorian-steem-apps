@@ -182,6 +182,14 @@ assertTrue(walletState is State.Success<SteemitWallet>)
   case 2다.
 - 행복 경로만이 아니라 계약을 검증한다. 화면이 "최신순"에 의존한다면 정렬을 단언한다.
 - 계정은 `TestData`에서 가져온다. 새 계정을 하드코딩하지 않는다.
+- **테스트 본문은 Unit으로 끝낸다.** `fun x() = runBlocking { ... }`는 블록의 마지막 식에서
+  반환형을 가져오고, `Unit`이 아니면 JUnit4가 `Method x() should be void`로 거부하며
+  **해당 메서드만이 아니라 클래스 전체가 실행되지 않는다.** `assert`로 끝내면 되고,
+  `also { }`나 `with { }`로 끝내면 수신자/블록 값이 반환되어 걸린다.
+- **`SavedStateHandle`로 ViewModel을 만드는 테스트에는 `@RunWith(RobolectricTestRunner::class)`를
+  붙인다.** `toRoute()`가 실제 `Bundle`을 거치기 때문이다 (아래 "함정" 참고).
+  Robolectric SDK는 `src/test/resources/robolectric.properties`에서 전역으로 고정한다.
+
 
 ---
 
@@ -255,6 +263,42 @@ testOptions {
 `Method getMainLooper in android.os.Looper not mocked` 때문에 추가되었다. 프레임워크 호출이
 예외를 던지는 대신 `null`/`0`을 반환하므로, 실제 프레임워크 동작을 전혀 건드리지 않고도
 테스트가 통과할 수 있다.
+
+**그리고 이 설정 때문에 `toRoute()`를 쓰는 ViewModel은 Robolectric 없이 테스트할 수 없다.**
+`SavedStateHandle`은 평범한 맵이라 멀쩡한데, `androidx.navigation`의 경로 디코더가 꺼낸 값을
+`Bundle`에 다시 담아 거기서 읽는다. (navigation 2.8.0 `RouteDecoder.kt`)
+
+```kotlin
+private class SavedStateArgStore(...) : ArgStore() {
+    override fun get(key: String): Any? {
+        val arg: Any? = handle[key]        // 정상
+        val bundle = bundleOf(key to arg)  // 스터브 Bundle — 값이 사라진다
+        return checkNotNull(typeMap[key]) { ... }[bundle, key]
+    }
+}
+```
+
+그래서 `handle.get("author")`는 값을 돌려주는데 `handle.toRoute<PostContentRoute>()`는
+`Unexpected null value for non-nullable argument author`로 터진다. **값을 넣는 방식
+(`set` / 생성자)을 바꿔도 해결되지 않는다.** 실제 `Bundle` 구현이 필요하다.
+
+해법이 Robolectric이고, 두 가지가 딸려 온다.
+
+**1. SDK를 35로 고정해야 한다.** Robolectric은 기본으로 모듈의 `targetSdk`(36)를 쓰는데,
+SDK 36·37은 Java 21을 요구하고 이 프로젝트는 Java 17 툴체인이다. SDK 34·35가 Java 17에서
+도는 마지막 버전이다. `src/test/resources/robolectric.properties`가 이것을 고정한다.
+Java 툴체인을 올릴 때 함께 올린다.
+
+```
+Android SDK 36 requires Java 21 (have Java 17)
+```
+
+**2. Android 런타임 jar를 Gradle로 받는다.** Robolectric은 200MB짜리 `android-all` jar를
+테스트 실행 중에 직접 내려받는데, 이것은 Gradle 빌드 밖이라 캐시도 재시도도 재개도 없다.
+연결이 한 번 끊기면 몇 분 뒤 `SocketException`으로 테스트 전체가 실패한다. 그래서
+`dorian-steem-ui/build.gradle`이 `robolectricSdk` 설정으로 jar를 의존성으로 해석한 뒤
+`robolectric.offline`로 디스크에서 읽게 한다. jar의 SDK와 `robolectric.properties`의
+`sdk`는 반드시 같아야 한다.
 
 **`dorian-steem-test`가 테스트 클래스패스가 아니라 메인 클래스패스에 있다.** 세 모듈 모두
 `implementation`으로 선언하고 있어, `TestData`의 실계정 이름을 포함한 픽스처가 프로덕션

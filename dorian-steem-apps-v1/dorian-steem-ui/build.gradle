@@ -46,10 +46,39 @@ android {
     // java.lang.RuntimeException: Method getMainLooper in android.os.Looper not mocked.
     testOptions {
         unitTests.returnDefaultValues = true
+        // Robolectric needs the merged resources and the manifest to stand up a real Android
+        // runtime. Without this, a @RunWith(RobolectricTestRunner) test fails on startup.
+        unitTests.includeAndroidResources = true
     }
 }
 
+// Robolectric fetches its own Android runtime jar over the network the first time a test runs.
+// That fetch is not part of the Gradle build, so it has no cache, no retry and no resume: one
+// dropped connection fails the whole test run with a SocketException after several minutes.
+//
+// Resolving the runtime as an ordinary Gradle dependency instead gets all of that for free, and
+// Robolectric then reads it from disk with robolectric.offline. The jar's SDK level has to match
+// the sdk in src/test/resources/robolectric.properties.
+configurations {
+    robolectricSdk
+}
+
+def robolectricSdkDir = layout.buildDirectory.dir("robolectric-sdks")
+
+tasks.register("copyRobolectricSdk", Copy) {
+    from configurations.robolectricSdk
+    into robolectricSdkDir
+}
+
+tasks.withType(Test).configureEach {
+    dependsOn tasks.named("copyRobolectricSdk")
+    systemProperty "robolectric.offline", "true"
+    systemProperty "robolectric.dependency.dir", robolectricSdkDir.get().asFile.absolutePath
+}
+
 dependencies {
+    robolectricSdk(libs.robolectric.android.all) { transitive = false }
+
     // To refer to other modules
     implementation project(':dorian-android-ktx')
     implementation project(':dorian-ktx')
@@ -94,6 +123,7 @@ dependencies {
     testImplementation project(':dorian-steem-data')
     testImplementation libs.junit
     testImplementation libs.androidx.core.testing
+    testImplementation libs.robolectric
     testImplementation libs.coroutines.test
     testImplementation libs.rxjava
     testImplementation libs.rxandroid
