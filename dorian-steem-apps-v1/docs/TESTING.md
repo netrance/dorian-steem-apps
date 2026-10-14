@@ -190,7 +190,6 @@ assertTrue(walletState is State.Success<SteemitWallet>)
   붙인다.** `toRoute()`가 실제 `Bundle`을 거치기 때문이다 (아래 "함정" 참고).
   Robolectric SDK는 `src/test/resources/robolectric.properties`에서 전역으로 고정한다.
 
-
 ---
 
 ## 알려진 실패
@@ -310,5 +309,9 @@ APK에 컴파일되어 들어간다. `testImplementation`이어야 한다.
 
 - `SteemWorldRepositoryImplTest`는 `readContentHistory`만 다룬다. 위임·송금·보상 조회는
   여전히 UseCase 테스트를 통해서만 검증된다
+- ViewModel 11개 중 7개에만 테스트가 있다. `IncomingDelegationListViewModel`,
+  `OutgoingDelegationListViewModel`, `PostImagePagerViewModel`, `VoteListViewModel`은 없다
 - Compose UI 테스트가 없다. `dorian-steem-ui/src/androidTest/`에는 생성된 템플릿만 있다
 - CI가 없다. `.github/` 워크플로가 없어 자동으로 실행되는 것이 없다
+
+남은 테스트 공백은 [BACKLOG.md](BACKLOG.md)에 모아 둔다.

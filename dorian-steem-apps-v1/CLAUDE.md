@@ -288,6 +288,7 @@ what stops the update from happening.
 ### Documents
 
 - [readme.md](readme.md) — project introduction and setup
+- [docs/BACKLOG.md](docs/BACKLOG.md) — known defects, test gaps and cleanups not yet done (Korean)
 - [docs/TESTING.md](docs/TESTING.md) — test layout, conventions, known failures (Korean)
 - [docs/WHY_USE_CASES.md](docs/WHY_USE_CASES.md) — rationale for the use case layer
 - [scripts/generate-steem-api-integration.md](scripts/generate-steem-api-integration.md) — adding an official Steem API endpoint
