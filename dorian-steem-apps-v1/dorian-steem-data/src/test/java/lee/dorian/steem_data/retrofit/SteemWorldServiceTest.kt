@@ -371,4 +371,112 @@ class SteemWorldServiceTest {
         assertEquals(firstPage + secondPage, bothPagesAtOnce)
     }
 
+    // Test case 1: Valid link — response is successful, rows are non-empty, and each row has
+    // the correct format: [time, json_metadata, title, body]. json_metadata and title are the
+    // only ones that may be empty, since an edit carries only the fields it changed.
+    @Test
+    fun getContentHistory_case1() = runTest {
+        val (author, permlink) = TestData.multipleRevisionsContentLink
+        val response = SteemWorldClient.apiService.getContentHistory(author, permlink)
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertEquals(0, body.code ?: -1)
+            assertNull(body.error)
+            assertNotNull(body.result)
+            val rows = body.result?.rows ?: listOf()
+            assertTrue(rows.isNotEmpty())
+            for (row in rows) {
+                assertEquals(4, row.size)
+                assertTrue(row[0] is Double)   // time (Unix timestamp)
+                assertTrue(row[1] is String)   // json_metadata (a raw JSON string, not an object)
+                assertTrue(row[2] is String)   // title
+                assertTrue(row[3] is String)   // body
+                assertTrue((row[3] as String).isNotEmpty())
+            }
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 2: Invalid link — response is successful, but the body contains an error.
+    @Test
+    fun getContentHistory_case2() = runTest {
+        val (author, permlink) = TestData.invalidContentLink
+        val response = SteemWorldClient.apiService.getContentHistory(author, permlink)
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertNotEquals(0, body.code ?: 0)
+            assertNotNull(body.error)
+            assertNull(body.result)
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 3: An existing author with a permlink that does not exist is reported exactly
+    // like an author that does not exist, so the two cannot be told apart from the response.
+    @Test
+    fun getContentHistory_case3() = runTest {
+        val (author, permlink) = TestData.invalidPermlinkContentLink
+        val response = SteemWorldClient.apiService.getContentHistory(author, permlink)
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertNotEquals(0, body.code ?: 0)
+            assertNotNull(body.error)
+            assertNull(body.result)
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
+    // Test case 4: content_history_api orders the rows by time in ascending order and has no
+    // parameter to change it, which is what the repository's reversal relies on.
+    @Test
+    fun getContentHistory_case4() = runTest {
+        val (author, permlink) = TestData.multipleRevisionsContentLink
+        val revisions = SteemWorldClient.apiService.getContentHistory(author, permlink)
+            .body()?.result?.toContentHistoryList() ?: listOf()
+
+        assertTrue(revisions.size > 1)
+        for (i in 1 until revisions.size) {
+            assertTrue(revisions[i - 1].time <= revisions[i].time)
+        }
+    }
+
+    // Test case 5: An edit carries only the fields it changed, so a revision can come back with
+    // an empty title while the post still has one. The empty ones are filled in from the latest
+    // earlier revision that did carry a title, which makes every mapped revision a whole post.
+    @Test
+    fun getContentHistory_case5() = runTest {
+        val (author, permlink) = TestData.multipleRevisionsContentLink
+        val result = SteemWorldClient.apiService.getContentHistory(author, permlink).body()?.result
+        val rows = result?.rows ?: listOf()
+        val revisions = result?.toContentHistoryList() ?: listOf()
+
+        // The post this reads is there for the empty titles; without one the test proves nothing.
+        assertTrue(rows.any { row -> (row[2] as? String).isNullOrEmpty() })
+        for (revision in revisions) {
+            assertTrue(revision.title.isNotEmpty())
+        }
+    }
+
+    // Test case 6: A post that has never been edited has exactly one revision, and that
+    // revision is the post as it was published.
+    @Test
+    fun getContentHistory_case6() = runTest {
+        val (author, permlink) = TestData.singleRevisionContentLink
+        val response = SteemWorldClient.apiService.getContentHistory(author, permlink)
+        assertTrue(response.isSuccessful)
+        response.body()?.let { body ->
+            assertEquals(0, body.code ?: -1)
+            assertEquals(1, body.result?.rows?.size ?: 0)
+            return@runTest
+        }
+
+        fail("The body of response is empty!")
+    }
+
 }

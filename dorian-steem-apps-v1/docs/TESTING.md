@@ -308,6 +308,7 @@ APK에 컴파일되어 들어간다. `testImplementation`이어야 한다.
 
 ## 다루지 않는 영역
 
-- `SteemWorldRepositoryImplTest`가 없다 — Repository는 UseCase 테스트를 통해서만 검증된다
+- `SteemWorldRepositoryImplTest`는 `readContentHistory`만 다룬다. 위임·송금·보상 조회는
+  여전히 UseCase 테스트를 통해서만 검증된다
 - Compose UI 테스트가 없다. `dorian-steem-ui/src/androidTest/`에는 생성된 템플릿만 있다
 - CI가 없다. `.github/` 워크플로가 없어 자동으로 실행되는 것이 없다

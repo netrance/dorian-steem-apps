@@ -1,6 +1,7 @@
 package lee.dorian.steem_domain.repository
 
 import lee.dorian.steem_domain.model.ApiResult
+import lee.dorian.steem_domain.model.ContentHistory
 import lee.dorian.steem_domain.model.ExpiringVestingDelegation
 import lee.dorian.steem_domain.model.Reward
 import lee.dorian.steem_domain.model.Transfer
@@ -47,5 +48,12 @@ interface SteemWorldRepository {
         fromTime: Long,
         toTime: Long
     ): ApiResult<List<Reward>>
+
+    // Reads every revision of the given post, latest first, so the last item is the post as it
+    // was published. A post that has never been edited has exactly one revision.
+    suspend fun readContentHistory(
+        author: String,
+        permlink: String
+    ): ApiResult<List<ContentHistory>>
 
 }

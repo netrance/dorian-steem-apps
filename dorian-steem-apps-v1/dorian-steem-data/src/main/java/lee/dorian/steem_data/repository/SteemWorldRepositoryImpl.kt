@@ -5,12 +5,14 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesDTO
 import lee.dorian.steem_data.model.GetDynamicGlobalPropertiesParamsDTO
+import lee.dorian.steem_data.model.content_history.GetContentHistoryResponseDTO
 import lee.dorian.steem_data.model.reward.RewardsResultDTO
 import lee.dorian.steem_data.model.transfer.GetTransfersResponseDTO
 import lee.dorian.steem_data.retrofit.SteemClient
 import lee.dorian.steem_data.retrofit.SteemWorldClient
 import lee.dorian.steem_data.retrofit.SteemWorldService
 import lee.dorian.steem_domain.model.ApiResult
+import lee.dorian.steem_domain.model.ContentHistory
 import lee.dorian.steem_domain.model.ExpiringVestingDelegation
 import lee.dorian.steem_domain.model.Reward
 import lee.dorian.steem_domain.model.Transfer
@@ -164,6 +166,19 @@ class SteemWorldRepositoryImpl @Inject constructor(
         result.toCurationRewards(dgp)
     }
 
+    override suspend fun readContentHistory(
+        author: String,
+        permlink: String
+    ): ApiResult<List<ContentHistory>> = withContext(dispatcher) {
+        try {
+            val response = SteemWorldClient.apiService.getContentHistory(author, permlink)
+            response.toContentHistoryApiResult()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ApiResult.Error(e)
+        }
+    }
+
     // rewards_api orders the rows by time in ascending order, has no parameter to change it,
     // and cuts the rows that exceed the limit off the newest end of the time range. The newest
     // rewards can therefore only be reported first once the whole time range has been read,
@@ -251,6 +266,26 @@ class SteemWorldRepositoryImpl @Inject constructor(
         }
 
         return ApiResult.Success(body.result?.toTransfers() ?: listOf())
+    }
+
+    // content_history_api returns the whole history of a post in one call, oldest first, and has
+    // no parameter to order it the other way. The list is reversed here rather than by the screen
+    // so that every SteemWorldRepository read reports the newest item first.
+    //
+    // SDS reports a post it cannot find the same way it reports a non-existent account: with
+    // HTTP 200 and a non-zero code, so the body has to be checked even when the response is
+    // successful.
+    private fun Response<GetContentHistoryResponseDTO>.toContentHistoryApiResult(): ApiResult<List<ContentHistory>> {
+        if (!isSuccessful) {
+            return ApiResult.Failure(errorBody()?.string() ?: "")
+        }
+
+        val body = body() ?: return ApiResult.Failure("The body of response is empty")
+        if (body.code != SDS_SUCCESS_CODE) {
+            return ApiResult.Failure(body.error ?: "")
+        }
+
+        return ApiResult.Success(body.result?.toContentHistories()?.reversed() ?: listOf())
     }
 
     companion object {

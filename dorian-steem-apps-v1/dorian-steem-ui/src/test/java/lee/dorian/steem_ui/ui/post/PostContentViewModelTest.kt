@@ -4,8 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import lee.dorian.steem_data.repository.SteemRepositoryImpl
+import lee.dorian.steem_data.repository.SteemWorldRepositoryImpl
+import lee.dorian.steem_domain.model.ContentHistory
+import lee.dorian.steem_domain.usecase.ReadContentHistoryUseCase
 import lee.dorian.steem_domain.usecase.ReadPostAndRepliesUseCase
 import lee.dorian.steem_test.CommonPartOfViewModelTest
+import lee.dorian.steem_ui.model.State
 import lee.dorian.steem_ui.ui.post.content.PostContentState
 import lee.dorian.steem_ui.ui.post.content.PostContentViewModel
 import org.junit.Assert.*
@@ -29,7 +33,8 @@ class PostContentViewModelTest : CommonPartOfViewModelTest() {
 
     private val postContentViewModel = PostContentViewModel(
         savedStateHandle,
-        ReadPostAndRepliesUseCase(SteemRepositoryImpl(dispatcher), dispatcher)
+        ReadPostAndRepliesUseCase(SteemRepositoryImpl(dispatcher), dispatcher),
+        ReadContentHistoryUseCase(SteemWorldRepositoryImpl(dispatcher), dispatcher)
     )
 
     // Every test body has to end in a Unit expression. `fun x() = runBlocking { ... }` takes its
@@ -48,6 +53,28 @@ class PostContentViewModelTest : CommonPartOfViewModelTest() {
         val replies = state.replies
         assertEquals(savedStateHandle["author"], post.account)
         assertTrue(replies.size > 0)
+    }
+
+    // The revisions are read on their own, so this starts from Empty rather than from whatever
+    // readPostAndReplies left behind, and a post that was never edited still has one revision.
+    @Test
+    fun readContentHistory() = runBlocking {
+        assertTrue(postContentViewModel.flowContentHistoryState.value is State.Empty)
+
+        postContentViewModel.readContentHistory()
+        delay(WAITING_TIME_MSEC)
+
+        val state = postContentViewModel.flowContentHistoryState.value
+        assertTrue(state is State.Success<List<ContentHistory>>)
+
+        val revisions = (state as State.Success<List<ContentHistory>>).data
+        assertTrue(revisions.isNotEmpty())
+        for (revision in revisions) {
+            // The time is formatted as "yyyy-MM-dd HH:mm".
+            assertEquals(16, revision.time.length)
+            assertTrue(revision.title.isNotEmpty())
+            assertTrue(revision.body.isNotEmpty())
+        }
     }
 
 }

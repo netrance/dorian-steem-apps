@@ -1,5 +1,6 @@
 package lee.dorian.steem_data.retrofit
 
+import lee.dorian.steem_data.model.content_history.GetContentHistoryResponseDTO
 import lee.dorian.steem_data.model.delegation.GetExpiringDelegationsResponseDTO
 import lee.dorian.steem_data.model.delegation.GetIncomingDelegationsResponseDTO
 import lee.dorian.steem_data.model.delegation.GetOutgoingDelegationsResponseDTO
@@ -60,6 +61,17 @@ interface SteemWorldService {
         @Path("offset") offset: Int = DEFAULT_OFFSET,
         @Path("limit") limit: Int = DEFAULT_REWARDS_LIMIT
     ): Response<GetRewardsResponseDTO>
+
+    // Returns every revision of the given post, oldest first, the first row being the post as
+    // it was published. content_history_api takes no limit, offset, orderBy or orderDir, so
+    // the whole history comes back in one call and a newest-first list has to be reversed by
+    // the caller. A post that does not exist is reported as a non-zero code, and a missing
+    // author cannot be told apart from a missing permlink.
+    @GET("content_history_api/getContentHistory/{author}/{permlink}")
+    suspend fun getContentHistory(
+        @Path("author") author: String,
+        @Path("permlink") permlink: String
+    ): Response<GetContentHistoryResponseDTO>
 
     companion object {
         const val DEFAULT_OFFSET = 0
